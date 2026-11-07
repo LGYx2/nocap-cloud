@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Nocap Cloud: offline</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #ffffff;
+        --fg: #0a0a0a;
+        --muted: #737373;
+        --border: #e5e5e5;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0a0a0a;
+          --fg: #fafafa;
+          --muted: #a3a3a3;
+          --border: #262626;
+        }
+      }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        box-sizing: border-box;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        text-align: center;
+      }
+      main {
+        max-width: 22rem;
+      }
+      svg {
+        width: 64px;
+        height: auto;
+      }
+      h1 {
+        margin: 20px 0 8px;
+        font-size: 1.25rem;
+      }
+      p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      button {
+        margin-top: 24px;
+        height: 44px;
+        padding: 0 20px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--fg);
+        color: var(--bg);
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <svg viewBox="56 60 280 184" aria-hidden="true">
+        <path
+          fill="currentColor"
+          d="M74 214 C62 210 62 196 63 180 C64 120 96 82 150 72 C210 64 254 92 266 172 L318 200 C332 208 330 224 312 224 C292 224 276 212 262 204 C232 216 204 236 172 237 C152 237 136 226 124 212 C108 216 90 216 74 214 Z"
+        />
+      </svg>
+      <h1>Can't reach your server</h1>
+      <p>
+        Check your connection, or that the server is running. The panel opens again as soon as it
+        can reach it.
+      </p>
+      <button type="button" onclick="location.reload()">Try again</button>
+    </main>
+  </body>
+</html>

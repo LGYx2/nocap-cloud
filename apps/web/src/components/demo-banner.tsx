@@ -16,7 +16,7 @@ export function DemoBanner() {
   return (
     <div
       role="note"
-      className="fixed bottom-4 left-1/2 z-50 flex w-max max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-1 rounded-full border bg-background py-1 pr-1 pl-3.5 text-xs shadow-lg"
+      className="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom))] left-1/2 md:bottom-4 z-50 flex w-max max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-1 rounded-full border bg-background py-1 pr-1 pl-3.5 text-xs shadow-lg"
     >
       <span className="size-1.5 shrink-0 rounded-full bg-foreground" aria-hidden="true" />
       <span className="ml-1 truncate">

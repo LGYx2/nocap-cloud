@@ -286,3 +286,9 @@ export const SpinnerIcon = ({ className = "size-4", ...p }: IconProps) => (
     <path d="M21 12a9 9 0 1 1-6.22-8.56" />
   </Icon>
 );
+
+export const ArrowLeftIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="m12 19-7-7 7-7M19 12H5" />
+  </Icon>
+);

@@ -19,3 +19,13 @@ createRoot(root).render(
     <RouterProvider router={router} />
   </StrictMode>,
 );
+
+// Installable app: register the small service worker in production builds only, so the dev server
+// never serves cached files. It checks for a new version on every load.
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" }).catch(() => {
+      // Not fatal: the panel works the same without it, just not offline.
+    });
+  });
+}

@@ -5,7 +5,7 @@ import { api, ApiRequestError } from "../api";
 import { AlertIcon, CheckIcon } from "../components/icons";
 import { Alert, Button, cn, Field } from "../components/ui";
 import { meQuery, queryClient, settingsQuery } from "../queries";
-import { PageHeader } from "./AppShell";
+import { PageHeader, ThemeSwitch } from "./AppShell";
 
 function Row({ label, value, good }: { label: string; value: string; good?: boolean }) {
   return (
@@ -106,6 +106,16 @@ export function SettingsPage() {
             </Button>
           </div>
         </form>
+
+        <section className="mt-6 flex items-center justify-between gap-4 rounded-2xl border bg-card p-5 shadow-xs">
+          <div>
+            <h2 className="text-sm font-semibold">Appearance</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Light, dark, or follow this device.
+            </p>
+          </div>
+          <ThemeSwitch />
+        </section>
 
         <section className="mt-6 rounded-2xl border bg-card p-5 shadow-xs">
           <h2 className="text-sm font-semibold">This install</h2>
