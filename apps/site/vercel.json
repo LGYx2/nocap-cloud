@@ -1,10 +1,11 @@
 {
   "cleanUrls": true,
-  "rewrites": [
+  "redirects": [
     {
       "source": "/",
       "has": [{ "type": "host", "value": "get.nocapcloud.click" }],
-      "destination": "/install-soon.sh"
+      "destination": "https://nocapcloud.click/install-soon.sh",
+      "permanent": false
     }
   ],
   "headers": [
