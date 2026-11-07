@@ -31,6 +31,8 @@ ENV NODE_ENV=production \
     DATA_DIR=/app/data \
     NOCAP_VERSION=${NOCAP_VERSION}
 # git clones apps; the Docker CLI (with BuildKit) builds and runs them through the mounted socket.
+# Versions follow the pinned node:22-alpine base; pinning apk versions breaks on every Alpine update.
+# hadolint ignore=DL3018
 RUN apk add --no-cache git docker-cli docker-cli-buildx \
  && mkdir -p /app/data && chown 1000:1000 /app/data
 WORKDIR /app
