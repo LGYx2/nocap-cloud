@@ -1,5 +1,8 @@
 <p align="center">
-  <img src=".github/assets/logo.svg" alt="Nocap Cloud logo: a blue cap with an up arrow" width="220">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/logo-dark.svg">
+    <img src=".github/assets/logo.svg" alt="Nocap Cloud logo: a cap with an up arrow" width="200">
+  </picture>
 </p>
 
 <h1 align="center">nocapcloud</h1>
@@ -9,8 +12,8 @@ A free, open-source and lightweight deployment panel for your own server.<br>
 <a href="https://nocapcloud.click">Website</a> · <a href="https://demo.nocapcloud.click">Live demo</a> · <a href="#roadmap">Roadmap</a> · <a href="CONTRIBUTING.md">Contribute</a></p>
 
 <p align="center">
-  <a href="LICENSE"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache%202.0-4B3BFF"></a>
-  <img alt="Status: early" src="https://img.shields.io/badge/status-early-A99BFF">
+  <a href="LICENSE"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache%202.0-171717"></a>
+  <img alt="Status: early" src="https://img.shields.io/badge/status-early-737373">
 </p>
 
 > **Early project.** Nocap Cloud is in active development and not ready for production yet.
