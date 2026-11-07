@@ -24,7 +24,7 @@ import {
 import { StatusBadge } from "../components/status";
 import { DeploymentLogView, Terminal } from "../components/terminal";
 import { Alert, Button, cn } from "../components/ui";
-import { deploymentDuration, timeAgo } from "../lib/format";
+import { timeAgo } from "../lib/format";
 import {
   appLogsQuery,
   applicationDeploymentsQuery,
@@ -33,6 +33,7 @@ import {
 } from "../queries";
 import { PageHeader } from "./AppShell";
 import { DomainsTab, EnvironmentTab, SettingsTab } from "./ApplicationTabs";
+import { DeploymentRow } from "./DashboardPage";
 
 export const APP_TABS = ["deployments", "logs", "domains", "environment", "settings"] as const;
 export type AppTab = (typeof APP_TABS)[number];
@@ -111,7 +112,7 @@ export function ApplicationPage() {
                   href={url}
                   target="_blank"
                   rel="noreferrer"
-                  className="hidden h-9 items-center gap-2 rounded-md border bg-background px-3 text-sm font-medium shadow-xs hover:bg-accent sm:inline-flex"
+                  className="hidden h-9 items-center gap-2 rounded-lg border bg-background px-3 text-sm font-medium shadow-xs hover:bg-accent sm:inline-flex"
                 >
                   <ExternalLinkIcon />
                   Open
@@ -259,7 +260,7 @@ export function ApplicationPage() {
             <div
               role="tablist"
               aria-label="Application sections"
-              className="mt-8 flex gap-1 overflow-x-auto border-b"
+              className="mt-8 flex w-fit max-w-full gap-1 overflow-x-auto rounded-2xl border bg-muted/50 p-1"
             >
               {APP_TABS.map((name) => {
                 const meta = TAB_META[name];
@@ -272,10 +273,10 @@ export function ApplicationPage() {
                     aria-selected={active}
                     onClick={() => setTab(name)}
                     className={cn(
-                      "-mb-px inline-flex h-10 shrink-0 items-center gap-2 border-b-2 px-3 text-sm font-medium transition-colors",
+                      "inline-flex h-9 shrink-0 items-center gap-2 rounded-xl px-3.5 text-sm font-medium transition-all",
                       active
-                        ? "border-foreground text-foreground"
-                        : "border-transparent text-muted-foreground hover:text-foreground",
+                        ? "bg-card text-foreground shadow-sm ring-1 ring-border"
+                        : "text-muted-foreground hover:bg-background/60 hover:text-foreground",
                     )}
                   >
                     <meta.icon className="size-3.5" />
@@ -287,11 +288,7 @@ export function ApplicationPage() {
 
             <div className="mt-6" role="tabpanel">
               {tab === "deployments" ? (
-                <DeploymentsTab
-                  app={app}
-                  onOpen={openDeployment}
-                  onDeploy={() => deploy.mutate()}
-                />
+                <DeploymentsTab app={app} onDeploy={() => deploy.mutate()} />
               ) : tab === "logs" ? (
                 <LogsTab app={app} />
               ) : tab === "domains" ? (
@@ -323,15 +320,7 @@ export function ApplicationPage() {
   );
 }
 
-function DeploymentsTab({
-  app,
-  onOpen,
-  onDeploy,
-}: {
-  app: Application;
-  onOpen: (id: string) => void;
-  onDeploy: () => void;
-}) {
+function DeploymentsTab({ app, onDeploy }: { app: Application; onDeploy: () => void }) {
   const live = busy(app.status);
   const { data: deployments = [], isPending } = useQuery(applicationDeploymentsQuery(app.id, live));
   const active = deployments.find((d) => busy(d.status));
@@ -375,51 +364,10 @@ function DeploymentsTab({
         </section>
       ) : null}
 
-      <section className="overflow-hidden rounded-2xl border bg-card shadow-xs">
-        <table className="w-full text-sm">
-          <thead className="border-b bg-muted/40 text-left text-xs text-muted-foreground">
-            <tr>
-              <th className="px-4 py-2.5 font-medium">Status</th>
-              <th className="px-4 py-2.5 font-medium">Change</th>
-              <th className="hidden px-4 py-2.5 font-medium md:table-cell">Duration</th>
-              <th className="px-4 py-2.5 text-right font-medium">When</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {deployments.map((d) => (
-              <tr
-                key={d.id}
-                onClick={() => onOpen(d.id)}
-                className="cursor-pointer transition-colors hover:bg-accent/60"
-              >
-                <td className="px-4 py-3">
-                  <StatusBadge status={d.status} />
-                </td>
-                <td className="max-w-0 px-4 py-3">
-                  <button
-                    type="button"
-                    className="block w-full truncate text-left font-medium"
-                    onClick={() => onOpen(d.id)}
-                  >
-                    {d.commitMessage ?? (d.imageTag ? d.imageTag : "Deployment")}
-                  </button>
-                  <span className="block truncate text-xs text-muted-foreground">
-                    {d.commitSha ? (
-                      <span className="font-mono">{d.commitSha.slice(0, 7)} · </span>
-                    ) : null}
-                    {d.error ?? (d.trigger === "redeploy" ? "Redeploy" : "Manual deploy")}
-                  </span>
-                </td>
-                <td className="hidden px-4 py-3 text-muted-foreground tabular-nums md:table-cell">
-                  {deploymentDuration(d.startedAt, d.finishedAt) ?? "Waiting"}
-                </td>
-                <td className="px-4 py-3 text-right text-xs whitespace-nowrap text-muted-foreground">
-                  {timeAgo(d.createdAt)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <section className="space-y-2">
+        {deployments.map((d) => (
+          <DeploymentRow key={d.id} deployment={d} showApp={false} card />
+        ))}
       </section>
       <p className="text-xs text-muted-foreground">
         Click a deployment to see its full build log. Older deployments are kept for reference.{" "}

@@ -41,7 +41,7 @@ export function Dialog({
         // A click on the backdrop lands on the dialog element itself.
         if (event.target === event.currentTarget) onClose();
       }}
-      className={`m-auto w-[calc(100%-2rem)] ${size === "xl" ? "max-w-4xl" : size === "lg" ? "max-w-xl" : "max-w-md"} max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-xl border bg-background p-0 text-foreground shadow-lg`}
+      className={`m-auto w-[calc(100%-2rem)] ${size === "xl" ? "max-w-4xl" : size === "lg" ? "max-w-xl" : "max-w-md"} max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border bg-background p-0 text-foreground shadow-lg`}
     >
       <div className="relative p-6">
         <h2 id={titleId} className="pr-8 text-lg leading-none font-semibold tracking-tight">

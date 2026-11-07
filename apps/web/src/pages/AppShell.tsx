@@ -49,7 +49,7 @@ const themes: Array<{ value: Theme; label: string; icon: IconType }> = [
 function ThemeSwitch() {
   const [theme, setTheme] = useTheme();
   return (
-    <div role="radiogroup" aria-label="Theme" className="inline-flex rounded-md border p-0.5">
+    <div role="radiogroup" aria-label="Theme" className="inline-flex rounded-lg border p-0.5">
       {themes.map(({ value, label, icon: Icon }) => (
         <button
           key={value}
@@ -95,16 +95,17 @@ export function AppShell() {
       disabled={logout.isPending}
       aria-label="Sign out"
       title="Sign out"
-      className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
+      className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
     >
       <LogOutIcon />
     </button>
   );
 
   return (
-    <div className="flex min-h-full flex-col md:flex-row">
-      <aside className="flex shrink-0 flex-col border-b bg-muted/40 md:sticky md:top-0 md:h-dvh md:w-60 md:border-r md:border-b-0">
-        <div className="flex items-center justify-between px-4 py-3 md:py-4">
+    // The sidebar sits on the shell color; each page floats on a rounded panel next to it.
+    <div className="flex min-h-full flex-col bg-shell md:h-dvh md:flex-row md:gap-2 md:overflow-hidden md:p-2">
+      <aside className="flex shrink-0 flex-col border-b bg-sidebar md:h-full md:w-64 md:overflow-y-auto md:rounded-2xl md:border md:shadow-sm">
+        <div className="flex items-center justify-between px-5 py-3 md:py-5">
           <Logo />
           <div className="md:hidden">{signOut}</div>
         </div>
@@ -118,40 +119,42 @@ export function AppShell() {
               key={to}
               to={to}
               activeOptions={{ exact }}
-              className="flex h-8 shrink-0 items-center gap-2 rounded-md px-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-              activeProps={{ className: "bg-accent font-medium !text-foreground" }}
+              className="flex h-8 shrink-0 items-center gap-2.5 rounded-md px-2.5 text-sm text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
+              activeProps={{
+                className: "bg-accent font-medium !text-foreground",
+              }}
             >
               <Icon />
               {label}
             </Link>
           ))}
-          <span className="mt-3 mb-1 hidden px-2 text-[11px] font-medium tracking-wide text-muted-foreground/70 uppercase md:block">
+          <span className="mt-5 mb-1 hidden px-2.5 text-[11px] font-medium tracking-wide text-muted-foreground/70 uppercase md:block">
             Coming next
           </span>
           {soon.map(({ label, icon: Icon }) => (
             <span
               key={label}
               aria-disabled="true"
-              className="flex h-8 shrink-0 items-center gap-2 rounded-md px-2 text-sm text-muted-foreground/70"
+              className="flex h-8 shrink-0 items-center gap-2.5 rounded-md px-2.5 text-sm text-muted-foreground/60"
             >
               <Icon />
               {label}
-              <span className="ml-auto rounded border px-1.5 py-0.5 text-[10px] leading-none font-medium tracking-wide uppercase">
+              <span className="ml-auto rounded-full border px-2 py-0.5 text-[10px] leading-none font-medium tracking-wide uppercase">
                 soon
               </span>
             </span>
           ))}
         </nav>
 
-        <div className="mt-auto hidden flex-col gap-3 border-t p-3 md:flex">
+        <div className="mt-auto hidden flex-col gap-3 p-3 md:flex">
           <div className="flex items-center justify-between px-1">
             <ThemeSwitch />
             <span className="font-mono text-[11px] text-muted-foreground">
               {health?.version ?? ""}
             </span>
           </div>
-          <div className="flex items-center gap-2.5 rounded-md p-1">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+          <div className="flex items-center gap-2.5 rounded-2xl border bg-background p-2 shadow-sm">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-xs font-semibold text-primary-foreground">
               {user ? initials(user.name) : ""}
             </span>
             <span className="min-w-0 flex-1 leading-tight">
@@ -163,7 +166,7 @@ export function AppShell() {
         </div>
       </aside>
 
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 bg-background md:h-full md:overflow-y-auto md:rounded-2xl md:border md:shadow-sm">
         <Outlet />
       </div>
     </div>
@@ -179,7 +182,7 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="flex min-h-14 flex-wrap items-center justify-between gap-3 border-b px-4 py-2.5 md:px-8">
+    <header className="sticky top-0 z-20 flex min-h-14 flex-wrap items-center justify-between gap-3 border-b bg-background/80 px-4 py-2.5 backdrop-blur md:px-8">
       <nav aria-label="Breadcrumb" className="min-w-0">
         <ol className="flex items-center gap-1.5 text-sm">
           {crumbs.map((crumb, index) => {

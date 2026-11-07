@@ -44,7 +44,7 @@ export function DeploymentsPage() {
               id="project-filter"
               value={project ?? ""}
               onChange={(e) => void navigate({ search: { project: e.target.value || undefined } })}
-              className="h-9 rounded-lg border border-input bg-field px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              className="h-9 rounded-xl border border-input bg-card px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
             >
               <option value="">All projects</option>
               {projects.map((p) => (
@@ -56,7 +56,7 @@ export function DeploymentsPage() {
             <div
               role="group"
               aria-label="Filter"
-              className="inline-flex rounded-lg border p-1 text-sm"
+              className="inline-flex rounded-xl border bg-card p-1 text-sm"
             >
               {FILTERS.map((f, index) => {
                 const count = data.filter((d) => f.match(d.status)).length;
@@ -67,7 +67,7 @@ export function DeploymentsPage() {
                     aria-pressed={filter === index}
                     onClick={() => setFilter(index)}
                     className={cn(
-                      "rounded-md px-3 py-1 transition-colors",
+                      "rounded-lg px-3 py-1 transition-colors",
                       filter === index
                         ? "bg-primary text-primary-foreground"
                         : "text-muted-foreground hover:text-foreground",
@@ -88,11 +88,15 @@ export function DeploymentsPage() {
           </div>
         ) : null}
 
-        <section className="mt-6 overflow-hidden rounded-2xl border bg-card shadow-xs">
+        <section className="mt-6">
           {isPending ? (
-            <div className="h-40 animate-pulse bg-muted/50" />
+            <div className="space-y-2">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="h-16 animate-pulse rounded-2xl border bg-muted/50" />
+              ))}
+            </div>
           ) : visible.length === 0 ? (
-            <div className="flex flex-col items-center px-6 py-14 text-center">
+            <div className="flex flex-col items-center rounded-2xl border border-dashed px-6 py-14 text-center">
               <RocketIcon className="size-6 text-muted-foreground" />
               <p className="mt-3 text-sm font-medium">Nothing here yet</p>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -104,9 +108,9 @@ export function DeploymentsPage() {
               </p>
             </div>
           ) : (
-            <div className="divide-y">
+            <div className="space-y-2">
               {visible.map((deployment) => (
-                <DeploymentRow key={deployment.id} deployment={deployment} />
+                <DeploymentRow key={deployment.id} deployment={deployment} card />
               ))}
             </div>
           )}

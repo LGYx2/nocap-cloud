@@ -20,6 +20,8 @@
   --ring: oklch(0.708 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --field: transparent;
+  --shell: oklch(0.955 0 0);
+  --sidebar: oklch(0.985 0 0);
   color-scheme: light;
 }
 
@@ -38,6 +40,8 @@
     --ring: oklch(0.556 0 0);
     --destructive: oklch(0.704 0.191 22.216);
     --field: oklch(1 0 0 / 4.5%);
+    --shell: oklch(0.1 0 0);
+    --sidebar: oklch(0.165 0 0);
     color-scheme: dark;
   }
 }
@@ -56,6 +60,8 @@
   --ring: oklch(0.556 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --field: oklch(1 0 0 / 4.5%);
+  --shell: oklch(0.1 0 0);
+  --sidebar: oklch(0.165 0 0);
   color-scheme: dark;
 }
 
@@ -83,6 +89,8 @@
   --color-ring: var(--ring);
   --color-destructive: var(--destructive);
   --color-field: var(--field);
+  --color-shell: var(--shell);
+  --color-sidebar: var(--sidebar);
   /* Status colors: the only color in the panel, so a glance shows what needs attention. */
   --color-live: oklch(0.62 0.17 250);
   --color-busy: oklch(0.6 0.2 295);
@@ -137,8 +145,17 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-* {
-  border-color: var(--border);
+/* In the base layer, so utilities like border-transparent can still override it. */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  /* Native dropdown lists ignore the page colors on Windows; give options the theme's colors. */
+  select option {
+    background-color: var(--card);
+    color: var(--foreground);
+  }
 }
 
 :focus-visible {

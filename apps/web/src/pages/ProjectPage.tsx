@@ -121,7 +121,7 @@ export function ProjectPage() {
                   <Link
                     to="/deployments"
                     search={{ project: project.id }}
-                    className="inline-flex h-9 items-center gap-2 rounded-md border bg-background px-3 text-sm font-medium shadow-xs hover:bg-accent"
+                    className="inline-flex h-9 items-center gap-2 rounded-lg border bg-background px-3 text-sm font-medium shadow-xs hover:bg-accent"
                   >
                     Deployments
                   </Link>

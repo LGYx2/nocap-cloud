@@ -122,11 +122,11 @@ export function DomainsTab({ app }: { app: Application }) {
           ) : null}
         </Panel>
 
-        <section className="overflow-hidden rounded-2xl border bg-card shadow-xs">
+        <section>
           {isPending ? (
-            <div className="h-20 animate-pulse bg-muted/50" />
+            <div className="h-20 animate-pulse rounded-2xl bg-muted/50" />
           ) : domains.length === 0 ? (
-            <div className="flex flex-col items-center px-6 py-10 text-center">
+            <div className="flex flex-col items-center rounded-2xl border border-dashed px-6 py-10 text-center">
               <GlobeIcon className="size-6 text-muted-foreground" />
               <p className="mt-3 text-sm font-medium">No domains yet</p>
               <p className="mt-1 max-w-sm text-sm text-muted-foreground">
@@ -134,10 +134,13 @@ export function DomainsTab({ app }: { app: Application }) {
               </p>
             </div>
           ) : (
-            <ul className="divide-y">
+            <ul className="space-y-2">
               {domains.map((domain) => (
-                <li key={domain.id} className="flex items-center gap-3 px-5 py-3.5">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-lg border bg-muted">
+                <li
+                  key={domain.id}
+                  className="flex items-center gap-3 rounded-2xl border bg-card px-4 py-3 shadow-xs"
+                >
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-live/10 text-live">
                     <LockIcon className="size-3.5" />
                   </span>
                   <div className="min-w-0 flex-1">
@@ -330,7 +333,7 @@ export function EnvironmentTab({ app }: { app: Application }) {
                         key: e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, "_"),
                       })
                     }
-                    className="h-9 w-2/5 min-w-0 rounded-md border border-input bg-field px-3 font-mono text-xs shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                    className="h-9 w-2/5 min-w-0 rounded-lg border border-input bg-field px-3 font-mono text-xs shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                     spellCheck={false}
                   />
                   <input
@@ -339,7 +342,7 @@ export function EnvironmentTab({ app }: { app: Application }) {
                     type={reveal ? "text" : "password"}
                     placeholder="value"
                     onChange={(e) => update(row.id, { value: e.target.value })}
-                    className="h-9 min-w-0 flex-1 rounded-md border border-input bg-field px-3 font-mono text-xs shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                    className="h-9 min-w-0 flex-1 rounded-lg border border-input bg-field px-3 font-mono text-xs shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                     spellCheck={false}
                     autoComplete="off"
                   />
@@ -401,7 +404,7 @@ export function EnvironmentTab({ app }: { app: Application }) {
             onChange={(e) => setPaste(e.target.value)}
             rows={10}
             placeholder={"DATABASE_URL=postgres://...\nAPI_KEY=..."}
-            className="w-full rounded-md border border-input bg-field p-3 font-mono text-xs shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            className="w-full rounded-lg border border-input bg-field p-3 font-mono text-xs shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
             spellCheck={false}
             autoFocus
           />
@@ -619,7 +622,7 @@ function CopyField({ label, value }: { label: string; value: string }) {
     <div className="flex flex-col gap-2">
       <span className="text-sm leading-none font-medium">{label}</span>
       <div className="flex gap-2">
-        <code className="min-w-0 flex-1 truncate rounded-md border bg-muted/50 px-3 py-2 font-mono text-xs">
+        <code className="min-w-0 flex-1 truncate rounded-lg border bg-muted/50 px-3 py-2 font-mono text-xs">
           {value}
         </code>
         <Button

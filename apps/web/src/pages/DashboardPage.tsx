@@ -186,7 +186,7 @@ function ActivityChart({ activity }: { activity: Overview["activity"] }) {
                   <div className="w-full bg-destructive" style={{ height: `${failedShare}%` }} />
                 ) : null}
               </div>
-              <span className="pointer-events-none absolute -top-8 left-1/2 z-10 hidden -translate-x-1/2 rounded-md border bg-background px-2 py-1 text-[11px] whitespace-nowrap shadow-sm group-hover:block">
+              <span className="pointer-events-none absolute -top-8 left-1/2 z-10 hidden -translate-x-1/2 rounded-lg border bg-background px-2 py-1 text-[11px] whitespace-nowrap shadow-sm group-hover:block">
                 {label(d.date)}: {d.total}
                 {d.failed ? `, ${d.failed} failed` : ""}
               </span>
@@ -205,9 +205,12 @@ function ActivityChart({ activity }: { activity: Overview["activity"] }) {
 export function DeploymentRow({
   deployment,
   showApp = true,
+  card = false,
 }: {
   deployment: Deployment;
   showApp?: boolean;
+  /** Draw the row as its own rounded card, for full-page lists. */
+  card?: boolean;
 }) {
   const duration = deploymentDuration(deployment.startedAt, deployment.finishedAt);
   const icon =
@@ -225,7 +228,11 @@ export function DeploymentRow({
       to="/apps/$appId"
       params={{ appId: deployment.applicationId }}
       search={{ deployment: deployment.id }}
-      className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-accent/70"
+      className={cn(
+        "flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-accent/70",
+        card &&
+          "rounded-2xl border bg-card px-4 py-3 shadow-xs transition-all hover:-translate-y-px hover:border-foreground/20 hover:bg-card hover:shadow-md",
+      )}
     >
       <span
         className={cn(

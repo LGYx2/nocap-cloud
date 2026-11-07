@@ -20,7 +20,7 @@ const SOURCES: Array<{ value: AppSource; label: string; detail: string; icon: ty
   ];
 
 const selectClass =
-  "h-9 w-full rounded-md border border-input bg-field px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
+  "h-9 w-full rounded-lg border border-input bg-field px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
 
 /** Searchable list of the repositories a connected account can read. */
 function RepoPicker({
@@ -42,7 +42,7 @@ function RepoPicker({
   return (
     <div className="flex flex-col gap-2">
       <span className="text-sm leading-none font-medium">Repository</span>
-      <div className="overflow-hidden rounded-md border">
+      <div className="overflow-hidden rounded-lg border">
         <div className="flex items-center gap-2 border-b px-3">
           <SearchIcon className="size-3.5 text-muted-foreground" />
           <input

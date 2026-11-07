@@ -15,7 +15,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex h-9 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium whitespace-nowrap transition-colors disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex h-9 items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium whitespace-nowrap transition-colors disabled:pointer-events-none disabled:opacity-50",
         variant === "primary" && "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
         variant === "outline" && "border bg-background shadow-xs hover:bg-accent",
         variant === "ghost" && "hover:bg-accent",
@@ -48,7 +48,7 @@ export function Field({ label, hint, error, className, ...props }: FieldProps) {
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
         className={cn(
-          "h-9 w-full rounded-md border px-3 text-sm shadow-xs transition-[color,box-shadow] outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 bg-field",
+          "h-9 w-full rounded-lg border px-3 text-sm shadow-xs transition-[color,box-shadow] outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 bg-field",
           error ? "border-destructive ring-destructive/20" : "border-input",
         )}
         {...props}
@@ -70,7 +70,7 @@ export function Alert({ children }: { children: ReactNode }) {
   return (
     <div
       role="alert"
-      className="rounded-lg border border-destructive/30 px-4 py-3 text-sm text-destructive"
+      className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
     >
       {children}
     </div>
