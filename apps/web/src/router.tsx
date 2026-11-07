@@ -3,28 +3,44 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  lazyRouteComponent,
   Outlet,
   redirect,
 } from "@tanstack/react-router";
-import { DEMO } from "./api";
-import { DemoBanner } from "./components/demo-banner";
-import { APP_TABS, ApplicationPage, type AppTab } from "./pages/ApplicationPage";
+import { lazy, Suspense } from "react";
+import { APP_TABS, type AppTab } from "./pages/app-tabs";
 import { AppShell } from "./pages/AppShell";
-import { DashboardPage } from "./pages/DashboardPage";
-import { DeploymentsPage } from "./pages/DeploymentsPage";
-import { GitPage } from "./pages/GitPage";
-import { SettingsPage } from "./pages/SettingsPage";
-import { LoginPage } from "./pages/LoginPage";
-import { ProjectPage } from "./pages/ProjectPage";
-import { ProjectsPage } from "./pages/ProjectsPage";
-import { SetupPage } from "./pages/SetupPage";
 import { meQuery, queryClient, setupStatusQuery } from "./queries";
+
+// Each page is its own file, downloaded the first time it is opened. The first load only
+// fetches the shell and the page you land on.
+const page = {
+  dashboard: lazyRouteComponent(() => import("./pages/DashboardPage"), "DashboardPage"),
+  projects: lazyRouteComponent(() => import("./pages/ProjectsPage"), "ProjectsPage"),
+  project: lazyRouteComponent(() => import("./pages/ProjectPage"), "ProjectPage"),
+  application: lazyRouteComponent(() => import("./pages/ApplicationPage"), "ApplicationPage"),
+  deployments: lazyRouteComponent(() => import("./pages/DeploymentsPage"), "DeploymentsPage"),
+  git: lazyRouteComponent(() => import("./pages/GitPage"), "GitPage"),
+  settings: lazyRouteComponent(() => import("./pages/SettingsPage"), "SettingsPage"),
+  setup: lazyRouteComponent(() => import("./pages/SetupPage"), "SetupPage"),
+  login: lazyRouteComponent(() => import("./pages/LoginPage"), "LoginPage"),
+};
+
+// Only the demo build includes the banner; the normal build drops it with the demo code.
+const DemoBanner =
+  import.meta.env.VITE_DEMO === "true"
+    ? lazy(() => import("./components/demo-banner").then((m) => ({ default: m.DemoBanner })))
+    : null;
 
 const rootRoute = createRootRoute({
   component: () => (
     <QueryClientProvider client={queryClient}>
       <Outlet />
-      {DEMO ? <DemoBanner /> : null}
+      {DemoBanner ? (
+        <Suspense fallback={null}>
+          <DemoBanner />
+        </Suspense>
+      ) : null}
     </QueryClientProvider>
   ),
 });
@@ -54,19 +70,19 @@ const appRoute = createRoute({
 const dashboardRoute = createRoute({
   getParentRoute: () => appRoute,
   path: "/",
-  component: DashboardPage,
+  component: page.dashboard,
 });
 
 const projectsRoute = createRoute({
   getParentRoute: () => appRoute,
   path: "/projects",
-  component: ProjectsPage,
+  component: page.projects,
 });
 
 const projectRoute = createRoute({
   getParentRoute: () => appRoute,
   path: "/projects/$projectId",
-  component: ProjectPage,
+  component: page.project,
 });
 
 interface AppSearch {
@@ -81,7 +97,7 @@ const applicationRoute = createRoute({
     tab: APP_TABS.includes(search.tab as AppTab) ? (search.tab as AppTab) : undefined,
     deployment: typeof search.deployment === "string" ? search.deployment : undefined,
   }),
-  component: ApplicationPage,
+  component: page.application,
 });
 
 const deploymentsRoute = createRoute({
@@ -90,7 +106,7 @@ const deploymentsRoute = createRoute({
   validateSearch: (search: Record<string, unknown>): { project?: string } => ({
     project: typeof search.project === "string" ? search.project : undefined,
   }),
-  component: DeploymentsPage,
+  component: page.deployments,
 });
 
 const gitRoute = createRoute({
@@ -100,27 +116,27 @@ const gitRoute = createRoute({
     installed: search.installed ? String(search.installed) : undefined,
     error: typeof search.error === "string" ? search.error.slice(0, 200) : undefined,
   }),
-  component: GitPage,
+  component: page.git,
 });
 
 const settingsRoute = createRoute({
   getParentRoute: () => appRoute,
   path: "/settings",
-  component: SettingsPage,
+  component: page.settings,
 });
 
 const setupRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/setup",
   beforeLoad: () => guard("setup"),
-  component: SetupPage,
+  component: page.setup,
 });
 
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/login",
   beforeLoad: () => guard("login"),
-  component: LoginPage,
+  component: page.login,
 });
 
 export const router = createRouter({
@@ -137,7 +153,9 @@ export const router = createRouter({
     setupRoute,
     loginRoute,
   ]),
-  defaultPreload: false,
+  // Fetch a page's code when the pointer rests on its link, so opening it feels instant.
+  defaultPreload: "intent",
+  defaultPreloadStaleTime: 0,
 });
 
 declare module "@tanstack/react-router" {

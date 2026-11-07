@@ -18,7 +18,8 @@ export async function api<T>(
   path: string,
   options: { method?: string; body?: unknown } = {},
 ): Promise<T> {
-  if (DEMO) {
+  // Checked inline (not through DEMO) so the bundler drops the demo code from the normal build.
+  if (import.meta.env.VITE_DEMO === "true") {
     const { demoRequest } = await import("./demo");
     const { status, data } = await demoRequest(options.method ?? "GET", path, options.body);
     if (status >= 400) {

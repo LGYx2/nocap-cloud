@@ -6,7 +6,7 @@ import { RocketIcon } from "../components/icons";
 import { Alert, cn } from "../components/ui";
 import { deploymentsQuery, projectsQuery } from "../queries";
 import { PageHeader } from "./AppShell";
-import { DeploymentRow } from "./DashboardPage";
+import { DeploymentRow } from "../components/deployment-row";
 
 const FILTERS: Array<{ label: string; match: (s: DeploymentStatus) => boolean }> = [
   { label: "All", match: () => true },

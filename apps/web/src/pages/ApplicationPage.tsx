@@ -33,10 +33,9 @@ import {
 } from "../queries";
 import { PageHeader } from "./AppShell";
 import { DomainsTab, EnvironmentTab, SettingsTab } from "./ApplicationTabs";
-import { DeploymentRow } from "./DashboardPage";
+import { DeploymentRow } from "../components/deployment-row";
 
-export const APP_TABS = ["deployments", "logs", "domains", "environment", "settings"] as const;
-export type AppTab = (typeof APP_TABS)[number];
+import { APP_TABS, type AppTab } from "./app-tabs";
 
 const TAB_META: Record<AppTab, { label: string; icon: typeof RocketIcon }> = {
   deployments: { label: "Deployments", icon: RocketIcon },

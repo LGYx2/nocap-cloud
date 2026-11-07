@@ -63,7 +63,7 @@ const busy = (status: string | undefined) => status === "building" || status ===
 export const overviewQuery = queryOptions({
   queryKey: ["overview"],
   queryFn: () => api<Overview>("/api/overview"),
-  refetchInterval: 5000,
+  refetchInterval: 15_000,
 });
 
 export const allApplicationsQuery = queryOptions({
@@ -101,7 +101,7 @@ export const deploymentsQuery = queryOptions({
   queryKey: ["deployments"],
   queryFn: async () =>
     (await api<{ deployments: Deployment[] }>("/api/deployments?limit=50")).deployments,
-  refetchInterval: (query) => (query.state.data?.some((d) => busy(d.status)) ? 2000 : 15000),
+  refetchInterval: (query) => (query.state.data?.some((d) => busy(d.status)) ? 2000 : 30_000),
 });
 
 export const domainsQuery = (id: string) =>
@@ -121,7 +121,7 @@ export const appLogsQuery = (id: string, follow: boolean) =>
   queryOptions({
     queryKey: ["application", id, "logs"],
     queryFn: () => api<{ logs: string; running: boolean }>(`/api/applications/${id}/logs?tail=300`),
-    refetchInterval: follow ? 3000 : false,
+    refetchInterval: follow ? 5000 : false,
   });
 
 /** After anything changes an app, refresh every view that shows it. */

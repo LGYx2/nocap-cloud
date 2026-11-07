@@ -21,7 +21,7 @@ function tone(status: Status): "live" | "busy" | "bad" | "quiet" {
   return "quiet";
 }
 
-/** A colored dot; live and busy states pulse. */
+/** A colored dot. Only work in progress pulses, so a page full of running apps stays still. */
 export function StatusDot({ status, className }: { status: Status; className?: string }) {
   const t = tone(status);
   const color =
@@ -34,7 +34,7 @@ export function StatusDot({ status, className }: { status: Status; className?: s
           : "bg-muted-foreground/50";
   return (
     <span className={cn("relative inline-flex size-2 shrink-0", className)} aria-hidden="true">
-      {t === "live" || t === "busy" ? (
+      {t === "busy" ? (
         <span className={cn("status-pulse absolute inset-0 rounded-full", color)} />
       ) : null}
       <span className={cn("relative inline-flex size-2 rounded-full", color)} />
