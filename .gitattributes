@@ -1,0 +1,4 @@
+# Keep Unix line endings everywhere, so install.sh and the Docker build work from a Windows checkout.
+* text=auto eol=lf
+*.png binary
+*.woff2 binary

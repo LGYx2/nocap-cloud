@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+/* Nocap Cloud panel theme: dark. Every color pair here passes WCAG AA contrast (4.5:1 or more). */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-brand: "Fredoka", ui-sans-serif, system-ui, sans-serif;
+
+  /* Surfaces, from back to front */
+  --color-paper: #0b0c17;
+  --color-surface: #13152a;
+  --color-field: #0e1022;
+  --color-mist: #1c1f38;
+  --color-line: #262a47;
+
+  /* Text */
+  --color-ink: #ecedf7;
+  --color-ink-soft: #9da1c2;
+
+  /* Brand */
+  --color-indigo: #4b3bff;
+  --color-indigo-hover: #5a4dff;
+  --color-indigo-text: #a69dff;
+  --color-indigo-soft: #221f4d;
+  --color-lilac: #a99bff;
+  --color-sky: #5ec8ff;
+
+  /* Errors */
+  --color-danger: #ff7ab0;
+  --color-danger-soft: #3a1729;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  color-scheme: dark;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-indigo-text);
+  outline-offset: 2px;
+}

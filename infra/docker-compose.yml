@@ -1,0 +1,69 @@
+# Nocap Cloud stack: three containers.
+# install.sh writes this file and a .env next to it in /opt/nocapcloud.
+
+name: nocapcloud
+
+services:
+  nocap:
+    image: ghcr.io/lgyx2/nocap:${NOCAP_VERSION:?set NOCAP_VERSION in .env}
+    container_name: nocap
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://nocap:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/nocap
+      NOCAP_SECRET: ${NOCAP_SECRET:?set NOCAP_SECRET in .env}
+    ports:
+      # Direct access before a panel domain is set. Close it in the firewall once you use a domain.
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [nocapcloud]
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: nocap-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nocap
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: nocap
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nocap -d nocap"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [nocapcloud]
+
+  traefik:
+    image: traefik:v3.7
+    container_name: nocap-traefik
+    restart: unless-stopped
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=nocapcloud
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --log.level=WARN
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-certs:/letsencrypt
+    networks: [nocapcloud]
+
+networks:
+  nocapcloud:
+    name: nocapcloud
+
+volumes:
+  postgres-data:
+  traefik-certs:
