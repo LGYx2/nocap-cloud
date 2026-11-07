@@ -1,33 +1,88 @@
 @import "tailwindcss";
 
-/* Nocap Cloud panel theme: dark. Every color pair here passes WCAG AA contrast (4.5:1 or more). */
-@theme {
+/*
+ * Nocap Cloud panel theme: neutral black and white, in the style of shadcn/ui.
+ * Follows the system by default; public/theme.js sets data-theme when the user picks light or dark.
+ * Text pairs pass WCAG AA (4.5:1 or more).
+ */
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --field: transparent;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --field: oklch(1 0 0 / 4.5%);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --field: oklch(1 0 0 / 4.5%);
+  color-scheme: dark;
+}
+
+@keyframes nocap-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+}
+
+@theme inline {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-brand: "Fredoka", ui-sans-serif, system-ui, sans-serif;
 
-  /* Surfaces, from back to front */
-  --color-paper: #0b0c17;
-  --color-surface: #13152a;
-  --color-field: #0e1022;
-  --color-mist: #1c1f38;
-  --color-line: #262a47;
-
-  /* Text */
-  --color-ink: #ecedf7;
-  --color-ink-soft: #9da1c2;
-
-  /* Brand */
-  --color-indigo: #4b3bff;
-  --color-indigo-hover: #5a4dff;
-  --color-indigo-text: #a69dff;
-  --color-indigo-soft: #221f4d;
-  --color-lilac: #a99bff;
-  --color-sky: #5ec8ff;
-
-  /* Errors */
-  --color-danger: #ff7ab0;
-  --color-danger-soft: #3a1729;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-field: var(--field);
 }
 
 html,
@@ -38,14 +93,25 @@ body,
 
 body {
   margin: 0;
-  background: var(--color-paper);
-  color: var(--color-ink);
+  background: var(--background);
+  color: var(--foreground);
   font-family: var(--font-sans);
-  color-scheme: dark;
   -webkit-font-smoothing: antialiased;
 }
 
+* {
+  border-color: var(--border);
+}
+
 :focus-visible {
-  outline: 2px solid var(--color-indigo-text);
+  outline: 2px solid var(--ring);
   outline-offset: 2px;
+}
+
+dialog[open] {
+  animation: nocap-in 150ms ease-out;
+}
+
+dialog::backdrop {
+  background: oklch(0 0 0 / 50%);
 }

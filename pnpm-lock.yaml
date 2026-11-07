@@ -87,9 +87,6 @@ importers:
       '@fontsource/inter':
         specifier: ^5.1.0
         version: 5.3.0
-      '@fontsource/space-grotesk':
-        specifier: ^5.1.0
-        version: 5.3.0
       '@nocap/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -697,9 +694,6 @@ packages:
 
   '@fontsource/inter@5.3.0':
     resolution: {integrity: sha512-RofMylZmjlJEfELXeNHFWBRcSs75rGU/6bV2S2jfnvv/3rPXPGe0LgUJTklcHZ9lM4OZmAVFhcJPnACfb91A3g==}
-
-  '@fontsource/space-grotesk@5.3.0':
-    resolution: {integrity: sha512-ksnGizDPXIDuvqcTYTSrmZ+evx9sDlS8rp7+42BQ7wU+spt3twEoXfbJz672C+5CLg6VeUQwRy5RXshWb67LcQ==}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -2478,8 +2472,6 @@ snapshots:
   '@fontsource/fredoka@5.3.0': {}
 
   '@fontsource/inter@5.3.0': {}
-
-  '@fontsource/space-grotesk@5.3.0': {}
 
   '@humanfs/core@0.19.2':
     dependencies:

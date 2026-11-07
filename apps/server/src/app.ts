@@ -10,6 +10,7 @@ import type { ApiError, HealthResponse, PublicUser } from "@nocap/shared";
 import { findSessionUser, SESSION_COOKIE } from "./auth/sessions";
 import type { Config } from "./config";
 import { authRoutes } from "./routes/auth";
+import { projectRoutes } from "./routes/projects";
 
 declare module "fastify" {
   interface FastifyRequest {
@@ -86,6 +87,7 @@ export async function buildApp(
   });
 
   await authRoutes(app, ctx);
+  await projectRoutes(app, ctx);
 
   const publicDir = config.PUBLIC_DIR;
   const servePanel = publicDir !== undefined && existsSync(join(publicDir, "index.html"));

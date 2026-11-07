@@ -1,5 +1,5 @@
 import { QueryClient, queryOptions } from "@tanstack/react-query";
-import type { HealthResponse, PublicUser, SetupStatus } from "@nocap/shared";
+import type { HealthResponse, Project, PublicUser, SetupStatus } from "@nocap/shared";
 import { api, ApiRequestError } from "./api";
 
 export const queryClient = new QueryClient({
@@ -31,3 +31,14 @@ export const healthQuery = queryOptions({
   queryKey: ["health"],
   queryFn: () => api<HealthResponse>("/api/health"),
 });
+
+export const projectsQuery = queryOptions({
+  queryKey: ["projects"],
+  queryFn: async () => (await api<{ projects: Project[] }>("/api/projects")).projects,
+});
+
+export const projectQuery = (id: string) =>
+  queryOptions({
+    queryKey: ["projects", id],
+    queryFn: async () => (await api<{ project: Project }>(`/api/projects/${id}`)).project,
+  });

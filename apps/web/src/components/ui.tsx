@@ -9,13 +9,18 @@ export function Button({
   className,
   variant = "primary",
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "ghost" }) {
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: "primary" | "outline" | "ghost" | "destructive";
+}) {
   return (
     <button
       className={cn(
-        "inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60",
-        variant === "primary" && "bg-indigo text-white hover:bg-indigo-hover",
-        variant === "ghost" && "text-ink-soft hover:bg-mist hover:text-ink",
+        "inline-flex h-9 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium whitespace-nowrap transition-colors disabled:pointer-events-none disabled:opacity-50",
+        variant === "primary" && "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
+        variant === "outline" && "border bg-background shadow-xs hover:bg-accent",
+        variant === "ghost" && "hover:bg-accent",
+        variant === "destructive" &&
+          "bg-destructive text-background shadow-xs hover:bg-destructive/90",
         className,
       )}
       {...props}
@@ -34,8 +39,8 @@ export function Field({ label, hint, error, className, ...props }: FieldProps) {
   const id = useId();
   const describedBy = error ? `${id}-error` : hint ? `${id}-hint` : undefined;
   return (
-    <div className={cn("flex flex-col gap-1.5", className)}>
-      <label htmlFor={id} className="text-sm font-medium text-ink">
+    <div className={cn("flex flex-col gap-2", className)}>
+      <label htmlFor={id} className="text-sm leading-none font-medium">
         {label}
       </label>
       <input
@@ -43,17 +48,17 @@ export function Field({ label, hint, error, className, ...props }: FieldProps) {
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
         className={cn(
-          "h-11 rounded-xl border bg-field px-3.5 text-sm text-ink placeholder:text-ink-soft/70 focus:border-indigo-text focus:outline-none focus:ring-2 focus:ring-indigo-text/25",
-          error ? "border-danger" : "border-line",
+          "h-9 w-full rounded-md border px-3 text-sm shadow-xs transition-[color,box-shadow] outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 bg-field",
+          error ? "border-destructive ring-destructive/20" : "border-input",
         )}
         {...props}
       />
       {error ? (
-        <p id={`${id}-error`} className="text-sm text-danger">
+        <p id={`${id}-error`} className="text-sm text-destructive">
           {error}
         </p>
       ) : hint ? (
-        <p id={`${id}-hint`} className="text-sm text-ink-soft">
+        <p id={`${id}-hint`} className="text-sm text-muted-foreground">
           {hint}
         </p>
       ) : null}
@@ -63,19 +68,41 @@ export function Field({ label, hint, error, className, ...props }: FieldProps) {
 
 export function Alert({ children }: { children: ReactNode }) {
   return (
-    <div role="alert" className="rounded-xl bg-danger-soft px-3.5 py-3 text-sm text-danger">
+    <div
+      role="alert"
+      className="rounded-lg border border-destructive/30 px-4 py-3 text-sm text-destructive"
+    >
       {children}
     </div>
   );
 }
 
+/** The cap mark in the current text color, so it follows the light and dark theme. */
+export function CapMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="56 60 280 184" aria-hidden="true" className={className}>
+      <path
+        d="M74 214 C62 210 62 196 63 180 C64 120 96 82 150 72 C210 64 254 92 266 172 L318 200 C332 208 330 224 312 224 C292 224 276 212 262 204 C232 216 204 236 172 237 C152 237 136 226 124 212 C108 216 90 216 74 214 Z"
+        fill="currentColor"
+      />
+      <path
+        d="M186 156 L207 128 L232 150"
+        fill="none"
+        stroke="var(--background)"
+        strokeWidth="16"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function Logo({ className }: { className?: string }) {
   return (
-    <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <img src="/logo.svg" alt="" className="h-8 w-auto" />
-      <span className="font-brand text-xl font-bold leading-none">
-        <span className="text-ink">nocap</span>
-        <span className="text-indigo-text">cloud</span>
+    <span className={cn("inline-flex items-center gap-2", className)}>
+      <CapMark className="h-6 w-auto" />
+      <span className="font-brand text-lg leading-none font-bold">
+        nocap<span className="text-muted-foreground">cloud</span>
       </span>
     </span>
   );

@@ -6,8 +6,10 @@ import {
   Outlet,
   redirect,
 } from "@tanstack/react-router";
-import { DashboardPage } from "./pages/DashboardPage";
+import { AppShell } from "./pages/AppShell";
 import { LoginPage } from "./pages/LoginPage";
+import { ProjectPage } from "./pages/ProjectPage";
+import { ProjectsPage } from "./pages/ProjectsPage";
 import { SetupPage } from "./pages/SetupPage";
 import { meQuery, queryClient, setupStatusQuery } from "./queries";
 
@@ -33,11 +35,24 @@ async function guard(target: "setup" | "login" | "app") {
   if (user && target === "login") throw redirect({ to: "/" });
 }
 
-const dashboardRoute = createRoute({
+/** Every signed-in page shares the sidebar and the auth guard. */
+const appRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/",
+  id: "app",
   beforeLoad: () => guard("app"),
-  component: DashboardPage,
+  component: AppShell,
+});
+
+const projectsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: "/",
+  component: ProjectsPage,
+});
+
+const projectRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: "/projects/$projectId",
+  component: ProjectPage,
 });
 
 const setupRoute = createRoute({
@@ -55,7 +70,11 @@ const loginRoute = createRoute({
 });
 
 export const router = createRouter({
-  routeTree: rootRoute.addChildren([dashboardRoute, setupRoute, loginRoute]),
+  routeTree: rootRoute.addChildren([
+    appRoute.addChildren([projectsRoute, projectRoute]),
+    setupRoute,
+    loginRoute,
+  ]),
   defaultPreload: false,
 });
 

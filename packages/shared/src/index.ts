@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PASSWORD_MIN_LENGTH } from "./constants";
+import { PASSWORD_MIN_LENGTH, PROJECT_DESCRIPTION_MAX, PROJECT_NAME_MAX } from "./constants";
 
 export * from "./constants";
 
@@ -27,6 +27,36 @@ export const loginSchema = z.object({
   password: z.string().min(1, { error: "Enter your password" }).max(200),
 });
 export type LoginInput = z.infer<typeof loginSchema>;
+
+const description = z
+  .string()
+  .trim()
+  .max(PROJECT_DESCRIPTION_MAX, {
+    error: `Keep it under ${PROJECT_DESCRIPTION_MAX} characters`,
+  })
+  .transform((value) => (value === "" ? null : value));
+
+export const projectInputSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, { error: "Give the project a name" })
+    .max(PROJECT_NAME_MAX, { error: `Keep it under ${PROJECT_NAME_MAX} characters` }),
+  description: description.nullish().transform((value) => value ?? null),
+});
+export type ProjectInput = z.input<typeof projectInputSchema>;
+
+export const projectUpdateSchema = projectInputSchema.partial();
+export type ProjectUpdate = z.input<typeof projectUpdateSchema>;
+
+export interface Project {
+  id: string;
+  name: string;
+  description: string | null;
+  applicationCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface PublicUser {
   id: string;

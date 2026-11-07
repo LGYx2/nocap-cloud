@@ -14,7 +14,6 @@
   "dependencies": {
     "@fontsource/fredoka": "^5.1.0",
     "@fontsource/inter": "^5.1.0",
-    "@fontsource/space-grotesk": "^5.1.0",
     "@nocap/shared": "workspace:*",
     "@tanstack/react-query": "^5.106.0",
     "@tanstack/react-router": "^1.170.0",
