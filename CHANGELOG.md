@@ -22,3 +22,6 @@ All notable changes to this project are documented here. The format follows
 - Website with Features, Roadmap (version tree) and Community (ideas with voting) pages,
   an interactive deploy graph and scroll animations.
 - Short install address: `curl -fsSL https://get.nocapcloud.click | sudo sh`.
+- Sign in with GitHub on the website to vote on ideas and suggest new ones without leaving the
+  page. Ideas stay GitHub issues and votes stay 👍 reactions.
+- Founder section on the home page.

@@ -839,3 +839,106 @@ a.mobile-link:hover,
   color: var(--primary-foreground);
   border-color: var(--primary);
 }
+
+.vote-button {
+  align-self: flex-start;
+  cursor: pointer;
+  color: inherit;
+  background: transparent;
+}
+
+.vote-button[aria-pressed="true"] {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.vote-button[aria-pressed="true"]:hover {
+  background: color-mix(in oklch, var(--primary) 88%, transparent);
+}
+
+.vote-button:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.vote-button.bump svg {
+  animation: vote-bump 300ms ease-out;
+}
+
+@keyframes vote-bump {
+  40% {
+    transform: translateY(-4px) scale(1.15);
+  }
+}
+
+/* The suggest-an-idea dialog */
+.idea-dialog {
+  width: min(36rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--background);
+  color: var(--foreground);
+  padding: 0;
+  box-shadow: 0 24px 64px -16px rgb(0 0 0 / 0.35);
+}
+
+.idea-dialog::backdrop {
+  background: rgb(0 0 0 / 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.idea-dialog[open] {
+  animation: dialog-in 180ms ease-out;
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+.field {
+  display: grid;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+}
+
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  border: 1px solid var(--input, var(--border));
+  border-radius: 0.5rem;
+  background: var(--background);
+  padding: 0.5rem 0.75rem;
+  font: inherit;
+  color: inherit;
+}
+
+.field textarea {
+  min-height: 5.5rem;
+  resize: vertical;
+}
+
+.field input:focus-visible,
+.field textarea:focus-visible,
+.field select:focus-visible {
+  outline: 2px solid var(--ring, var(--foreground));
+  outline-offset: 1px;
+}
+
+.field [data-error] {
+  color: var(--destructive, #dc2626);
+  font-size: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .idea-dialog[open],
+  .vote-button.bump svg {
+    animation: none;
+  }
+}

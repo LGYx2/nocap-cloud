@@ -1,0 +1,21 @@
+name: Label ideas
+
+# Ideas suggested on nocapcloud.click are opened by the visitor's own GitHub account, and only
+# people with write access can set labels. This adds the "idea" label so they show on the board.
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  label:
+    if: contains(github.event.issue.body, '<!-- nocap:idea -->')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add the idea label
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: gh issue edit "$ISSUE" --repo "$GITHUB_REPOSITORY" --add-label idea

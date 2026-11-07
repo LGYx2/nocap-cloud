@@ -36,6 +36,7 @@
           <div class="animate-in mt-8 flex flex-col gap-3 sm:flex-row" style="--i: 3">
             <a
               href="https://github.com/LGYx2/nocap-cloud/issues/new?template=idea.yml"
+              data-suggest
               class="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground shadow-xs transition-colors hover:bg-primary/90"
             >
               Suggest an idea
@@ -57,8 +58,9 @@
             <p class="text-sm font-medium text-muted-foreground">Ideas</p>
             <h2 class="mt-2 text-3xl font-bold tracking-tight">What should we build?</h2>
             <p class="mt-3 text-muted-foreground">
-              Every idea is a GitHub issue. A 👍 reaction is a vote, so votes come from real people
-              and anyone can check them.
+              Sign in with GitHub to vote and suggest right here. Every idea is saved as a GitHub
+              issue and every vote is a 👍 on it, so votes come from real people and anyone can
+              check them.
             </p>
             <ol class="mt-8 space-y-5 text-sm">
               <li class="flex gap-3">
@@ -124,11 +126,27 @@
                   Newest
                 </button>
               </div>
-              <a
-                href="https://github.com/LGYx2/nocap-cloud/issues?q=is%3Aissue+is%3Aopen+label%3Aidea"
-                class="text-sm font-medium hover:underline"
-                >All ideas on GitHub</a
-              >
+              <div class="flex flex-wrap items-center gap-2">
+                <div class="flex items-center gap-2" data-account></div>
+                <a
+                  href="https://github.com/LGYx2/nocap-cloud/issues/new?template=idea.yml"
+                  data-suggest
+                  class="inline-flex h-9 items-center justify-center gap-1.5 rounded-md bg-primary px-3.5 text-sm font-medium text-primary-foreground shadow-xs transition-colors hover:bg-primary/90"
+                >
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                  Suggest
+                </a>
+              </div>
             </div>
             <p class="mt-4 text-xs text-muted-foreground" data-ideas-status aria-live="polite">
               Loading ideas from GitHub…
@@ -138,9 +156,119 @@
               <li class="h-24 animate-pulse rounded-xl border bg-muted/50"></li>
               <li class="h-24 animate-pulse rounded-xl border bg-muted/50"></li>
             </ul>
+            <a
+              href="https://github.com/LGYx2/nocap-cloud/issues?q=is%3Aissue+is%3Aopen+label%3Aidea"
+              class="mt-4 inline-block text-sm text-muted-foreground hover:text-foreground hover:underline"
+              >See every idea on GitHub</a
+            >
           </div>
         </div>
       </section>
+
+      <!-- Suggest an idea -->
+      <dialog class="idea-dialog" data-idea-dialog aria-labelledby="idea-dialog-title">
+        <form method="dialog" class="grid gap-5 p-5 sm:p-6" data-idea-form novalidate>
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h2 id="idea-dialog-title" class="text-lg font-semibold tracking-tight">
+                Suggest an idea
+              </h2>
+              <p class="mt-1 text-sm text-muted-foreground">
+                It is posted as a GitHub issue from your account, so others can vote and comment.
+              </p>
+            </div>
+            <button
+              type="button"
+              class="-m-1 rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+              data-close
+              aria-label="Close"
+            >
+              <svg
+                class="size-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="grid gap-4 rounded-xl border bg-muted/40 p-5 text-sm" data-signed-out hidden>
+            <p>
+              Sign in with GitHub to post your idea. We only ask to open issues and add votes on the
+              Nocap Cloud repository, nothing else.
+            </p>
+            <a
+              href="/api/auth/login"
+              class="inline-flex h-10 w-max items-center gap-2 rounded-md bg-primary px-4 font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              <svg class="size-4" aria-hidden="true"><use href="#github" /></svg>
+              Sign in with GitHub
+            </a>
+          </div>
+
+          <div class="grid gap-4" data-signed-in>
+            <label class="field">
+              <span class="font-medium">Title</span>
+              <input name="title" maxlength="120" placeholder="Short and specific" required />
+              <span data-error="title"></span>
+            </label>
+            <label class="field">
+              <span class="font-medium">The problem</span>
+              <textarea
+                name="problem"
+                maxlength="2000"
+                placeholder="What are you trying to do, and what gets in the way today?"
+                required
+              ></textarea>
+              <span data-error="problem"></span>
+            </label>
+            <label class="field">
+              <span class="font-medium">The idea</span>
+              <textarea
+                name="idea"
+                maxlength="2000"
+                placeholder="How could Nocap Cloud solve it?"
+                required
+              ></textarea>
+              <span data-error="idea"></span>
+            </label>
+            <label class="field">
+              <span class="font-medium">Area</span>
+              <select name="area">
+                <option>Deploy</option>
+                <option>Git</option>
+                <option>Domains and HTTPS</option>
+                <option>Databases and backups</option>
+                <option>Monitoring</option>
+                <option>Panel</option>
+                <option>Servers</option>
+                <option selected>Other</option>
+              </select>
+            </label>
+            <p class="text-sm text-muted-foreground" data-form-status aria-live="polite"></p>
+            <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                class="h-10 rounded-md border bg-background px-4 text-sm font-medium hover:bg-accent"
+                data-close
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="h-10 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
+              >
+                Post idea
+              </button>
+            </div>
+          </div>
+        </form>
+      </dialog>
 
       <!-- Contribute -->
       <section id="contribute" class="border-y bg-muted/40">
