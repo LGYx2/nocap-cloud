@@ -47,7 +47,7 @@ export function ProjectForm({
         label="Name"
         value={form.name}
         maxLength={PROJECT_NAME_MAX}
-        placeholder="My shop"
+        placeholder="My project"
         onChange={(e) => setForm({ ...form, name: e.target.value })}
         error={fields.name}
         autoFocus

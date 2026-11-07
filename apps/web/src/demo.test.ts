@@ -9,7 +9,7 @@ describe("demo API", () => {
     const res = handle(state, "GET", "/api/projects", undefined, now);
     const names = (res.data as { projects: { name: string }[] }).projects.map((p) => p.name);
     expect(res.status).toBe(200);
-    expect(names[0]).toBe("Online store");
+    expect(names[0]).toBe("Meridian API");
     expect(names).toHaveLength(4);
   });
 

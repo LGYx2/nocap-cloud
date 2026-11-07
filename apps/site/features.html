@@ -120,7 +120,7 @@
             data-terminal
           >
             <div class="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
-              <span class="text-xs text-neutral-400">shop-api · build #42</span>
+              <span class="text-xs text-neutral-400">meridian-api · build #42</span>
               <span class="flex items-center gap-1.5 text-xs text-white"
                 ><span class="pulse-dot size-1.5 rounded-full bg-white"></span>Building</span
               >
@@ -140,13 +140,13 @@
                 "dist/index.js"]
               </p>
               <p class="term-line" data-delay="1600">
-                <span class="text-neutral-500">12:04:33</span> Image shop-api:3f9c2a1 built
+                <span class="text-neutral-500">12:04:33</span> Image meridian-api:3f9c2a1 built
               </p>
               <p class="term-line" data-delay="2000">
                 <span class="text-neutral-500">12:04:35</span> Health check passed
               </p>
               <p class="term-line text-white" data-delay="2400">
-                <span class="text-neutral-500">12:04:35</span> Live at https://api.shop.example
+                <span class="text-neutral-500">12:04:35</span> Live at https://api.meridian.example
               </p>
             </div>
           </div>
@@ -212,7 +212,7 @@
             <div class="rounded-xl border bg-card p-5 shadow-xl">
               <div class="flex items-center gap-3 border-b pb-4">
                 <svg class="size-5" aria-hidden="true"><use href="#github" /></svg>
-                <span class="text-sm font-medium">acme/shop-api</span>
+                <span class="text-sm font-medium">meridian/api</span>
                 <span class="ml-auto rounded-md border px-2 py-0.5 font-mono text-xs">main</span>
               </div>
               <ul class="divide-y text-sm" data-stagger>
@@ -221,7 +221,7 @@
                     class="flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground"
                     ><svg class="size-3" aria-hidden="true"><use href="#check" /></svg
                   ></span>
-                  <span class="min-w-0 flex-1 truncate">Add order export</span>
+                  <span class="min-w-0 flex-1 truncate">Add rate limit headers</span>
                   <span class="font-mono text-xs text-muted-foreground">3f9c2a1</span>
                   <span class="text-xs text-muted-foreground">nocap: live</span>
                 </li>
@@ -230,7 +230,7 @@
                     class="flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground"
                     ><svg class="size-3" aria-hidden="true"><use href="#check" /></svg
                   ></span>
-                  <span class="min-w-0 flex-1 truncate">Fix currency rounding</span>
+                  <span class="min-w-0 flex-1 truncate">Fix pagination cursor</span>
                   <span class="font-mono text-xs text-muted-foreground">a81e07d</span>
                   <span class="text-xs text-muted-foreground">nocap: live</span>
                 </li>
@@ -239,7 +239,7 @@
                     class="flex size-5 items-center justify-center rounded-full border-2 border-foreground text-[10px] font-bold"
                     >×</span
                   >
-                  <span class="min-w-0 flex-1 truncate">Try new payment SDK</span>
+                  <span class="min-w-0 flex-1 truncate">Try new HTTP client</span>
                   <span class="font-mono text-xs text-muted-foreground">5c42b9e</span>
                   <span class="text-xs text-muted-foreground">nocap: failed</span>
                 </li>
@@ -287,18 +287,18 @@
             <div class="border-b px-5 py-3 text-sm font-medium">Domains</div>
             <ul class="divide-y text-sm" data-stagger>
               <li class="flex items-center justify-between gap-3 px-5 py-3">
-                <span class="font-mono">shop.example</span>
+                <span class="font-mono">meridian.example</span>
                 <span class="flex items-center gap-1.5 text-xs"
                   ><svg class="size-3.5" aria-hidden="true"><use href="#check" /></svg>Certificate
                   valid</span
                 >
               </li>
               <li class="flex items-center justify-between gap-3 px-5 py-3">
-                <span class="font-mono">www.shop.example</span>
-                <span class="text-xs text-muted-foreground">Redirects to shop.example</span>
+                <span class="font-mono">www.meridian.example</span>
+                <span class="text-xs text-muted-foreground">Redirects to meridian.example</span>
               </li>
               <li class="flex items-center justify-between gap-3 px-5 py-3">
-                <span class="font-mono">api.shop.example</span>
+                <span class="font-mono">api.meridian.example</span>
                 <span class="flex items-center gap-1.5 text-xs text-muted-foreground"
                   ><span class="pulse-dot size-1.5 rounded-full bg-foreground"></span>Getting
                   certificate</span
@@ -407,7 +407,7 @@
         <div class="self-center" data-reveal style="--i: 1">
           <div class="rounded-xl border bg-card shadow-xl">
             <div class="flex items-center justify-between border-b px-5 py-3">
-              <span class="text-sm font-medium">shop-db backups</span>
+              <span class="text-sm font-medium">meridian-db backups</span>
               <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground"
                 >Daily at 03:00 · R2</span
               >

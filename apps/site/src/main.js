@@ -21,6 +21,11 @@ for (const link of document.querySelectorAll(".mobile-link[href]")) {
   if (target === here) link.setAttribute("aria-current", "page");
 }
 
+const doc = document.body.dataset.doc;
+for (const link of document.querySelectorAll(`[data-doc-link="${doc}"]`)) {
+  link.setAttribute("aria-current", "page");
+}
+
 // Close the mobile menu after picking a link.
 for (const menu of document.querySelectorAll(".mobile-menu")) {
   menu.addEventListener("click", (event) => {

@@ -76,6 +76,11 @@ packages/shared   Zod schemas and types shared by server and panel
 infra             docker-compose.yml and install.sh
 ```
 
+## Founder
+
+Nocap Cloud was founded by **Ismael Valgy** ([@LGYx2](https://github.com/LGYx2)), who leads the
+roadmap and reviews every change.
+
 ## Contributing
 
 Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first, and report security

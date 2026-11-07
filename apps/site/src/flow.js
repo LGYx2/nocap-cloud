@@ -53,7 +53,7 @@ export function initFlow(root) {
     if (summary) {
       summary.innerHTML =
         count === keys.length
-          ? `<span class="size-1.5 rounded-full bg-foreground"></span>Live at https://shop.example`
+          ? `<span class="size-1.5 rounded-full bg-foreground"></span>Live at https://meridian.example`
           : `<span class="pulse-dot size-1.5 rounded-full bg-foreground"></span>Waiting for inputs, ${count} of ${keys.length}`;
     }
     root.classList.toggle("is-complete", count === keys.length);
