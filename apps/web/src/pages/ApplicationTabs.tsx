@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import type { Application, ApplicationUpdate, Domain, EnvVar } from "@nocap/shared";
 import { type ChangeEvent, type FormEvent, type ReactNode, useEffect, useState } from "react";
-import { api, ApiRequestError } from "../api";
+import { api, ApiRequestError, DEMO } from "../api";
 import { Dialog } from "../components/dialog";
 import {
   CheckIcon,
@@ -141,17 +141,23 @@ export function DomainsTab({ app }: { app: Application }) {
                     <LockIcon className="size-3.5" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <a
-                      href={`https://${domain.hostname}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex max-w-full items-center gap-1.5 truncate text-sm font-medium hover:underline"
-                    >
-                      {domain.hostname}
-                      <ExternalLinkIcon className="size-3 shrink-0 text-muted-foreground" />
-                    </a>
+                    {DEMO ? (
+                      <span className="block truncate text-sm font-medium">{domain.hostname}</span>
+                    ) : (
+                      <a
+                        href={`https://${domain.hostname}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex max-w-full items-center gap-1.5 truncate text-sm font-medium hover:underline"
+                      >
+                        {domain.hostname}
+                        <ExternalLinkIcon className="size-3 shrink-0 text-muted-foreground" />
+                      </a>
+                    )}
                     <p className="text-xs text-muted-foreground">
-                      HTTPS by Let's Encrypt · added {timeAgo(domain.createdAt)}
+                      {DEMO
+                        ? `Sample domain in the demo · added ${timeAgo(domain.createdAt)}`
+                        : `HTTPS by Let's Encrypt · added ${timeAgo(domain.createdAt)}`}
                     </p>
                   </div>
                   <Button

@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import type { AppAction, Application, Deployment } from "@nocap/shared";
 import { useState } from "react";
-import { api } from "../api";
+import { api, DEMO } from "../api";
 import { Dialog } from "../components/dialog";
 import {
   BoxIcon,
@@ -106,7 +106,7 @@ export function ApplicationPage() {
         actions={
           app ? (
             <>
-              {url ? (
+              {url && !DEMO ? (
                 <a
                   href={url}
                   target="_blank"
@@ -194,18 +194,25 @@ export function ApplicationPage() {
                       {app.image}
                     </span>
                   )}
-                  {app.domains.map((domain) => (
-                    <a
-                      key={domain}
-                      href={`https://${domain}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 hover:text-foreground hover:underline"
-                    >
-                      <GlobeIcon className="size-3.5" />
-                      {domain}
-                    </a>
-                  ))}
+                  {app.domains.map((domain) =>
+                    DEMO ? (
+                      <span key={domain} className="inline-flex items-center gap-1.5">
+                        <GlobeIcon className="size-3.5" />
+                        {domain}
+                      </span>
+                    ) : (
+                      <a
+                        key={domain}
+                        href={`https://${domain}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 hover:text-foreground hover:underline"
+                      >
+                        <GlobeIcon className="size-3.5" />
+                        {domain}
+                      </a>
+                    ),
+                  )}
                 </p>
               </div>
             </div>
