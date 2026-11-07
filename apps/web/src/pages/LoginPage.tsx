@@ -2,14 +2,16 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { type FormEvent, useState } from "react";
 import type { LoginInput, PublicUser } from "@nocap/shared";
-import { api, ApiRequestError } from "../api";
+import { api, ApiRequestError, DEMO } from "../api";
 import { Alert, Button, Field } from "../components/ui";
 import { meQuery, queryClient } from "../queries";
 import { AuthLayout } from "./AuthLayout";
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const [form, setForm] = useState<LoginInput>({ email: "", password: "" });
+  const [form, setForm] = useState<LoginInput>(
+    DEMO ? { email: "demo@nocap.cloud", password: "demo-password" } : { email: "", password: "" },
+  );
 
   const login = useMutation({
     mutationFn: (input: LoginInput) =>
@@ -28,7 +30,14 @@ export function LoginPage() {
   }
 
   return (
-    <AuthLayout title="Sign in" subtitle="Welcome back. Your servers missed you.">
+    <AuthLayout
+      title="Sign in"
+      subtitle={
+        DEMO
+          ? "This is the demo. Any email and password work."
+          : "Welcome back. Your servers missed you."
+      }
+    >
       <form className="flex flex-col gap-5" onSubmit={submit} noValidate>
         {login.error && !Object.keys(fields).length ? <Alert>{login.error.message}</Alert> : null}
         <Field

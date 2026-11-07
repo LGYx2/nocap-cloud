@@ -6,6 +6,8 @@ import {
   Outlet,
   redirect,
 } from "@tanstack/react-router";
+import { DEMO } from "./api";
+import { DemoBanner } from "./components/demo-banner";
 import { AppShell } from "./pages/AppShell";
 import { LoginPage } from "./pages/LoginPage";
 import { ProjectPage } from "./pages/ProjectPage";
@@ -17,6 +19,7 @@ const rootRoute = createRootRoute({
   component: () => (
     <QueryClientProvider client={queryClient}>
       <Outlet />
+      {DEMO ? <DemoBanner /> : null}
     </QueryClientProvider>
   ),
 });

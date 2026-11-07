@@ -18,3 +18,4 @@ All notable changes to this project are documented here. The format follows
 - Projects: create, search, rename and delete projects, with a confirm step before delete.
 - Sidebar with icons, user menu and breadcrumbs.
 - Landing page in `apps/site`, published to GitHub Pages.
+- Demo mode for the panel with a fake API in the browser, deployed to Vercel.

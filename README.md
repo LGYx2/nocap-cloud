@@ -6,7 +6,7 @@
 
 <p align="center"><strong>Deploys, no cap.</strong><br>
 A free, open-source and lightweight deployment panel for your own server.<br>
-<a href="https://lgyx2.github.io/nocap-cloud/">Website</a> · <a href="#roadmap">Roadmap</a> · <a href="CONTRIBUTING.md">Contribute</a></p>
+<a href="https://lgyx2.github.io/nocap-cloud/">Website</a> · <a href="https://nocap-demo.vercel.app">Live demo</a> · <a href="#roadmap">Roadmap</a> · <a href="CONTRIBUTING.md">Contribute</a></p>
 
 <p align="center">
   <a href="LICENSE"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache%202.0-4B3BFF"></a>
@@ -60,6 +60,10 @@ pnpm dev                                        # server on :3000, panel on :517
 ```
 
 Other commands: `pnpm test`, `pnpm lint`, `pnpm typecheck`, `pnpm build`.
+
+To run the panel without a server, start it in demo mode: `pnpm --filter @nocap/web dev:demo`.
+It uses a fake API in the browser with sample data. `build:demo` builds the version deployed
+at [nocap-demo.vercel.app](https://nocap-demo.vercel.app).
 
 ### Repository layout
 

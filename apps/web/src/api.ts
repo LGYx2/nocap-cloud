@@ -11,10 +11,23 @@ export class ApiRequestError extends Error {
   }
 }
 
+/** True in the demo build, where a fake API in the browser replaces the server. */
+export const DEMO = import.meta.env.VITE_DEMO === "true";
+
 export async function api<T>(
   path: string,
   options: { method?: string; body?: unknown } = {},
 ): Promise<T> {
+  if (DEMO) {
+    const { demoRequest } = await import("./demo");
+    const { status, data } = await demoRequest(options.method ?? "GET", path, options.body);
+    if (status >= 400) {
+      const error = data as ApiError;
+      throw new ApiRequestError(status, error.error, error.fields);
+    }
+    return data as T;
+  }
+
   const response = await fetch(path, {
     method: options.method ?? "GET",
     credentials: "same-origin",
