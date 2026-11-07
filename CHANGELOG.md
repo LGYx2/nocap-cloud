@@ -17,3 +17,4 @@ All notable changes to this project are documented here. The format follows
 - Neutral black and white panel theme in the style of shadcn/ui, with a light, dark and system switch.
 - Projects: create, search, rename and delete projects, with a confirm step before delete.
 - Sidebar with icons, user menu and breadcrumbs.
+- Landing page in `apps/site`, published to GitHub Pages.

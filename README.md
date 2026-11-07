@@ -5,7 +5,8 @@
 <h1 align="center">nocapcloud</h1>
 
 <p align="center"><strong>Deploys, no cap.</strong><br>
-A free, open-source and lightweight deployment panel for your own server.</p>
+A free, open-source and lightweight deployment panel for your own server.<br>
+<a href="https://lgyx2.github.io/nocap-cloud/">Website</a> · <a href="#roadmap">Roadmap</a> · <a href="CONTRIBUTING.md">Contribute</a></p>
 
 <p align="center">
   <a href="LICENSE"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache%202.0-4B3BFF"></a>
@@ -31,7 +32,7 @@ no telemetry.
 > Not available yet. The installer ships with v0.1.
 
 ```sh
-curl -fsSL https://get.nocapcloud.com | sh
+curl -fsSL https://github.com/LGYx2/nocap-cloud/releases/latest/download/install.sh | sudo sh
 ```
 
 Requirements: Ubuntu 22.04 or 24.04, amd64 or arm64, 1 GB RAM (2 GB recommended), 20 GB disk,
@@ -41,7 +42,7 @@ ports 80, 443 and 3000 free.
 
 | Phase                                                                       | Status      |
 | --------------------------------------------------------------------------- | ----------- |
-| 0. Foundations: repo, CI, login, first-run setup, install script            | In progress |
+| 0. Foundations: repo, CI, login, projects, install script, website          | In progress |
 | 1. Deploy: build and run apps, Traefik, SSL, live logs                      | Planned     |
 | 2. Git: GitHub App, GitLab token, deploy on push, commit status             | Planned     |
 | 3. Reliability: encrypted variables, health checks, zero downtime, rollback | Planned     |
@@ -65,6 +66,7 @@ Other commands: `pnpm test`, `pnpm lint`, `pnpm typecheck`, `pnpm build`.
 ```text
 apps/server       Fastify API, background worker, serves the built panel
 apps/web          React panel (Vite, Tailwind)
+apps/site         Landing page, published to GitHub Pages
 packages/db       Drizzle schema and SQL migrations
 packages/shared   Zod schemas and types shared by server and panel
 infra             docker-compose.yml and install.sh

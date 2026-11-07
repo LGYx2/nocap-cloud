@@ -9,6 +9,7 @@ WORKDIR /repo
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/server/package.json apps/server/
 COPY apps/web/package.json apps/web/
+COPY apps/site/package.json apps/site/
 COPY packages/db/package.json packages/db/
 COPY packages/shared/package.json packages/shared/
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
