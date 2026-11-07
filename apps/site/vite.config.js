@@ -77,6 +77,96 @@ function includes() {
   };
 }
 
+const SITE = "https://nocapcloud.click";
+const escapeAttr = (text) => text.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+
+/** Facts for search engines about the project, added to the home page. */
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      name: "Nocap Cloud",
+      url: `${SITE}/`,
+      description:
+        "Free, open-source and lightweight deployment panel for your own server. Push to GitHub or GitLab and your app goes live with HTTPS.",
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "Linux",
+      license: "https://www.apache.org/licenses/LICENSE-2.0",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      image: `${SITE}/og.png`,
+      sameAs: [GITHUB],
+      author: { "@type": "Person", name: "Ismael Valgy", url: "https://github.com/LGYx2" },
+    },
+    { "@type": "WebSite", name: "Nocap Cloud", url: `${SITE}/` },
+  ],
+};
+
+/**
+ * Search and link-preview tags for every page, built from the page's own <title> and description:
+ * canonical address, Open Graph and Twitter cards with the preview image. Also writes
+ * sitemap.xml and robots.txt.
+ */
+function seo(pageNames) {
+  const url = (name) => (name === "index" ? `${SITE}/` : `${SITE}/${name}`);
+  return {
+    name: "nocap-seo",
+    transformIndexHtml: {
+      order: "post",
+      handler(html, ctx) {
+        const name = ctx.filename.replace(/\\/g, "/").split("/").pop().replace(".html", "");
+        const title = /<title>([^<]*)<\/title>/.exec(html)?.[1] ?? "Nocap Cloud";
+        const description = /<meta\s+name="description"\s+content="([^"]*)"/.exec(html)?.[1] ?? "";
+        const tags = [
+          `<link rel="canonical" href="${url(name)}" />`,
+          `<meta name="robots" content="index, follow, max-image-preview:large" />`,
+          `<meta property="og:site_name" content="Nocap Cloud" />`,
+          `<meta property="og:type" content="website" />`,
+          `<meta property="og:locale" content="en_US" />`,
+          `<meta property="og:url" content="${url(name)}" />`,
+          `<meta property="og:title" content="${title}" />`,
+          `<meta property="og:description" content="${description}" />`,
+          `<meta property="og:image" content="${SITE}/og.png" />`,
+          `<meta property="og:image:width" content="1200" />`,
+          `<meta property="og:image:height" content="630" />`,
+          `<meta property="og:image:alt" content="Nocap Cloud: deploys, no cap. The panel on a dark background." />`,
+          `<meta name="twitter:card" content="summary_large_image" />`,
+          `<meta name="twitter:title" content="${title}" />`,
+          `<meta name="twitter:description" content="${description}" />`,
+          `<meta name="twitter:image" content="${SITE}/og.png" />`,
+          `<link rel="apple-touch-icon" href="./apple-touch-icon.png" />`,
+          `<link rel="manifest" href="./site.webmanifest" />`,
+        ];
+        if (name === "index") {
+          tags.push(
+            `<script type="application/ld+json">${JSON.stringify(structuredData)}</script>`,
+          );
+        }
+        return html.replace("</head>", `  ${tags.join("\n    ")}\n  </head>`);
+      },
+    },
+    generateBundle() {
+      const today = new Date().toISOString().slice(0, 10);
+      const entries = pageNames
+        .map(
+          (name) =>
+            `  <url><loc>${escapeAttr(url(name))}</loc><lastmod>${today}</lastmod><priority>${name === "index" ? "1.0" : "0.7"}</priority></url>`,
+        )
+        .join("\n");
+      this.emitFile({
+        type: "asset",
+        fileName: "sitemap.xml",
+        source: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries}\n</urlset>\n`,
+      });
+      this.emitFile({
+        type: "asset",
+        fileName: "robots.txt",
+        source: `User-agent: *\nAllow: /\nDisallow: /api/\n\nSitemap: ${SITE}/sitemap.xml\n`,
+      });
+    },
+  };
+}
+
 const pages = [
   "index",
   "features",
@@ -92,7 +182,7 @@ const pages = [
 export default defineConfig({
   // Relative paths, so the site works on its own domain and on GitHub Pages under /nocap-cloud/.
   base: "./",
-  plugins: [includes(), tailwindcss()],
+  plugins: [includes(), tailwindcss(), seo(pages)],
   server: { port: 5174 },
   build: {
     rollupOptions: {
