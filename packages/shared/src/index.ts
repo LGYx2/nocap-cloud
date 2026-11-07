@@ -3,6 +3,7 @@ import { PASSWORD_MIN_LENGTH, PROJECT_DESCRIPTION_MAX, PROJECT_NAME_MAX } from "
 
 export * from "./constants";
 export * from "./apps";
+export * from "./git";
 
 const email = z
   .string()

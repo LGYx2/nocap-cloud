@@ -17,7 +17,7 @@ import {
 } from "../components/icons";
 import { Alert, Button, cn, Field } from "../components/ui";
 import { timeAgo } from "../lib/format";
-import { domainsQuery, envQuery, queryClient, refreshApps } from "../queries";
+import { domainsQuery, envQuery, queryClient, refreshApps, settingsQuery } from "../queries";
 
 const fieldError = (error: unknown, name: string) =>
   error instanceof ApiRequestError ? error.fields[name] : undefined;
@@ -552,6 +552,8 @@ export function SettingsTab({ app }: { app: Application }) {
         </Panel>
       </form>
 
+      <DeployTriggers app={app} />
+
       <Panel
         danger
         title="Delete this app"
@@ -606,5 +608,102 @@ export function SettingsTab({ app }: { app: Application }) {
         </form>
       </Dialog>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------- deploy triggers
+
+function CopyField({ label, value }: { label: string; value: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-sm leading-none font-medium">{label}</span>
+      <div className="flex gap-2">
+        <code className="min-w-0 flex-1 truncate rounded-md border bg-muted/50 px-3 py-2 font-mono text-xs">
+          {value}
+        </code>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            void navigator.clipboard?.writeText(value).then(() => {
+              setCopied(true);
+              setTimeout(() => setCopied(false), 1500);
+            });
+          }}
+        >
+          {copied ? <CheckIcon /> : null}
+          {copied ? "Copied" : "Copy"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/** Deploy on push, and the deploy hook URL for any other CI. */
+function DeployTriggers({ app }: { app: Application }) {
+  const { data: settings } = useQuery(settingsQuery);
+  const base = settings?.panelUrl ?? window.location.origin;
+
+  const toggle = useMutation({
+    mutationFn: (autoDeploy: boolean) =>
+      api<{ application: Application }>(`/api/applications/${app.id}`, {
+        method: "PATCH",
+        body: { autoDeploy },
+      }),
+    onSuccess: () => refreshApps(app.id),
+  });
+
+  const reset = useMutation({
+    mutationFn: () =>
+      api<{ deployToken: string }>(`/api/applications/${app.id}/deploy-token`, { method: "POST" }),
+    onSuccess: () => refreshApps(app.id),
+  });
+
+  return (
+    <Panel
+      title="Automatic deploys"
+      description={
+        app.gitProvider
+          ? `Connected through ${app.gitProvider.name}.`
+          : "This app uses a public repository URL or an image, so pushes are not watched. Use the deploy hook, or pick a connected account in a new app."
+      }
+    >
+      <div className="space-y-5">
+        {app.gitProvider ? (
+          <label className="flex items-start gap-3 text-sm">
+            <input
+              type="checkbox"
+              checked={app.autoDeploy}
+              disabled={toggle.isPending}
+              onChange={(e) => toggle.mutate(e.target.checked)}
+              className="mt-0.5 size-4 accent-foreground"
+            />
+            <span>
+              <span className="block font-medium">Deploy on every push</span>
+              <span className="text-muted-foreground">
+                Pushes to <span className="font-mono text-xs">{app.branch}</span> start a new
+                deployment.
+              </span>
+            </span>
+          </label>
+        ) : null}
+        <div>
+          <CopyField label="Deploy hook" value={`${base}/api/hooks/deploy/${app.deployToken}`} />
+          <p className="mt-2 text-xs text-muted-foreground">
+            A POST to this URL deploys the app, from any CI or script:{" "}
+            <code className="font-mono">curl -X POST &lt;url&gt;</code>. Keep it secret.{" "}
+            <button
+              type="button"
+              className="font-medium text-foreground underline"
+              onClick={() => reset.mutate()}
+              disabled={reset.isPending}
+            >
+              Make a new URL
+            </button>
+          </p>
+        </div>
+      </div>
+    </Panel>
   );
 }

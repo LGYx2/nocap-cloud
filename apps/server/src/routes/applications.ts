@@ -14,6 +14,7 @@ import {
 import type { AppContext } from "../app";
 import { audit } from "../audit";
 import { secretBox } from "../crypto";
+import { repoFullName } from "../git";
 import { HttpError, parseBody, requireAuth } from "../http";
 import {
   findApplication,
@@ -30,7 +31,7 @@ const ACTIONS: AppAction[] = ["start", "stop", "restart"];
 type IdParams = { Params: { id: string } };
 
 export async function applicationRoutes(app: FastifyInstance, ctx: AppContext): Promise<void> {
-  const { db, config, runtime, deployer } = ctx;
+  const { db, config, runtime, deployer, git } = ctx;
 
   const record = (
     request: FastifyRequest,
@@ -79,6 +80,7 @@ export async function applicationRoutes(app: FastifyInstance, ctx: AppContext): 
       const input = parseBody(applicationInputSchema, request, reply);
       if (!input) return;
       await projectExists(request.params.id);
+      if (input.source === "git" && input.gitProviderId) await git.get(input.gitProviderId);
       const [created] = await db
         .insert(applications)
         .values(
@@ -88,6 +90,9 @@ export async function applicationRoutes(app: FastifyInstance, ctx: AppContext): 
                 name: input.name,
                 buildType: "dockerfile",
                 repoUrl: input.repoUrl,
+                repoFullName: repoFullName(input.repoUrl),
+                gitProviderId: input.gitProviderId ?? null,
+                autoDeploy: input.autoDeploy,
                 branch: input.branch,
                 dockerfilePath: input.dockerfilePath,
                 port: input.port,
@@ -103,6 +108,13 @@ export async function applicationRoutes(app: FastifyInstance, ctx: AppContext): 
         .returning({ id: applications.id });
       if (!created) throw new Error("Application was not created");
       await record(request, "application.created", created.id, { source: input.source });
+      // GitLab needs a webhook per project; GitHub sends pushes through the app's own webhook.
+      if (input.source === "git" && input.gitProviderId && input.autoDeploy) {
+        const provider = await git.get(input.gitProviderId);
+        if (provider.type === "gitlab") {
+          await git.gitlabAddHook(provider.id, repoFullName(input.repoUrl));
+        }
+      }
       return reply.code(201).send({ application: await findApplication(db, created.id) });
     },
   );
@@ -118,9 +130,10 @@ export async function applicationRoutes(app: FastifyInstance, ctx: AppContext): 
       const input = parseBody(applicationUpdateSchema, request, reply);
       if (!input) return;
       const current = await findApplication(db, request.params.id);
-      const changes = Object.fromEntries(
+      const changes: Record<string, unknown> = Object.fromEntries(
         Object.entries(input).filter(([, value]) => value !== undefined),
       );
+      if (input.repoUrl) changes.repoFullName = repoFullName(input.repoUrl);
       if (Object.keys(changes).length > 0) {
         await db.update(applications).set(changes).where(eq(applications.id, current.id));
         await record(request, "application.updated", current.id, { fields: Object.keys(changes) });

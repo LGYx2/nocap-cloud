@@ -117,10 +117,19 @@ export function ProjectPage() {
             <section className="mt-8">
               <div className="flex items-center justify-between gap-3">
                 <h2 className="text-base font-semibold">Applications</h2>
-                <Button onClick={() => setAdding(true)}>
-                  <PlusIcon />
-                  New application
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Link
+                    to="/deployments"
+                    search={{ project: project.id }}
+                    className="inline-flex h-9 items-center gap-2 rounded-md border bg-background px-3 text-sm font-medium shadow-xs hover:bg-accent"
+                  >
+                    Deployments
+                  </Link>
+                  <Button onClick={() => setAdding(true)}>
+                    <PlusIcon />
+                    New application
+                  </Button>
+                </div>
               </div>
               {apps.length === 0 ? (
                 <div className="mt-4 flex flex-col items-center rounded-xl border border-dashed px-6 py-14 text-center">

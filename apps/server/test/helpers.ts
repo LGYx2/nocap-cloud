@@ -9,6 +9,8 @@ import { migrationsFolder, schema, type Database } from "@nocap/db";
 import { buildApp } from "../src/app";
 import { loadConfig } from "../src/config";
 import { Deployer } from "../src/deployer";
+import { GitService } from "../src/git";
+import { fakeGitHosts } from "./fake-git";
 import { FakeRuntime } from "./fake-runtime";
 
 export interface TestContext {
@@ -16,6 +18,7 @@ export interface TestContext {
   db: Database;
   runtime: FakeRuntime;
   deployer: Deployer;
+  gitCalls: ReturnType<typeof fakeGitHosts>["calls"];
   close: () => Promise<void>;
 }
 
@@ -36,9 +39,11 @@ export async function createTestApp(env: Record<string, string> = {}): Promise<T
     ...env,
   });
   const runtime = new FakeRuntime();
+  const hosts = fakeGitHosts();
+  const git = new GitService(db, config, hosts.fetch);
   const quiet = { info: () => {}, error: () => {} };
-  const deployer = new Deployer({ db, config, runtime, log: quiet, settleMs: 0 });
-  const app = await buildApp({ db, config, runtime, deployer });
+  const deployer = new Deployer({ db, config, runtime, git, log: quiet, settleMs: 0 });
+  const app = await buildApp({ db, config, runtime, deployer, git });
   await app.ready();
 
   return {
@@ -46,6 +51,7 @@ export async function createTestApp(env: Record<string, string> = {}): Promise<T
     db,
     runtime,
     deployer,
+    gitCalls: hosts.calls,
     close: async () => {
       await deployer.idle();
       await app.close();

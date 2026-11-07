@@ -79,6 +79,21 @@ export const projects = pgTable("projects", {
   updatedAt: updatedAt(),
 });
 
+export const gitProviderTypeEnum = pgEnum("git_provider_type", ["github", "gitlab"]);
+
+/**
+ * Connected Git accounts. `configEnc` is encrypted JSON: for GitHub, the GitHub App this install
+ * created (id, private key, webhook secret, installations); for GitLab, the URL and an access token.
+ */
+export const gitProviders = pgTable("git_providers", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  type: gitProviderTypeEnum("type").notNull(),
+  name: text("name").notNull(),
+  configEnc: text("config_enc").notNull(),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+});
+
 /** "dockerfile" builds a Git repository; "image" runs a ready-made image from a registry. */
 export const buildTypeEnum = pgEnum("build_type", ["dockerfile", "compose", "image"]);
 export const appStatusEnum = pgEnum("app_status", [
@@ -98,6 +113,17 @@ export const applications = pgTable(
       .references(() => projects.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     repoUrl: text("repo_url"),
+    /** Set when the repository comes from a connected account (private repos, deploy on push). */
+    gitProviderId: uuid("git_provider_id").references(() => gitProviders.id, {
+      onDelete: "set null",
+    }),
+    /** owner/name, used to match push webhooks to apps. */
+    repoFullName: text("repo_full_name"),
+    autoDeploy: boolean("auto_deploy").notNull().default(true),
+    /** Secret part of the deploy hook URL, so any CI can trigger a deploy. */
+    deployToken: text("deploy_token")
+      .notNull()
+      .default(sql`replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '')`),
     branch: text("branch").notNull().default("main"),
     buildType: buildTypeEnum("build_type").notNull().default("dockerfile"),
     dockerfilePath: text("dockerfile_path").notNull().default("Dockerfile"),
@@ -107,7 +133,11 @@ export const applications = pgTable(
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
-  (t) => [index("applications_project_id_idx").on(t.projectId)],
+  (t) => [
+    index("applications_project_id_idx").on(t.projectId),
+    index("applications_repo_idx").on(t.repoFullName),
+    uniqueIndex("applications_deploy_token_unique").on(t.deployToken),
+  ],
 );
 
 export const deploymentStatusEnum = pgEnum("deployment_status", [

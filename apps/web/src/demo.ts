@@ -18,13 +18,43 @@ import {
   type Deployment,
   type Domain,
   type EnvVar,
+  type GitProvider,
+  type GitRepo,
   type Overview,
   type Project,
   type PublicUser,
 } from "@nocap/shared";
 import { PROJECT_DESCRIPTION_MAX, PROJECT_NAME_MAX } from "@nocap/shared/constants";
 
-const STORAGE_KEY = "nocap-demo-v2";
+const STORAGE_KEY = "nocap-demo-v3";
+
+const DEMO_GITHUB: GitProvider = {
+  id: "9a000000-0000-4000-8000-000000000001",
+  type: "github",
+  name: "GitHub · meridian-labs",
+  url: "https://github.com/apps/nocap-demo",
+  installed: true,
+  installUrl: "https://github.com/apps/nocap-demo/installations/new",
+  createdAt: new Date(Date.now() - 3 * 86400_000).toISOString(),
+};
+
+/** Repositories the sample accounts can see. */
+const DEMO_REPOS: Record<string, GitRepo[]> = {
+  [DEMO_GITHUB.id]: [
+    ["meridian-labs/api", true, 0.6],
+    ["meridian-labs/workers", true, 1.8],
+    ["meridian-labs/admin", true, 0.4],
+    ["meridian-labs/storefront", true, 30],
+    ["meridian-labs/marketing-site", false, 72],
+    ["meridian-labs/mobile-api", true, 200],
+  ].map(([fullName, isPrivate, hours]) => ({
+    fullName: String(fullName),
+    url: `https://github.com/${fullName}.git`,
+    private: Boolean(isPrivate),
+    defaultBranch: "main",
+    updatedAt: new Date(Date.now() - Number(hours) * 3600_000).toISOString(),
+  })),
+};
 
 export const DEMO_USER: PublicUser = {
   id: "00000000-0000-4000-8000-000000000001",
@@ -46,6 +76,8 @@ export interface DemoState {
   deployments: DemoDeployment[];
   domains: Domain[];
   env: Record<string, EnvVar[]>;
+  providers: GitProvider[];
+  panelUrl: string | null;
 }
 
 export interface DemoResponse {
@@ -111,6 +143,12 @@ export function seedState(now = Date.now()): DemoState {
     image: source === "image" ? where : null,
     port,
     status,
+    // Meridian's repositories come through the sample GitHub account and deploy on push.
+    gitProvider: where.includes("meridian-labs")
+      ? { id: DEMO_GITHUB.id, type: "github", name: DEMO_GITHUB.name }
+      : null,
+    autoDeploy: where.includes("meridian-labs"),
+    deployToken: id.replaceAll("-", "").repeat(2),
     createdAt: hoursAgo(created, now),
     updatedAt: hoursAgo(created, now),
   });
@@ -269,6 +307,8 @@ export function seedState(now = Date.now()): DemoState {
     apps,
     deployments,
     domains,
+    providers: [DEMO_GITHUB],
+    panelUrl: "https://panel.meridian.dev",
     env: {
       [api]: [
         { key: "DATABASE_URL", value: "postgres://meridian:demo@db:5432/meridian" },
@@ -629,6 +669,80 @@ export function handle(
 
   if (route === "GET /api/overview") return ok(overview(state, now));
 
+  // ---- settings and Git accounts
+  if (route === "GET /api/settings" || route === "PATCH /api/settings") {
+    if (method === "PATCH") {
+      const value = String(body?.panelUrl ?? "")
+        .trim()
+        .replace(/\/+$/, "");
+      if (value && !/^https?:\/\/[a-z0-9.-]+(:\d+)?$/i.test(value)) {
+        return fail(400, "Check the highlighted fields", {
+          panelUrl: "Use a full address, like https://panel.example.com",
+        });
+      }
+      state.panelUrl = value || null;
+    }
+    return ok({
+      settings: {
+        panelUrl: state.panelUrl,
+        version: "demo",
+        secretConfigured: true,
+        dockerNetwork: "nocapcloud",
+      },
+    });
+  }
+  if (route === "GET /api/git-providers") return ok({ providers: state.providers });
+  if (route === "POST /api/git-providers/github/manifest") {
+    // The real panel goes to GitHub here. The demo adds a sample account instead.
+    if (!state.providers.some((p) => p.id === DEMO_GITHUB.id)) state.providers.unshift(DEMO_GITHUB);
+    return ok({ action: "#", manifest: "{}" });
+  }
+  if (route === "POST /api/git-providers/gitlab") {
+    const token = String(body?.token ?? "");
+    if (token.length < 10) {
+      return fail(400, "Check the highlighted fields", { token: "Paste a personal access token" });
+    }
+    const provider: GitProvider = {
+      id: newId(),
+      type: "gitlab",
+      name: "GitLab · demo-team",
+      url: String(body?.baseUrl ?? "https://gitlab.com"),
+      installed: true,
+      installUrl: null,
+      createdAt: new Date(now).toISOString(),
+    };
+    state.providers.push(provider);
+    return ok({ provider }, 201);
+  }
+  const m0 = /^\/api\/git-providers\/([^/]+)(?:\/(repos|branches))?$/.exec(path);
+  if (m0) {
+    const provider = state.providers.find((p) => p.id === m0?.[1]);
+    if (!provider) return fail(404, "Git account not found");
+    if (method === "DELETE" && !m0[2]) {
+      state.providers = state.providers.filter((p) => p.id !== provider.id);
+      for (const app of state.apps) {
+        if (app.gitProvider?.id === provider.id) app.gitProvider = null;
+      }
+      return ok(undefined, 204);
+    }
+    if (m0[2] === "repos") {
+      const repos =
+        DEMO_REPOS[provider.id] ??
+        [
+          ["demo-team/api", true],
+          ["demo-team/web", true],
+        ].map(([fullName, isPrivate]) => ({
+          fullName: String(fullName),
+          url: `${provider.url}/${fullName}.git`,
+          private: Boolean(isPrivate),
+          defaultBranch: "main",
+          updatedAt: new Date(now - 7200_000).toISOString(),
+        }));
+      return ok({ repos });
+    }
+    if (m0[2] === "branches") return ok({ branches: ["main", "staging", "develop"] });
+  }
+
   // ---- projects
   if (route === "GET /api/projects") {
     return ok({ projects: newest(state.projects).map((p) => toProject(state, p)) });
@@ -661,12 +775,25 @@ export function handle(
         const input = parse(applicationInputSchema, body);
         if (isResponse(input)) return input;
         const stamp = new Date(now).toISOString();
+        const provider =
+          input.source === "git" && input.gitProviderId
+            ? state.providers.find((p) => p.id === input.gitProviderId)
+            : undefined;
+        if (input.source === "git" && input.gitProviderId && !provider) {
+          return fail(404, "Git account not found");
+        }
+        const id = newId();
         const app: DemoApp = {
-          id: newId(),
+          id,
           projectId: project.id,
           name: input.name,
           source: input.source,
           repoUrl: input.source === "git" ? input.repoUrl : null,
+          gitProvider: provider
+            ? { id: provider.id, type: provider.type, name: provider.name }
+            : null,
+          autoDeploy: input.source === "git" && Boolean(provider) && input.autoDeploy,
+          deployToken: id.replaceAll("-", "").repeat(2),
           branch: input.source === "git" ? input.branch : "main",
           dockerfilePath: input.source === "git" ? input.dockerfilePath : "Dockerfile",
           image: input.source === "image" ? input.image : null,
@@ -755,6 +882,11 @@ export function handle(
       state.deployments.push(deployment);
       app.status = "building";
       return ok({ deployment: toDeployment(state, deployment) }, 202);
+    }
+
+    if (sub === "deploy-token" && method === "POST") {
+      app.deployToken = newId().replaceAll("-", "").repeat(2);
+      return ok({ deployToken: app.deployToken });
     }
 
     if (sub === "deployments" && method === "GET") {

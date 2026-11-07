@@ -3,6 +3,7 @@ import { Link, Outlet, useNavigate } from "@tanstack/react-router";
 import type { ComponentType, ReactNode, SVGProps } from "react";
 import { api } from "../api";
 import {
+  ActivityIcon,
   ChevronRightIcon,
   DashboardIcon,
   DatabaseIcon,
@@ -28,14 +29,15 @@ const main = [
   { to: "/", label: "Dashboard", icon: DashboardIcon, exact: true },
   { to: "/projects", label: "Projects", icon: FolderIcon, exact: false },
   { to: "/deployments", label: "Deployments", icon: RocketIcon, exact: false },
+  { to: "/git", label: "Git providers", icon: GitBranchIcon, exact: false },
+  { to: "/settings", label: "Settings", icon: SettingsIcon, exact: false },
 ] as const;
 
 const soon: Array<{ label: string; icon: IconType }> = [
-  { label: "Git providers", icon: GitBranchIcon },
   { label: "Databases", icon: DatabaseIcon },
+  { label: "Monitoring", icon: ActivityIcon },
   { label: "Servers", icon: ServerIcon },
   { label: "Remote access", icon: LockIcon },
-  { label: "Settings", icon: SettingsIcon },
 ];
 
 const themes: Array<{ value: Theme; label: string; icon: IconType }> = [

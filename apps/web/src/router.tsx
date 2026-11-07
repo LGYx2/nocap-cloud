@@ -12,6 +12,8 @@ import { APP_TABS, ApplicationPage, type AppTab } from "./pages/ApplicationPage"
 import { AppShell } from "./pages/AppShell";
 import { DashboardPage } from "./pages/DashboardPage";
 import { DeploymentsPage } from "./pages/DeploymentsPage";
+import { GitPage } from "./pages/GitPage";
+import { SettingsPage } from "./pages/SettingsPage";
 import { LoginPage } from "./pages/LoginPage";
 import { ProjectPage } from "./pages/ProjectPage";
 import { ProjectsPage } from "./pages/ProjectsPage";
@@ -85,7 +87,26 @@ const applicationRoute = createRoute({
 const deploymentsRoute = createRoute({
   getParentRoute: () => appRoute,
   path: "/deployments",
+  validateSearch: (search: Record<string, unknown>): { project?: string } => ({
+    project: typeof search.project === "string" ? search.project : undefined,
+  }),
   component: DeploymentsPage,
+});
+
+const gitRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: "/git",
+  validateSearch: (search: Record<string, unknown>): { installed?: string; error?: string } => ({
+    installed: search.installed ? String(search.installed) : undefined,
+    error: typeof search.error === "string" ? search.error.slice(0, 200) : undefined,
+  }),
+  component: GitPage,
+});
+
+const settingsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: "/settings",
+  component: SettingsPage,
 });
 
 const setupRoute = createRoute({
@@ -110,6 +131,8 @@ export const router = createRouter({
       projectRoute,
       applicationRoute,
       deploymentsRoute,
+      gitRoute,
+      settingsRoute,
     ]),
     setupRoute,
     loginRoute,

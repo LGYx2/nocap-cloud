@@ -3,6 +3,7 @@
 // Tests use FakeRuntime instead, so they need neither.
 import { spawn } from "node:child_process";
 import { accessSync, constants } from "node:fs";
+import { rm } from "node:fs/promises";
 import { delimiter, join } from "node:path";
 import type { AppAction, DockerInfo } from "@nocap/shared";
 
@@ -124,7 +125,17 @@ export class DockerCliRuntime implements Runtime {
   private readonly docker = findBinary("docker");
   private readonly git = findBinary("git");
 
+  private infoCache: { value: DockerInfo; expires: number } | null = null;
+
   async info(): Promise<DockerInfo> {
+    // The dashboard refreshes every few seconds; ask Docker at most every 10 seconds.
+    if (this.infoCache && this.infoCache.expires > Date.now()) return this.infoCache.value;
+    const value = await this.readInfo();
+    this.infoCache = { value, expires: Date.now() + 10_000 };
+    return value;
+  }
+
+  private async readInfo(): Promise<DockerInfo> {
     try {
       const version = (
         await exec(this.docker, ["version", "--format", "{{.Server.Version}}"], {
@@ -151,6 +162,9 @@ export class DockerCliRuntime implements Runtime {
     );
     const sha = (await exec(this.git, ["-C", dir, "rev-parse", "HEAD"])).trim();
     const message = (await exec(this.git, ["-C", dir, "log", "-1", "--pretty=%s"])).trim();
+    // .git/config holds the clone address, which can include a token. Remove it so it never ends
+    // up in the image through `COPY . .`.
+    await rm(join(dir, ".git"), { recursive: true, force: true });
     return { sha, message };
   }
 

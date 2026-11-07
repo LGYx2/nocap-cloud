@@ -15,6 +15,13 @@
       "when": 1794054183754,
       "tag": "0001_apps_and_deploys",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794057485076,
+      "tag": "0002_git_providers",
+      "breakpoints": true
     }
   ]
 }

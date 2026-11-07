@@ -4,8 +4,11 @@ import type {
   Deployment,
   Domain,
   EnvVar,
+  GitProvider,
+  GitRepo,
   HealthResponse,
   Overview,
+  PanelSettings,
   Project,
   PublicUser,
   SetupStatus,
@@ -131,3 +134,35 @@ export async function refreshApps(appId?: string): Promise<void> {
     appId ? queryClient.invalidateQueries({ queryKey: ["application", appId] }) : undefined,
   ]);
 }
+
+// ---------------------------------------------------------------- git and settings
+
+export const gitProvidersQuery = queryOptions({
+  queryKey: ["git-providers"],
+  queryFn: async () => (await api<{ providers: GitProvider[] }>("/api/git-providers")).providers,
+});
+
+export const reposQuery = (providerId: string) =>
+  queryOptions({
+    queryKey: ["git-providers", providerId, "repos"],
+    queryFn: async () =>
+      (await api<{ repos: GitRepo[] }>(`/api/git-providers/${providerId}/repos`)).repos,
+    staleTime: 60_000,
+  });
+
+export const branchesQuery = (providerId: string, repo: string) =>
+  queryOptions({
+    queryKey: ["git-providers", providerId, "branches", repo],
+    queryFn: async () =>
+      (
+        await api<{ branches: string[] }>(
+          `/api/git-providers/${providerId}/branches?repo=${encodeURIComponent(repo)}`,
+        )
+      ).branches,
+    staleTime: 60_000,
+  });
+
+export const settingsQuery = queryOptions({
+  queryKey: ["settings"],
+  queryFn: async () => (await api<{ settings: PanelSettings }>("/api/settings")).settings,
+});

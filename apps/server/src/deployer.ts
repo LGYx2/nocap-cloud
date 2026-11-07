@@ -10,6 +10,7 @@ import { and, eq, inArray, ne } from "drizzle-orm";
 import { applications, deployments, domains, envVars, type Database } from "@nocap/db";
 import type { Config } from "./config";
 import { SecretBox } from "./crypto";
+import type { GitService } from "./git";
 import { CommandError, short, type Runtime } from "./runtime";
 
 interface Logger {
@@ -22,6 +23,8 @@ export interface DeployerOptions {
   config: Config;
   runtime: Runtime;
   log: Logger;
+  /** Gives clone access to repositories of connected Git accounts. */
+  git?: GitService;
   /** How long a new container must stay up before traffic moves to it. */
   settleMs?: number;
 }
@@ -149,7 +152,22 @@ export class Deployer {
         if (!app.repoUrl) throw new DeployError("The app has no repository set.");
         step(`Cloning ${app.repoUrl} (${app.branch})`);
         await rm(workdir, { recursive: true, force: true });
-        const commit = await runtime.clone(app.repoUrl, app.branch, workdir, log);
+        let cloneUrl = app.repoUrl;
+        let cloneLog = log;
+        if (app.gitProviderId && this.options.git) {
+          const access = await this.options.git
+            .cloneUrl(app.gitProviderId, app.repoUrl)
+            .catch((err: unknown) => {
+              throw new DeployError(
+                err instanceof Error ? err.message : "Could not get access to the repository.",
+              );
+            });
+          cloneUrl = access.url;
+          // Git can print the address in errors; never let the token reach the log.
+          cloneLog = (line: string) => log(line.replaceAll(access.secret, "***"));
+          log("Using the connected Git account");
+        }
+        const commit = await runtime.clone(cloneUrl, app.branch, workdir, cloneLog);
         log(`Commit ${commit.sha.slice(0, 7)}: ${commit.message}`);
         await db
           .update(deployments)

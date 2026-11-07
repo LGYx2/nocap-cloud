@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import type { DeploymentStatus } from "@nocap/shared";
 import { useState } from "react";
 import { RocketIcon } from "../components/icons";
 import { Alert, cn } from "../components/ui";
-import { deploymentsQuery } from "../queries";
+import { deploymentsQuery, projectsQuery } from "../queries";
 import { PageHeader } from "./AppShell";
 import { DeploymentRow } from "./DashboardPage";
 
@@ -17,8 +17,12 @@ const FILTERS: Array<{ label: string; match: (s: DeploymentStatus) => boolean }>
 
 /** Every deployment on the server, newest first. */
 export function DeploymentsPage() {
-  const { data = [], isPending, error } = useQuery(deploymentsQuery);
+  const { project } = useSearch({ from: "/app/deployments" });
+  const navigate = useNavigate({ from: "/deployments" });
+  const { data: all = [], isPending, error } = useQuery(deploymentsQuery);
+  const { data: projects = [] } = useQuery(projectsQuery);
   const [filter, setFilter] = useState(0);
+  const data = project ? all.filter((d) => d.projectId === project) : all;
   const visible = data.filter((d) => FILTERS[filter]?.match(d.status) ?? true);
 
   return (
@@ -32,31 +36,49 @@ export function DeploymentsPage() {
               Every build and release on this server. Click one to read its log.
             </p>
           </div>
-          <div
-            role="group"
-            aria-label="Filter"
-            className="inline-flex rounded-lg border p-1 text-sm"
-          >
-            {FILTERS.map((f, index) => {
-              const count = data.filter((d) => f.match(d.status)).length;
-              return (
-                <button
-                  key={f.label}
-                  type="button"
-                  aria-pressed={filter === index}
-                  onClick={() => setFilter(index)}
-                  className={cn(
-                    "rounded-md px-3 py-1 transition-colors",
-                    filter === index
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {f.label}
-                  <span className="ml-1.5 text-xs opacity-70 tabular-nums">{count}</span>
-                </button>
-              );
-            })}
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="sr-only" htmlFor="project-filter">
+              Project
+            </label>
+            <select
+              id="project-filter"
+              value={project ?? ""}
+              onChange={(e) => void navigate({ search: { project: e.target.value || undefined } })}
+              className="h-9 rounded-lg border border-input bg-field px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            >
+              <option value="">All projects</option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+            <div
+              role="group"
+              aria-label="Filter"
+              className="inline-flex rounded-lg border p-1 text-sm"
+            >
+              {FILTERS.map((f, index) => {
+                const count = data.filter((d) => f.match(d.status)).length;
+                return (
+                  <button
+                    key={f.label}
+                    type="button"
+                    aria-pressed={filter === index}
+                    onClick={() => setFilter(index)}
+                    className={cn(
+                      "rounded-md px-3 py-1 transition-colors",
+                      filter === index
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {f.label}
+                    <span className="ml-1.5 text-xs opacity-70 tabular-nums">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 

@@ -1,6 +1,13 @@
 // Database rows to API shapes for applications and deployments.
 import { desc, eq, getTableColumns, inArray } from "drizzle-orm";
-import { applications, deployments, domains, projects, type Database } from "@nocap/db";
+import {
+  applications,
+  deployments,
+  domains,
+  gitProviders,
+  projects,
+  type Database,
+} from "@nocap/db";
 import type { Application, Deployment } from "@nocap/shared";
 import { HttpError } from "./http";
 
@@ -54,9 +61,15 @@ export async function loadApplications(
   where: { projectId?: string; id?: string },
 ): Promise<Application[]> {
   const base = db
-    .select({ ...getTableColumns(applications), projectName: projects.name })
+    .select({
+      ...getTableColumns(applications),
+      projectName: projects.name,
+      providerName: gitProviders.name,
+      providerType: gitProviders.type,
+    })
     .from(applications)
     .innerJoin(projects, eq(projects.id, applications.projectId))
+    .leftJoin(gitProviders, eq(gitProviders.id, applications.gitProviderId))
     .orderBy(desc(applications.createdAt));
   const rows = where.id
     ? await base.where(eq(applications.id, where.id))
@@ -91,6 +104,12 @@ export async function loadApplications(
       name: row.name,
       source: row.buildType === "image" ? "image" : "git",
       repoUrl: row.repoUrl,
+      gitProvider:
+        row.gitProviderId && row.providerName && row.providerType
+          ? { id: row.gitProviderId, name: row.providerName, type: row.providerType }
+          : null,
+      autoDeploy: row.autoDeploy,
+      deployToken: row.deployToken,
       branch: row.branch,
       dockerfilePath: row.dockerfilePath,
       image: row.image,

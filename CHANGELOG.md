@@ -25,3 +25,9 @@ All notable changes to this project are documented here. The format follows
 - Sign in with GitHub on the website to vote on ideas and suggest new ones without leaving the
   page. Ideas stay GitHub issues and votes stay 👍 reactions.
 - Founder section on the home page.
+- Applications from a Git repository or a Docker image, with deployments, live build logs,
+  zero-downtime switch, domains with HTTPS, encrypted environment variables and app logs.
+- Dashboard with server CPU, memory and disk, and a Deployments page with project filter.
+- Git providers: a private GitHub App per install (manifest flow), GitLab tokens, private
+  repositories, deploy on push with signed webhooks, and a deploy hook URL per app.
+- Settings page with the panel's public address.

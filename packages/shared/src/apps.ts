@@ -56,9 +56,12 @@ export const applicationInputSchema = z.discriminatedUnion("source", [
     source: z.literal("git"),
     name: appName,
     repoUrl,
+    /** A connected account that can read the repository (needed for private repos). */
+    gitProviderId: z.uuid({ error: "Pick a connected account" }).nullish(),
     branch: branch.default("main"),
     dockerfilePath: dockerfilePath.default("Dockerfile"),
     port: port.default(3000),
+    autoDeploy: z.boolean().default(true),
   }),
   z.object({
     source: z.literal("image"),
@@ -76,6 +79,7 @@ export const applicationUpdateSchema = z.object({
   dockerfilePath: dockerfilePath.optional(),
   image: image.optional(),
   port: port.optional(),
+  autoDeploy: z.boolean().optional(),
 });
 export type ApplicationUpdate = z.input<typeof applicationUpdateSchema>;
 
@@ -86,6 +90,12 @@ export interface Application {
   name: string;
   source: AppSource;
   repoUrl: string | null;
+  /** Connected account used to clone, or null for a public repository. */
+  gitProvider: { id: string; type: "github" | "gitlab"; name: string } | null;
+  /** Deploy on every push to the branch (connected accounts) or deploy hook call. */
+  autoDeploy: boolean;
+  /** Secret part of the deploy hook URL: POST /api/hooks/deploy/<token>. */
+  deployToken: string;
   branch: string;
   dockerfilePath: string;
   image: string | null;

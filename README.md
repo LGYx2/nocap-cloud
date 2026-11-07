@@ -42,12 +42,37 @@ ports 80, 443 and 3000 free.
 
 | Phase                                                                       | Status      |
 | --------------------------------------------------------------------------- | ----------- |
-| 0. Foundations: repo, CI, login, projects, install script, website          | In progress |
-| 1. Deploy: build and run apps, Traefik, SSL, live logs                      | Planned     |
-| 2. Git: GitHub App, GitLab token, deploy on push, commit status             | Planned     |
-| 3. Reliability: encrypted variables, health checks, zero downtime, rollback | Planned     |
-| 4. Databases and backups                                                    | Planned     |
-| 5. Release v0.1: images on GHCR, in-panel updates, docs                     | Planned     |
+| 0. Foundations: repo, CI, login, projects, install script, website          | Done        |
+| 1. Deploy: build and run apps, Traefik, SSL, live logs                      | Done        |
+| 2. Git: GitHub App, GitLab token, deploy on push, deploy hooks              | Done        |
+| 3. Reliability: encrypted variables, health checks, zero downtime, rollback | In progress |
+| 4. Databases, release commands (migrations) and backups                     | Next        |
+| 5. Monitoring: per-app CPU and memory history, alerts, uptime checks        | Planned     |
+| 6. Release v0.1: images on GHCR, in-panel updates, docs                     | Planned     |
+
+## Deploying from Git
+
+**Public repositories** work right away: paste the `https://` address when you create an app.
+
+**GitHub** (private repositories, deploy on push):
+
+1. In the panel, open **Git providers → Connect GitHub**. Check the panel address: GitHub calls it
+   back and sends push events there, so it must be reachable from the internet.
+2. GitHub opens and creates a private GitHub App just for your server, with read-only access to
+   code. Click **Create**.
+3. Choose which repositories the app can see and click **Install**.
+4. Create an app, pick the account and the repository from the list. Every push to its branch
+   deploys it.
+
+Code is cloned with short-lived tokens. They are hidden in build logs, and the `.git` folder is
+removed before the build, so tokens never end up in an image.
+
+**GitLab** (gitlab.com or self-hosted): **Git providers → GitLab**, paste a personal access token
+with the `api` and `read_repository` scopes. Nocap adds the push webhook to the project when you
+create the app.
+
+**Anything else** (Bitbucket, Gitea, a cron job): every app has a deploy hook URL under
+**Settings → Automatic deploys**. `curl -X POST <url>` deploys it.
 
 ## Develop
 
