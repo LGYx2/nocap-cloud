@@ -3,7 +3,7 @@
 # One image for the whole panel: API, worker and the built web panel.
 # The server is bundled into a single file, so the runtime only installs native modules.
 
-FROM node:22-alpine AS build
+FROM node:25-alpine AS build
 RUN corepack enable
 WORKDIR /repo
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
@@ -23,7 +23,7 @@ RUN ARGON2_VERSION="$(node -p "require('/repo/apps/server/node_modules/@node-rs/
  && echo '{"name":"nocap","private":true,"type":"module"}' > package.json \
  && npm install --omit=dev --no-audit --no-fund "@node-rs/argon2@${ARGON2_VERSION}"
 
-FROM node:22-alpine AS runtime
+FROM node:25-alpine AS runtime
 ARG NOCAP_VERSION=dev
 ENV NODE_ENV=production \
     PORT=3000 \
