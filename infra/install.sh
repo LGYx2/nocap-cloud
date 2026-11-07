@@ -1,8 +1,8 @@
 #!/bin/sh
 # Nocap Cloud installer.
 #
-#   curl -fsSL https://github.com/LGYx2/nocap-cloud/releases/latest/download/install.sh | sudo sh
-#   curl -fsSL https://github.com/LGYx2/nocap-cloud/releases/latest/download/install.sh | sudo sh -s -- --version v0.1.0
+#   curl -fsSL https://get.nocapcloud.click | sudo sh
+#   curl -fsSL https://get.nocapcloud.click | sudo sh -s -- --version v0.1.0
 #
 # Options:
 #   --version <tag>   Install a specific release instead of the latest
@@ -62,7 +62,7 @@ confirm() {
   case "$answer" in y|Y|yes|YES) return 0 ;; *) return 1 ;; esac
 }
 
-[ "$(id -u)" -eq 0 ] || fatal "Run as root, for example: curl -fsSL https://github.com/LGYx2/nocap-cloud/releases/latest/download/install.sh | sudo sh"
+[ "$(id -u)" -eq 0 ] || fatal "Run as root, for example: curl -fsSL https://get.nocapcloud.click | sudo sh"
 
 compose() { docker compose --project-directory "$INSTALL_DIR" "$@"; }
 

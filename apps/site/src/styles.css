@@ -9,9 +9,11 @@
   --primary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
+  --accent: oklch(0.96 0 0);
   --border: oklch(0.922 0 0);
   --grid: oklch(0.145 0 0 / 6%);
+  --glow: oklch(0.145 0 0 / 5%);
+  --terminal: oklch(0.18 0 0);
   color-scheme: light;
 }
 
@@ -27,6 +29,8 @@
     --accent: oklch(0.269 0 0);
     --border: oklch(1 0 0 / 10%);
     --grid: oklch(1 0 0 / 6%);
+    --glow: oklch(1 0 0 / 6%);
+    --terminal: oklch(0.12 0 0);
     color-scheme: dark;
   }
 }
@@ -44,6 +48,7 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-border: var(--border);
+  --color-terminal: var(--terminal);
 }
 
 html {
@@ -68,7 +73,104 @@ body {
   outline-offset: 2px;
 }
 
-/* Faint grid behind the hero, fading out towards the edges. */
+::selection {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+/* Thin, quiet scrollbars everywhere. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- navigation */
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  color: var(--muted-foreground);
+  transition:
+    color 150ms,
+    background-color 150ms;
+}
+
+a.nav-link:hover,
+.nav-link[aria-current="page"] {
+  color: var(--foreground);
+  background: var(--accent);
+}
+
+.mobile-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+}
+
+a.mobile-link:hover,
+.mobile-link[aria-current="page"] {
+  background: var(--accent);
+}
+
+.mobile-menu[open] summary {
+  background: var(--accent);
+}
+
+.footer-link {
+  transition: color 150ms;
+}
+
+.footer-link:hover {
+  color: var(--foreground);
+}
+
+.soon-pill {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.0625rem 0.4rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+/* Reading progress under the header, driven by scroll position where the browser supports it. */
+.scroll-progress {
+  height: 1px;
+  background: var(--foreground);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+@supports (animation-timeline: scroll()) {
+  .scroll-progress {
+    animation: grow-x linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+@keyframes grow-x {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ---------------------------------------------------------------- backgrounds */
 .hero-grid {
   background-image:
     linear-gradient(to right, var(--grid) 1px, transparent 1px),
@@ -77,8 +179,484 @@ body {
   mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 40%, transparent 100%);
 }
 
+.hero-glow {
+  background: radial-gradient(600px circle at 50% 0%, var(--glow), transparent 70%);
+}
+
+/* ---------------------------------------------------------------- motion */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(4px);
+  }
+}
+
+/* Above-the-fold content animates on load, with --i as the stagger step. */
+.animate-in {
+  animation: fade-up 800ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+
+/* Content below the fold fades in once it scrolls into view (main.js adds .is-visible). */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 700ms ease,
+    transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: calc(var(--i, 0) * 70ms);
+}
+
+.js [data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* The panel screenshot starts tilted back and settles flat as it reveals. */
+.js .tilt-in {
+  transform: perspective(1600px) rotateX(14deg) scale(0.96);
+  transform-origin: top center;
+  transition:
+    transform 1100ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    opacity 900ms ease;
+  opacity: 0.4;
+}
+
+.js .tilt-in.is-visible {
+  transform: none;
+  opacity: 1;
+}
+
+/* Cards with a soft light that follows the pointer (main.js sets --x and --y). */
+.spotlight {
+  position: relative;
+  isolation: isolate;
+  transition:
+    border-color 200ms,
+    transform 200ms;
+}
+
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(
+    320px circle at var(--x, 50%) var(--y, 50%),
+    var(--glow),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 250ms;
+}
+
+.spotlight:hover {
+  border-color: color-mix(in oklch, var(--foreground) 22%, transparent);
+  transform: translateY(-2px);
+}
+
+.spotlight:hover::before {
+  opacity: 1;
+}
+
+/* Blinking cursor in the terminal. */
+.cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.1em;
+  vertical-align: text-bottom;
+  background: currentColor;
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.js .term-line {
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 300ms,
+    transform 300ms;
+}
+
+.js .term-line.is-shown {
+  opacity: 1;
+  transform: none;
+}
+
+/* Gentle pulse for "in progress" markers. */
+.pulse-dot {
+  position: relative;
+}
+
+.pulse-dot::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes ping {
+  75%,
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+/* Slowly moving row of technology names. */
+.marquee {
+  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+}
+
+.marquee-track {
+  animation: marquee 40s linear infinite;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+
+  .marquee-track {
+    animation: none;
+  }
+
+  .js [data-reveal],
+  .js .tilt-in,
+  .js .term-line {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------- roadmap tree */
+/* The trunk runs down the middle; each version is a branch with its features as leaves. */
+.tree {
+  position: relative;
+}
+
+.tree::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 1.25rem;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--foreground), var(--border) 30%, var(--border));
+  border-radius: 2px;
+}
+
+@media (min-width: 768px) {
+  .tree::before {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+.branch {
+  position: relative;
+  padding-left: 3.25rem;
+}
+
+/* The knot where a branch meets the trunk. */
+.branch-knot {
+  position: absolute;
+  top: 1.35rem;
+  left: 1.25rem;
+  display: flex;
+  height: 1rem;
+  width: 1rem;
+  transform: translateX(-50%);
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 2px solid var(--foreground);
+  background: var(--background);
+}
+
+.branch-knot[data-state="planned"],
+.branch-knot[data-state="later"] {
+  border-color: var(--border);
+}
+
+.branch-knot[data-state="progress"] {
+  background: var(--foreground);
+}
+
+/* The twig from the trunk to the card. */
+.branch::before {
+  content: "";
+  position: absolute;
+  top: 1.85rem;
+  left: 1.25rem;
+  width: 2rem;
+  height: 2px;
+  background: var(--border);
+}
+
+@media (min-width: 768px) {
+  .branch {
+    width: 50%;
+    padding-left: 0;
+  }
+
+  .branch[data-side="left"] {
+    padding-right: 3rem;
+  }
+
+  .branch[data-side="right"] {
+    margin-left: 50%;
+    padding-left: 3rem;
+  }
+
+  .branch-knot {
+    left: auto;
+  }
+
+  .branch[data-side="left"] .branch-knot {
+    right: 0;
+    transform: translateX(50%);
+  }
+
+  .branch[data-side="right"] .branch-knot {
+    left: 0;
+  }
+
+  .branch[data-side="left"]::before {
+    left: auto;
+    right: 0;
+    width: 3rem;
+  }
+
+  .branch[data-side="right"]::before {
+    left: 0;
+    width: 3rem;
+  }
+}
+
+/* Leaves: the features of a version. */
+.leaf {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.leaf-mark {
+  margin-top: 0.3rem;
+  height: 0.55rem;
+  width: 0.55rem;
+  flex-shrink: 0;
+  border-radius: 0 999px 0 999px;
+  border: 1.5px solid var(--muted-foreground);
+}
+
+.leaf[data-done] .leaf-mark {
+  background: var(--foreground);
+  border-color: var(--foreground);
+}
+
+/* A smaller twig for pre-releases on the side branch. */
+.sub-branch {
+  position: relative;
+  margin-left: 0.5rem;
+  border-left: 2px dashed var(--border);
+  padding-left: 1.25rem;
+}
+
+/* ---------------------------------------------------------------- deploy graph */
+/* Phones and tablets: a stacked list. Wide screens: freely placed nodes joined by wires. */
+.flow-canvas {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.flow-wires {
+  display: none;
+}
+
+.flow-node {
+  transition:
+    border-color 300ms,
+    opacity 300ms,
+    box-shadow 300ms;
+}
+
+.flow-node.is-dragging {
+  z-index: 20;
+  box-shadow: 0 20px 40px -12px oklch(0 0 0 / 0.35);
+  transition: none;
+}
+
+.flow-out {
+  opacity: 0.55;
+}
+
+.flow-out.is-on {
+  opacity: 1;
+}
+
+.flow-in.is-on {
+  border-color: color-mix(in oklch, var(--foreground) 45%, transparent);
+}
+
+.flow-port {
+  position: relative;
+  display: inline-block;
+  height: 0.7rem;
+  width: 0.7rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 2px solid var(--muted-foreground);
+  background: var(--background);
+  transition:
+    background-color 300ms,
+    border-color 300ms;
+}
+
+.is-on .flow-port,
+.flow-port.is-on {
+  border-color: var(--foreground);
+  background: var(--foreground);
+}
+
+.flow-row .flow-check {
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity 250ms,
+    transform 250ms;
+}
+
+.flow-row.is-on .flow-check {
+  opacity: 1;
+  transform: none;
+}
+
+.flow-row.is-on {
+  color: var(--foreground);
+}
+
+.flow-state-wait,
+.flow-state-ready {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.flow-state-ready,
+.is-on .flow-state-wait {
+  display: none;
+}
+
+.is-on .flow-state-ready {
+  display: inline-flex;
+}
+
+.wire {
+  fill: none;
+  stroke: var(--muted-foreground);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 6;
+  opacity: 0.45;
+  transition:
+    opacity 300ms,
+    stroke 300ms;
+}
+
+.wire.is-on {
+  stroke: var(--foreground);
+  stroke-dasharray: 6 6;
+  opacity: 1;
+  animation: wire-flow 900ms linear infinite;
+}
+
+@keyframes wire-flow {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+
+@media (min-width: 1024px) {
+  .flow-canvas {
+    position: relative;
+    display: block;
+    height: 41rem;
+  }
+
+  .flow-wires {
+    position: absolute;
+    inset: 0;
+    display: block;
+    height: 100%;
+    width: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .flow-node {
+    position: absolute;
+    left: var(--x, var(--x0));
+    top: var(--y, var(--y0));
+    width: 15rem;
+  }
+
+  .flow-handle {
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .flow-node.is-dragging .flow-handle {
+    cursor: grabbing;
+  }
+}
+
+/* ---------------------------------------------------------------- ideas */
+.vote-button {
+  display: flex;
+  min-width: 3.25rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.625rem;
+  transition:
+    border-color 150ms,
+    background-color 150ms,
+    transform 150ms;
+}
+
+.vote-button:hover {
+  border-color: color-mix(in oklch, var(--foreground) 30%, transparent);
+  background: var(--accent);
+  transform: translateY(-1px);
+}
+
+.filter-chip[aria-pressed="true"] {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
 }

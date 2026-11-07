@@ -19,3 +19,6 @@ All notable changes to this project are documented here. The format follows
 - Sidebar with icons, user menu and breadcrumbs.
 - Landing page in `apps/site`, published to GitHub Pages.
 - Demo mode for the panel with a fake API in the browser, deployed to Vercel.
+- Website with Features, Roadmap (version tree) and Community (ideas with voting) pages,
+  an interactive deploy graph and scroll animations.
+- Short install address: `curl -fsSL https://get.nocapcloud.click | sudo sh`.

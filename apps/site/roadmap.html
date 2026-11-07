@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+    <title>Roadmap: Nocap Cloud</title>
+    <meta
+      name="description"
+      content="The Nocap Cloud version tree: what is done, what comes next and every release planned up to v1.0."
+    />
+    <link rel="canonical" href="https://nocapcloud.click/roadmap" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <script type="module" src="./src/main.js"></script>
+  </head>
+  <body data-page="roadmap">
+    <!-- partial:header -->
+
+    <main id="main">
+      <section class="relative overflow-hidden border-b">
+        <div class="hero-grid pointer-events-none absolute inset-0" aria-hidden="true"></div>
+        <div class="relative mx-auto max-w-6xl px-4 pt-16 pb-10 md:px-6 md:pt-24">
+          <p class="animate-in text-sm font-medium text-muted-foreground">Roadmap</p>
+          <h1
+            class="animate-in mt-2 max-w-3xl text-4xl font-bold tracking-tighter text-balance sm:text-6xl"
+            style="--i: 1"
+          >
+            A tree that grows one version at a time.
+          </h1>
+          <p class="animate-in mt-5 max-w-2xl text-muted-foreground sm:text-lg" style="--i: 2">
+            The trunk is the main branch. Each version is a branch, and its features are the leaves.
+            Filled leaves are done. Pre-releases grow on a side branch and join the trunk at v0.1,
+            the first release you can install.
+          </p>
+
+          <!-- Version graph -->
+          <div class="animate-in mt-10 rounded-2xl border bg-card/80 shadow-xs" style="--i: 3">
+            <div class="no-scrollbar overflow-x-auto">
+              <svg
+                viewBox="0 0 1040 200"
+                class="block h-auto w-full min-w-[760px]"
+                role="img"
+                aria-label="Version graph. Pre-releases v0.0.1 to v0.0.5 on a side branch merge into the main branch at v0.1.0, followed by v0.2 to v0.6 and v1.0. v0.0.1 is in progress."
+              >
+                <g fill="none" stroke-linecap="round">
+                  <!-- main trunk -->
+                  <path d="M 30 140 H 1010" stroke="var(--border)" stroke-width="3" />
+                  <path
+                    d="M 30 140 H 500"
+                    stroke="var(--muted-foreground)"
+                    stroke-width="3"
+                    opacity="0.5"
+                  />
+                  <!-- pre-release side branch -->
+                  <path
+                    d="M 50 140 C 80 140, 80 70, 115 70 H 425 C 460 70, 460 140, 500 140"
+                    stroke="var(--foreground)"
+                    stroke-width="2.5"
+                    stroke-dasharray="6 6"
+                  />
+                  <!-- small feature twigs after v0.1 -->
+                  <path
+                    d="M 580 140 C 595 140, 600 110, 620 110"
+                    stroke="var(--border)"
+                    stroke-width="2"
+                  />
+                  <path
+                    d="M 680 140 C 695 140, 700 170, 720 170"
+                    stroke="var(--border)"
+                    stroke-width="2"
+                  />
+                  <path
+                    d="M 780 140 C 795 140, 800 110, 820 110"
+                    stroke="var(--border)"
+                    stroke-width="2"
+                  />
+                  <path
+                    d="M 880 140 C 895 140, 900 170, 920 170"
+                    stroke="var(--border)"
+                    stroke-width="2"
+                  />
+                </g>
+
+                <!-- leaves on the twigs -->
+                <g fill="var(--muted)" stroke="var(--border)" stroke-width="1.5">
+                  <path d="M 620 110 q 10 -12 22 -6 q -6 12 -22 6 Z" />
+                  <path d="M 720 170 q 10 12 22 6 q -6 -12 -22 -6 Z" />
+                  <path d="M 820 110 q 10 -12 22 -6 q -6 12 -22 6 Z" />
+                  <path d="M 920 170 q 10 12 22 6 q -6 -12 -22 -6 Z" />
+                </g>
+
+                <!-- pre-release commits -->
+                <g font-family="ui-monospace, monospace" font-size="12" text-anchor="middle">
+                  <circle
+                    cx="140"
+                    cy="70"
+                    r="11"
+                    fill="none"
+                    stroke="var(--foreground)"
+                    stroke-width="1.5"
+                    opacity="0.4"
+                  >
+                    <animate attributeName="r" values="9;16;9" dur="2s" repeatCount="indefinite" />
+                    <animate
+                      attributeName="opacity"
+                      values="0.5;0;0.5"
+                      dur="2s"
+                      repeatCount="indefinite"
+                    />
+                  </circle>
+                  <circle cx="140" cy="70" r="8" fill="var(--foreground)" />
+                  <text x="140" y="45" fill="var(--foreground)" font-weight="600">v0.0.1</text>
+                  <text
+                    x="140"
+                    y="100"
+                    fill="var(--muted-foreground)"
+                    font-family="Inter, sans-serif"
+                    font-size="11"
+                  >
+                    you are here
+                  </text>
+
+                  <circle
+                    cx="210"
+                    cy="70"
+                    r="7"
+                    fill="var(--background)"
+                    stroke="var(--foreground)"
+                    stroke-width="2"
+                  />
+                  <text x="210" y="45" fill="var(--muted-foreground)">v0.0.2</text>
+                  <circle
+                    cx="280"
+                    cy="70"
+                    r="7"
+                    fill="var(--background)"
+                    stroke="var(--muted-foreground)"
+                    stroke-width="2"
+                  />
+                  <text x="280" y="45" fill="var(--muted-foreground)">v0.0.3</text>
+                  <circle
+                    cx="350"
+                    cy="70"
+                    r="7"
+                    fill="var(--background)"
+                    stroke="var(--muted-foreground)"
+                    stroke-width="2"
+                  />
+                  <text x="350" y="45" fill="var(--muted-foreground)">v0.0.4</text>
+                  <circle
+                    cx="420"
+                    cy="70"
+                    r="7"
+                    fill="var(--background)"
+                    stroke="var(--muted-foreground)"
+                    stroke-width="2"
+                  />
+                  <text x="420" y="45" fill="var(--muted-foreground)">v0.0.5</text>
+
+                  <!-- main line releases -->
+                  <circle
+                    cx="500"
+                    cy="140"
+                    r="11"
+                    fill="var(--background)"
+                    stroke="var(--foreground)"
+                    stroke-width="3"
+                  />
+                  <text x="500" y="178" fill="var(--foreground)" font-weight="700">v0.1.0</text>
+                  <circle
+                    cx="580"
+                    cy="140"
+                    r="7"
+                    fill="var(--background)"
+                    stroke="var(--muted-foreground)"
+                    stroke-width="2"
+                  />
+                  <text x="580" y="178" fill="var(--muted-foreground)">v0.2</text>
+                  <circle
+                    cx="680"
+                    cy="140"
+                    r="7"
+                    fill="var(--background)"
+                    stroke="var(--muted-foreground)"
+                    stroke-width="2"
+                  />
+                  <text x="680" y="118" fill="var(--muted-foreground)">v0.3</text>
+                  <circle
+                    cx="780"
+                    cy="140"
+                    r="7"
+                    fill="var(--background)"
+                    stroke="var(--muted-foreground)"
+                    stroke-width="2"
+                  />
+                  <text x="780" y="178" fill="var(--muted-foreground)">v0.4</text>
+                  <circle
+                    cx="880"
+                    cy="140"
+                    r="7"
+                    fill="var(--background)"
+                    stroke="var(--muted-foreground)"
+                    stroke-width="2"
+                  />
+                  <text x="880" y="118" fill="var(--muted-foreground)">v0.5</text>
+                  <circle
+                    cx="960"
+                    cy="140"
+                    r="7"
+                    fill="var(--background)"
+                    stroke="var(--muted-foreground)"
+                    stroke-width="2"
+                  />
+                  <text x="960" y="178" fill="var(--muted-foreground)">v0.6</text>
+                  <circle
+                    cx="1010"
+                    cy="140"
+                    r="12"
+                    fill="var(--background)"
+                    stroke="var(--border)"
+                    stroke-width="3"
+                    stroke-dasharray="4 4"
+                  />
+                  <text x="1010" y="118" fill="var(--muted-foreground)" font-weight="600">
+                    v1.0
+                  </text>
+                </g>
+
+                <g font-family="Inter, sans-serif" font-size="11" fill="var(--muted-foreground)">
+                  <text x="30" y="128">main</text>
+                  <text x="115" y="20">pre-releases</text>
+                </g>
+              </svg>
+            </div>
+            <div
+              class="flex flex-wrap items-center gap-x-6 gap-y-2 border-t px-5 py-3 text-xs text-muted-foreground"
+            >
+              <span class="flex items-center gap-2"
+                ><span class="size-2.5 rounded-full bg-foreground"></span>In progress</span
+              >
+              <span class="flex items-center gap-2"
+                ><span class="size-2.5 rounded-full border-2 border-foreground"></span>Next</span
+              >
+              <span class="flex items-center gap-2"
+                ><span class="size-2.5 rounded-full border-2 border-muted-foreground"></span
+                >Planned</span
+              >
+              <span class="flex items-center gap-2"
+                ><span
+                  class="size-2.5 rounded-full border-2 border-dashed border-muted-foreground"
+                ></span
+                >Later</span
+              >
+              <span class="flex items-center gap-2"
+                ><span
+                  class="leaf-mark !mt-0"
+                  style="background: var(--foreground); border-color: var(--foreground)"
+                ></span
+                >Leaf done</span
+              >
+              <span class="flex items-center gap-2"
+                ><span class="leaf-mark !mt-0"></span>Leaf to do</span
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- The tree -->
+      <section class="mx-auto max-w-6xl px-4 py-20 md:px-6">
+        <div class="tree space-y-10">
+          <!-- v0.0.1 -->
+          <article class="branch" data-side="left" data-reveal id="v0.0.1">
+            <span class="branch-knot" data-state="progress"></span>
+            <div class="rounded-2xl border-2 border-foreground bg-card p-6 shadow-sm">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="font-mono text-sm font-semibold">v0.0.1</span>
+                <span
+                  class="inline-flex items-center gap-1.5 rounded-md bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground"
+                  ><span class="pulse-dot size-1.5 rounded-full bg-primary-foreground"></span>In
+                  progress</span
+                >
+                <span class="ml-auto text-xs text-muted-foreground">Pre-release</span>
+              </div>
+              <h2 class="mt-3 text-xl font-semibold">Foundations</h2>
+              <div class="mt-3 flex items-center gap-3">
+                <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                  <div class="h-full w-[89%] rounded-full bg-foreground"></div>
+                </div>
+                <span class="font-mono text-xs text-muted-foreground">8 of 9</span>
+              </div>
+              <ul class="mt-4 space-y-2 text-sm">
+                <li class="leaf" data-done>
+                  <span class="leaf-mark"></span>Public repository, Apache 2.0 and community files
+                </li>
+                <li class="leaf" data-done>
+                  <span class="leaf-mark"></span>CI: format, lint, types, tests, build and Docker
+                  image
+                </li>
+                <li class="leaf" data-done>
+                  <span class="leaf-mark"></span>Admin login with argon2, sessions and rate limits
+                </li>
+                <li class="leaf" data-done>
+                  <span class="leaf-mark"></span>First-run setup that creates the admin
+                </li>
+                <li class="leaf" data-done>
+                  <span class="leaf-mark"></span>Projects: create, search, rename and delete
+                </li>
+                <li class="leaf" data-done>
+                  <span class="leaf-mark"></span>Black and white panel with light and dark themes
+                </li>
+                <li class="leaf" data-done>
+                  <span class="leaf-mark"></span>Install script and the three-container stack
+                </li>
+                <li class="leaf" data-done>
+                  <span class="leaf-mark"></span>Website, live demo and protected main branch
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Install tested on a clean Ubuntu server
+                </li>
+              </ul>
+              <p class="mt-4 border-t pt-3 text-xs text-muted-foreground">
+                <strong class="font-medium text-foreground">Done when</strong> one command installs
+                everything on a clean Ubuntu server and the login works.
+              </p>
+            </div>
+          </article>
+
+          <!-- v0.0.2 -->
+          <article class="branch" data-side="right" data-reveal id="v0.0.2">
+            <span class="branch-knot" data-state="next"></span>
+            <div class="spotlight rounded-2xl border bg-card p-6 shadow-sm">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="font-mono text-sm font-semibold">v0.0.2</span>
+                <span class="rounded-md border border-foreground px-2 py-0.5 text-xs font-medium"
+                  >Next</span
+                >
+                <span class="ml-auto text-xs text-muted-foreground">Pre-release</span>
+              </div>
+              <h2 class="mt-3 text-xl font-semibold">Deploy</h2>
+              <ul class="mt-4 space-y-2 text-sm text-muted-foreground">
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Docker layer: build, run, stop, remove and logs
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Build queue in Postgres, one build at a time
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Clone a public repository, last commit only
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Build from a Dockerfile or Docker Compose
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Traefik routing with Let's Encrypt certificates
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Screens for applications and domains
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Build and runtime logs, live over WebSocket
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Deploy, restart and stop buttons
+                </li>
+              </ul>
+              <p class="mt-4 border-t pt-3 text-xs text-muted-foreground">
+                <strong class="font-medium text-foreground">Done when</strong> a public test app is
+                live over HTTPS and its logs stream in real time.
+              </p>
+            </div>
+          </article>
+
+          <!-- v0.0.3 -->
+          <article class="branch" data-side="left" data-reveal id="v0.0.3">
+            <span class="branch-knot" data-state="planned"></span>
+            <div class="spotlight rounded-2xl border bg-card p-6 shadow-sm">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="font-mono text-sm font-semibold">v0.0.3</span>
+                <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground"
+                  >Planned</span
+                >
+                <span class="ml-auto text-xs text-muted-foreground">Pre-release</span>
+              </div>
+              <h2 class="mt-3 text-xl font-semibold">Git connection</h2>
+              <ul class="mt-4 space-y-2 text-sm text-muted-foreground">
+                <li class="leaf">
+                  <span class="leaf-mark"></span>GitHub App created from a manifest in a few clicks
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>GitLab token with a "Test connection" button
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Webhooks and deploy keys created by the API
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Repository and branch pickers with search
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Detect Dockerfile, Compose file and port
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Verified webhooks and status on every commit
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Warning before a GitLab token expires
+                </li>
+              </ul>
+              <p class="mt-4 border-t pt-3 text-xs text-muted-foreground">
+                <strong class="font-medium text-foreground">Done when</strong> a push on GitHub and
+                another on GitLab deploy by themselves.
+              </p>
+            </div>
+          </article>
+
+          <!-- v0.0.4 -->
+          <article class="branch" data-side="right" data-reveal id="v0.0.4">
+            <span class="branch-knot" data-state="planned"></span>
+            <div class="spotlight rounded-2xl border bg-card p-6 shadow-sm">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="font-mono text-sm font-semibold">v0.0.4</span>
+                <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground"
+                  >Planned</span
+                >
+                <span class="ml-auto text-xs text-muted-foreground">Pre-release</span>
+              </div>
+              <h2 class="mt-3 text-xl font-semibold">Reliability</h2>
+              <ul class="mt-4 space-y-2 text-sm text-muted-foreground">
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Variables encrypted with AES-256-GCM
+                </li>
+                <li class="leaf"><span class="leaf-mark"></span>Health check per app</li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Zero-downtime swap after the health check
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Rollback to any of the last 5 images
+                </li>
+                <li class="leaf"><span class="leaf-mark"></span>CPU and RAM limits per app</li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Weekly cleanup of old images and builds
+                </li>
+              </ul>
+              <p class="mt-4 border-t pt-3 text-xs text-muted-foreground">
+                <strong class="font-medium text-foreground">Done when</strong> a deploy broken on
+                purpose does not take the previous version offline.
+              </p>
+            </div>
+          </article>
+
+          <!-- v0.0.5 -->
+          <article class="branch" data-side="left" data-reveal id="v0.0.5">
+            <span class="branch-knot" data-state="planned"></span>
+            <div class="spotlight rounded-2xl border bg-card p-6 shadow-sm">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="font-mono text-sm font-semibold">v0.0.5</span>
+                <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground"
+                  >Planned</span
+                >
+                <span class="ml-auto text-xs text-muted-foreground">Pre-release</span>
+              </div>
+              <h2 class="mt-3 text-xl font-semibold">Databases and backups</h2>
+              <ul class="mt-4 space-y-2 text-sm text-muted-foreground">
+                <li class="leaf">
+                  <span class="leaf-mark"></span>One-click PostgreSQL, MySQL and Redis
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Link a database to an app as a variable
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Scheduled backups to S3, R2 or MinIO
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Restore from the panel, tested on a real backup
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>A real production app running on Nocap for a week
+                </li>
+              </ul>
+              <p class="mt-4 border-t pt-3 text-xs text-muted-foreground">
+                <strong class="font-medium text-foreground">Done when</strong> a production app runs
+                on Nocap with a daily backup that was restored once.
+              </p>
+            </div>
+          </article>
+
+          <!-- v0.1.0 -->
+          <article class="branch" data-side="right" data-reveal id="v0.1.0">
+            <span
+              class="branch-knot"
+              data-state="planned"
+              style="height: 1.4rem; width: 1.4rem; border-width: 3px"
+            ></span>
+            <div class="spotlight rounded-2xl border bg-card p-6 shadow-lg">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="font-mono text-base font-bold">v0.1.0</span>
+                <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground"
+                  >Planned</span
+                >
+                <span class="ml-auto rounded-md bg-muted px-2 py-0.5 text-xs font-medium"
+                  >First release</span
+                >
+              </div>
+              <h2 class="mt-3 text-2xl font-semibold">Install it anywhere</h2>
+              <p class="mt-1 text-sm text-muted-foreground">
+                The pre-release branch joins the trunk. Everything above, packaged and documented.
+              </p>
+              <ul class="mt-4 space-y-2 text-sm text-muted-foreground">
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Images for amd64 and arm64 on GitHub Container
+                  Registry
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>One-line installer at get.nocapcloud.click
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Updates from the panel, with automatic rollback
+                </li>
+                <li class="leaf"><span class="leaf-mark"></span>Documentation site</li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Security review of login and webhooks
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Launch post and a short demo video
+                </li>
+              </ul>
+              <p class="mt-4 border-t pt-3 text-xs text-muted-foreground">
+                <strong class="font-medium text-foreground">Done when</strong> someone installs it
+                from the README on a fresh server and deploys an app without asking for help.
+              </p>
+            </div>
+          </article>
+
+          <!-- After v0.1 -->
+          <article class="branch" data-side="left" data-reveal id="v0.2">
+            <span class="branch-knot" data-state="planned"></span>
+            <div class="spotlight rounded-2xl border bg-card p-6 shadow-sm">
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-sm font-semibold">v0.2</span>
+                <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground"
+                  >Planned</span
+                >
+              </div>
+              <h2 class="mt-3 text-xl font-semibold">Monitoring and alerts</h2>
+              <ul class="mt-4 space-y-2 text-sm text-muted-foreground">
+                <li class="leaf">
+                  <span class="leaf-mark"></span>CPU, RAM, disk and network per app and per server
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Alerts by email, Slack, Discord and Telegram
+                </li>
+                <li class="leaf"><span class="leaf-mark"></span>MariaDB and MongoDB</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="branch" data-side="right" data-reveal id="v0.3">
+            <span class="branch-knot" data-state="planned"></span>
+            <div class="spotlight rounded-2xl border bg-card p-6 shadow-sm">
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-sm font-semibold">v0.3</span>
+                <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground"
+                  >Planned</span
+                >
+              </div>
+              <h2 class="mt-3 text-xl font-semibold">Templates and previews</h2>
+              <ul class="mt-4 space-y-2 text-sm text-muted-foreground">
+                <li class="leaf">
+                  <span class="leaf-mark"></span>One-click templates: n8n, Plausible, Uptime Kuma
+                  and more
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>A preview deployment for every pull request
+                </li>
+                <li class="leaf"><span class="leaf-mark"></span>Scheduled jobs</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="branch" data-side="left" data-reveal id="v0.4">
+            <span class="branch-knot" data-state="planned"></span>
+            <div class="spotlight rounded-2xl border bg-card p-6 shadow-sm">
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-sm font-semibold">v0.4</span>
+                <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground"
+                  >Planned</span
+                >
+              </div>
+              <h2 class="mt-3 text-xl font-semibold">Teams and API</h2>
+              <ul class="mt-4 space-y-2 text-sm text-muted-foreground">
+                <li class="leaf"><span class="leaf-mark"></span>Teams and roles</li>
+                <li class="leaf"><span class="leaf-mark"></span>Two-factor login</li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>API tokens and a command-line tool
+                </li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="branch" data-side="right" data-reveal id="v0.5">
+            <span class="branch-knot" data-state="planned"></span>
+            <div class="spotlight rounded-2xl border bg-card p-6 shadow-sm">
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-sm font-semibold">v0.5</span>
+                <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground"
+                  >Planned</span
+                >
+              </div>
+              <h2 class="mt-3 text-xl font-semibold">Multi-server</h2>
+              <ul class="mt-4 space-y-2 text-sm text-muted-foreground">
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Deploy to other servers over SSH from one panel
+                </li>
+                <li class="leaf"><span class="leaf-mark"></span>Optional Docker Swarm</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="branch" data-side="left" data-reveal id="v0.6">
+            <span class="branch-knot" data-state="planned"></span>
+            <div class="spotlight rounded-2xl border bg-card p-6 shadow-sm">
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-sm font-semibold">v0.6</span>
+                <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground"
+                  >Planned</span
+                >
+              </div>
+              <h2 class="mt-3 text-xl font-semibold">No Dockerfile needed</h2>
+              <ul class="mt-4 space-y-2 text-sm text-muted-foreground">
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Builds with Nixpacks or buildpacks
+                </li>
+                <li class="leaf"><span class="leaf-mark"></span>Backups of app volumes</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="branch" data-side="right" data-reveal id="v1.0">
+            <span class="branch-knot" data-state="later" style="border-style: dashed"></span>
+            <div class="rounded-2xl border border-dashed bg-card p-6">
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-sm font-semibold">v1.0</span>
+                <span
+                  class="rounded-md border border-dashed px-2 py-0.5 text-xs text-muted-foreground"
+                  >Later</span
+                >
+              </div>
+              <h2 class="mt-3 text-xl font-semibold">Stable</h2>
+              <ul class="mt-4 space-y-2 text-sm text-muted-foreground">
+                <li class="leaf">
+                  <span class="leaf-mark"></span>A stable API, with breaking changes only in major
+                  versions
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>A safe upgrade path from every 0.x release
+                </li>
+                <li class="leaf">
+                  <span class="leaf-mark"></span>Whatever the community votes to the top
+                </li>
+              </ul>
+            </div>
+          </article>
+        </div>
+        <p class="mt-10 text-center text-sm text-muted-foreground" data-reveal>
+          The order after v0.1 follows what people ask for.
+          <a class="font-medium text-foreground underline" href="./community.html#ideas"
+            >Vote on the ideas</a
+          >.
+        </p>
+      </section>
+
+      <!-- How releases work -->
+      <section class="border-t bg-muted/40">
+        <div class="mx-auto max-w-6xl px-4 py-20 md:px-6">
+          <div class="max-w-2xl" data-reveal>
+            <p class="text-sm font-medium text-muted-foreground">Releases</p>
+            <h2 class="mt-2 text-3xl font-bold tracking-tight">How a version ships</h2>
+          </div>
+          <ol class="mt-10 grid gap-4 md:grid-cols-4" data-stagger>
+            <li class="rounded-xl border bg-card p-5 shadow-xs">
+              <span class="font-mono text-xs text-muted-foreground">1. Tag</span>
+              <p class="mt-2 font-medium">A version tag on main</p>
+              <p class="mt-1 text-sm text-muted-foreground">
+                Semantic versions. v0.x until the API is stable.
+              </p>
+            </li>
+            <li class="rounded-xl border bg-card p-5 shadow-xs">
+              <span class="font-mono text-xs text-muted-foreground">2. Build</span>
+              <p class="mt-2 font-medium">Images for two CPUs</p>
+              <p class="mt-1 text-sm text-muted-foreground">
+                GitHub Actions builds amd64 and arm64 and pushes to GHCR.
+              </p>
+            </li>
+            <li class="rounded-xl border bg-card p-5 shadow-xs">
+              <span class="font-mono text-xs text-muted-foreground">3. Publish</span>
+              <p class="mt-2 font-medium">Release notes</p>
+              <p class="mt-1 text-sm text-muted-foreground">
+                A GitHub Release with the changelog, installer and compose file.
+              </p>
+            </li>
+            <li class="rounded-xl border bg-card p-5 shadow-xs">
+              <span class="font-mono text-xs text-muted-foreground">4. Update</span>
+              <p class="mt-2 font-medium">One click for you</p>
+              <p class="mt-1 text-sm text-muted-foreground">
+                Your panel shows the update and installs it without SSH.
+              </p>
+            </li>
+          </ol>
+        </div>
+      </section>
+    </main>
+
+    <!-- partial:footer -->
+  </body>
+</html>

@@ -32,7 +32,7 @@ no telemetry.
 > Not available yet. The installer ships with v0.1.
 
 ```sh
-curl -fsSL https://github.com/LGYx2/nocap-cloud/releases/latest/download/install.sh | sudo sh
+curl -fsSL https://get.nocapcloud.click | sudo sh
 ```
 
 Requirements: Ubuntu 22.04 or 24.04, amd64 or arm64, 1 GB RAM (2 GB recommended), 20 GB disk,

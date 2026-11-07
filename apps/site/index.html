@@ -22,136 +22,87 @@
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <script type="module" src="./src/main.js"></script>
   </head>
-  <body>
-    <!-- Cap mark, reused by the header and footer -->
-    <svg aria-hidden="true" class="hidden">
-      <symbol id="cap" viewBox="56 60 280 184">
-        <path
-          d="M74 214 C62 210 62 196 63 180 C64 120 96 82 150 72 C210 64 254 92 266 172 L318 200 C332 208 330 224 312 224 C292 224 276 212 262 204 C232 216 204 236 172 237 C152 237 136 226 124 212 C108 216 90 216 74 214 Z"
-          fill="currentColor"
-        />
-        <path
-          d="M186 156 L207 128 L232 150"
-          fill="none"
-          stroke="var(--background)"
-          stroke-width="16"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </symbol>
-      <symbol id="github" viewBox="0 0 24 24">
-        <path
-          fill="currentColor"
-          d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.4-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"
-        />
-      </symbol>
-    </svg>
-
-    <a
-      href="#main"
-      class="sr-only rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50"
-      >Skip to content</a
-    >
-
-    <header class="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
-      <div class="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 md:px-6">
-        <a href="#" class="flex items-center gap-2" aria-label="Nocap Cloud home">
-          <svg class="h-6 w-9" aria-hidden="true"><use href="#cap" /></svg>
-          <span class="font-brand text-lg leading-none font-bold"
-            >nocap<span class="text-muted-foreground">cloud</span></span
-          >
-        </a>
-        <nav aria-label="Main" class="hidden items-center gap-6 text-sm md:flex">
-          <a class="text-muted-foreground transition-colors hover:text-foreground" href="#features"
-            >Features</a
-          >
-          <a class="text-muted-foreground transition-colors hover:text-foreground" href="#how"
-            >How it works</a
-          >
-          <a class="text-muted-foreground transition-colors hover:text-foreground" href="#roadmap"
-            >Roadmap</a
-          >
-          <a class="text-muted-foreground transition-colors hover:text-foreground" href="#faq"
-            >FAQ</a
-          >
-        </nav>
-        <a
-          href="https://github.com/LGYx2/nocap-cloud"
-          class="inline-flex h-9 items-center gap-2 rounded-md border bg-background px-3 text-sm font-medium shadow-xs transition-colors hover:bg-accent"
-        >
-          <svg class="size-4" aria-hidden="true"><use href="#github" /></svg>
-          GitHub
-        </a>
-      </div>
-    </header>
+  <body data-page="home">
+    <!-- partial:header -->
 
     <main id="main">
       <!-- Hero -->
       <section class="relative overflow-hidden">
         <div class="hero-grid pointer-events-none absolute inset-0" aria-hidden="true"></div>
+        <div class="hero-glow pointer-events-none absolute inset-0" aria-hidden="true"></div>
         <div class="relative mx-auto max-w-6xl px-4 pt-16 pb-12 text-center md:px-6 md:pt-24">
           <a
-            href="#roadmap"
-            class="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1 text-xs font-medium shadow-xs transition-colors hover:bg-accent"
+            href="./roadmap.html"
+            class="animate-in inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1 text-xs font-medium shadow-xs transition-colors hover:bg-accent"
           >
-            <span class="size-1.5 rounded-full bg-foreground"></span>
-            Early preview. Open source under Apache 2.0
+            <span class="pulse-dot size-1.5 rounded-full bg-foreground"></span>
+            v0.0.1 in progress. See the roadmap
+            <svg class="size-3" aria-hidden="true"><use href="#arrow" /></svg>
           </a>
           <h1
-            class="mx-auto mt-6 max-w-3xl text-4xl font-bold tracking-tight text-balance sm:text-6xl"
+            class="animate-in mx-auto mt-6 max-w-3xl text-5xl font-bold tracking-tighter text-balance sm:text-7xl"
+            style="--i: 1"
           >
             Deploys, no cap.
           </h1>
-          <p class="mx-auto mt-5 max-w-2xl text-base text-pretty text-muted-foreground sm:text-lg">
+          <p
+            class="animate-in mx-auto mt-5 max-w-2xl text-base text-pretty text-muted-foreground sm:text-lg"
+            style="--i: 2"
+          >
             Nocap Cloud turns your own Linux server into a deployment platform. Push to GitHub or
             GitLab and your app goes live with HTTPS. Free for everyone, with no paid plans and no
             telemetry.
           </p>
-          <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <div
+            class="animate-in mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row"
+            style="--i: 3"
+          >
             <a
               href="https://demo.nocapcloud.click"
-              class="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground shadow-xs transition-colors hover:bg-primary/90 sm:w-auto"
+              class="group inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground shadow-xs transition-colors hover:bg-primary/90 sm:w-auto"
             >
               Try the live demo
-              <span aria-hidden="true">→</span>
+              <svg
+                class="size-4 transition-transform group-hover:translate-x-0.5"
+                aria-hidden="true"
+              >
+                <use href="#arrow" />
+              </svg>
             </a>
             <a
               href="https://github.com/LGYx2/nocap-cloud"
-              class="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md border bg-background px-5 text-sm font-medium shadow-xs transition-colors hover:bg-accent sm:w-auto"
+              class="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md border bg-background px-6 text-sm font-medium shadow-xs transition-colors hover:bg-accent sm:w-auto"
             >
               <svg class="size-4" aria-hidden="true"><use href="#github" /></svg>
               Star on GitHub
             </a>
           </div>
 
-          <div class="mx-auto mt-10 max-w-2xl text-left">
+          <div class="animate-in mx-auto mt-10 max-w-xl text-left" style="--i: 4">
             <div class="flex items-center gap-2 rounded-lg border bg-card p-1.5 pl-4 shadow-xs">
               <span class="font-mono text-sm text-muted-foreground select-none" aria-hidden="true"
                 >$</span
               >
-              <code
-                class="min-w-0 flex-1 overflow-x-auto py-1.5 font-mono text-sm whitespace-nowrap"
-                >curl -fsSL https://github.com/LGYx2/nocap-cloud/releases/latest/download/install.sh
-                | sudo sh</code
+              <code class="no-scrollbar min-w-0 flex-1 overflow-x-auto py-1.5 font-mono text-sm"
+                >curl -fsSL https://get.nocapcloud.click | sudo sh</code
               >
               <button
                 type="button"
-                data-copy="curl -fsSL https://github.com/LGYx2/nocap-cloud/releases/latest/download/install.sh | sudo sh"
-                class="inline-flex h-8 shrink-0 items-center rounded-md px-3 text-xs font-medium transition-colors hover:bg-accent"
+                data-copy="curl -fsSL https://get.nocapcloud.click | sudo sh"
+                class="inline-flex h-8 shrink-0 items-center rounded-md border bg-background px-3 text-xs font-medium transition-colors hover:bg-accent"
               >
                 <span data-copy-label aria-live="polite">Copy</span>
               </button>
             </div>
             <p class="mt-2 text-center text-xs text-muted-foreground">
-              The installer works from the first release, v0.1. Ubuntu 22.04 or 24.04, amd64 or
-              arm64.
+              Works from the first release, v0.1. Ubuntu 22.04 or 24.04, amd64 or arm64.
             </p>
           </div>
         </div>
 
-        <!-- Panel screenshot in a browser frame -->
+        <!-- Panel screenshot -->
         <div class="relative mx-auto max-w-6xl px-4 pb-20 md:px-6">
-          <div class="overflow-hidden rounded-xl border bg-card shadow-2xl shadow-black/10">
+          <div class="tilt-in overflow-hidden rounded-xl border bg-card shadow-2xl shadow-black/10">
             <div class="flex items-center gap-2 border-b bg-muted/50 px-4 py-2.5">
               <span class="size-2.5 rounded-full bg-foreground/15"></span>
               <span class="size-2.5 rounded-full bg-foreground/15"></span>
@@ -178,44 +129,112 @@
       <!-- Numbers -->
       <section class="border-y bg-muted/40">
         <dl
-          class="mx-auto grid max-w-6xl grid-cols-2 gap-px px-4 md:grid-cols-4 md:px-6"
+          class="mx-auto grid max-w-6xl grid-cols-2 px-4 md:grid-cols-4 md:px-6"
           aria-label="At a glance"
+          data-stagger
         >
-          <div class="px-2 py-8 text-center">
+          <div class="px-2 py-9 text-center">
             <dt class="text-xs text-muted-foreground">Containers</dt>
-            <dd class="mt-1 text-2xl font-semibold tracking-tight">3</dd>
+            <dd class="mt-1 text-3xl font-semibold tracking-tight">3</dd>
           </div>
-          <div class="px-2 py-8 text-center">
+          <div class="px-2 py-9 text-center">
             <dt class="text-xs text-muted-foreground">Minimum RAM</dt>
-            <dd class="mt-1 text-2xl font-semibold tracking-tight">1 GB</dd>
+            <dd class="mt-1 text-3xl font-semibold tracking-tight">1 GB</dd>
           </div>
-          <div class="px-2 py-8 text-center">
+          <div class="px-2 py-9 text-center">
             <dt class="text-xs text-muted-foreground">Price</dt>
-            <dd class="mt-1 text-2xl font-semibold tracking-tight">Free</dd>
+            <dd class="mt-1 text-3xl font-semibold tracking-tight">Free</dd>
           </div>
-          <div class="px-2 py-8 text-center">
+          <div class="px-2 py-9 text-center">
             <dt class="text-xs text-muted-foreground">Telemetry</dt>
-            <dd class="mt-1 text-2xl font-semibold tracking-tight">None</dd>
+            <dd class="mt-1 text-3xl font-semibold tracking-tight">None</dd>
           </div>
         </dl>
       </section>
 
-      <!-- Features -->
-      <section id="features" class="mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
-        <div class="max-w-2xl">
-          <p class="text-sm font-medium text-muted-foreground">Features</p>
+      <!-- Why -->
+      <section class="mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
+        <div class="max-w-2xl" data-reveal>
+          <p class="text-sm font-medium text-muted-foreground">Why Nocap Cloud</p>
           <h2 class="mt-2 text-3xl font-bold tracking-tight text-balance sm:text-4xl">
-            Everything a small team needs to ship, on a server you own.
+            The deploy experience of a big platform, on a small server you own.
           </h2>
-          <p class="mt-4 text-muted-foreground">
-            Each card says what works today and what lands in v0.1. No surprises.
-          </p>
         </div>
+        <div class="mt-12 grid gap-4 md:grid-cols-3" data-stagger>
+          <article class="spotlight rounded-2xl border bg-card p-7 shadow-xs">
+            <p class="font-mono text-xs text-muted-foreground">01 / Light</p>
+            <h3 class="mt-4 text-lg font-semibold">Three containers. That's it.</h3>
+            <p class="mt-2 text-sm text-muted-foreground">
+              Panel, API and worker share one image. The job queue lives in Postgres, so there is no
+              Redis. More memory stays free for your apps.
+            </p>
+          </article>
+          <article class="spotlight rounded-2xl border bg-card p-7 shadow-xs">
+            <p class="font-mono text-xs text-muted-foreground">02 / Git first</p>
+            <h3 class="mt-4 text-lg font-semibold">GitHub and GitLab in a few clicks.</h3>
+            <p class="mt-2 text-sm text-muted-foreground">
+              A GitHub App created for you from a manifest, or one GitLab token. Webhooks, deploy
+              keys and commit status are set up automatically.
+            </p>
+          </article>
+          <article class="spotlight rounded-2xl border bg-card p-7 shadow-xs">
+            <p class="font-mono text-xs text-muted-foreground">03 / Yours</p>
+            <h3 class="mt-4 text-lg font-semibold">Open source, no strings.</h3>
+            <p class="mt-2 text-sm text-muted-foreground">
+              Apache 2.0, no account, no license key, no telemetry. Your code, secrets and data
+              never leave your server.
+            </p>
+          </article>
+        </div>
+      </section>
 
-        <ul class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <li class="rounded-xl border bg-card p-6 shadow-xs">
-            <div class="flex items-center justify-between">
-              <span class="flex size-9 items-center justify-center rounded-lg border bg-muted">
+      <!-- Deploy graph -->
+      <section class="border-t" data-flow aria-labelledby="flow-title">
+        <div class="mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
+          <div class="flex flex-col justify-between gap-6 md:flex-row md:items-end" data-reveal>
+            <div class="max-w-2xl">
+              <p class="text-sm font-medium text-muted-foreground">See it work</p>
+              <h2
+                id="flow-title"
+                class="mt-2 text-3xl font-bold tracking-tight text-balance sm:text-4xl"
+              >
+                Connect the pieces. Nocap does the rest.
+              </h2>
+              <p class="mt-4 text-muted-foreground">
+                Code, variables, a domain and a database go in. A built image, a running container,
+                HTTPS and backups come out. Click an input to wire it, or drag the cards around.
+              </p>
+            </div>
+            <div class="flex shrink-0 gap-2">
+              <button
+                type="button"
+                data-flow-reset
+                class="inline-flex h-9 items-center rounded-md border bg-background px-4 text-sm font-medium shadow-xs transition-colors hover:bg-accent"
+              >
+                Reset
+              </button>
+              <button
+                type="button"
+                data-flow-all
+                class="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-xs transition-colors hover:bg-primary/90"
+              >
+                Connect all
+              </button>
+            </div>
+          </div>
+
+          <div class="flow-canvas mt-12" data-flow-canvas data-reveal style="--i: 1">
+            <svg class="flow-wires" data-flow-wires aria-hidden="true"></svg>
+
+            <!-- Inputs -->
+            <div
+              class="flow-node flow-in rounded-xl border bg-card p-4 shadow-sm"
+              data-flow-node
+              data-flow-input="git"
+              data-flow-key="git"
+              style="--x0: 11%; --y0: 0rem"
+            >
+              <div class="flex items-center gap-2">
                 <svg
                   class="size-4"
                   viewBox="0 0 24 24"
@@ -231,18 +250,33 @@
                   <circle cx="6" cy="18" r="3" />
                   <path d="M18 9a9 9 0 0 1-9 9" />
                 </svg>
-              </span>
-              <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground">v0.1</span>
+                <span class="text-sm font-semibold">git push</span>
+                <span
+                  class="flow-handle ml-auto px-1 text-muted-foreground select-none"
+                  data-flow-handle
+                  aria-hidden="true"
+                  >⠿</span
+                >
+              </div>
+              <p class="mt-2 text-sm font-medium">acme/shop-api on main</p>
+              <p class="text-sm text-muted-foreground">Commit 3f9c2a1</p>
+              <button
+                type="button"
+                data-flow-toggle="git"
+                class="mt-3 flex w-full items-center justify-end gap-2 text-xs text-muted-foreground hover:text-foreground"
+              >
+                source <span class="flow-port lg:-mr-[1.4rem]" data-port="in-git"></span>
+              </button>
             </div>
-            <h3 class="mt-4 font-semibold">Git push to deploy</h3>
-            <p class="mt-1.5 text-sm text-muted-foreground">
-              Connect a GitHub App or a GitLab token in a few clicks. Every push builds and ships,
-              with the result posted back to the commit.
-            </p>
-          </li>
-          <li class="rounded-xl border bg-card p-6 shadow-xs">
-            <div class="flex items-center justify-between">
-              <span class="flex size-9 items-center justify-center rounded-lg border bg-muted">
+
+            <div
+              class="flow-node flow-in rounded-xl border bg-card p-4 shadow-sm"
+              data-flow-node
+              data-flow-input="env"
+              data-flow-key="env"
+              style="--x0: 0%; --y0: 10.5rem"
+            >
+              <div class="flex items-center gap-2">
                 <svg
                   class="size-4"
                   viewBox="0 0 24 24"
@@ -253,21 +287,36 @@
                   stroke-linejoin="round"
                   aria-hidden="true"
                 >
-                  <rect width="18" height="11" x="3" y="11" rx="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  <circle cx="7.5" cy="15.5" r="5.5" />
+                  <path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3" />
                 </svg>
-              </span>
-              <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground">v0.1</span>
+                <span class="text-sm font-semibold">Variables</span>
+                <span
+                  class="flow-handle ml-auto px-1 text-muted-foreground select-none"
+                  data-flow-handle
+                  aria-hidden="true"
+                  >⠿</span
+                >
+              </div>
+              <p class="mt-2 text-sm font-medium">STRIPE_KEY, MAIL_FROM</p>
+              <p class="text-sm text-muted-foreground">Encrypted with AES-256-GCM</p>
+              <button
+                type="button"
+                data-flow-toggle="env"
+                class="mt-3 flex w-full items-center justify-end gap-2 text-xs text-muted-foreground hover:text-foreground"
+              >
+                variables <span class="flow-port lg:-mr-[1.4rem]" data-port="in-env"></span>
+              </button>
             </div>
-            <h3 class="mt-4 font-semibold">Automatic HTTPS</h3>
-            <p class="mt-1.5 text-sm text-muted-foreground">
-              Point a domain at your server and Traefik gets a Let's Encrypt certificate for it.
-              Renewals happen on their own.
-            </p>
-          </li>
-          <li class="rounded-xl border bg-card p-6 shadow-xs">
-            <div class="flex items-center justify-between">
-              <span class="flex size-9 items-center justify-center rounded-lg border bg-muted">
+
+            <div
+              class="flow-node flow-in rounded-xl border bg-card p-4 shadow-sm"
+              data-flow-node
+              data-flow-input="domain"
+              data-flow-key="domain"
+              style="--x0: 13%; --y0: 21rem"
+            >
+              <div class="flex items-center gap-2">
                 <svg
                   class="size-4"
                   viewBox="0 0 24 24"
@@ -278,21 +327,36 @@
                   stroke-linejoin="round"
                   aria-hidden="true"
                 >
-                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                  <path d="M3 3v5h5" />
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20" />
                 </svg>
-              </span>
-              <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground">v0.1</span>
+                <span class="text-sm font-semibold">Domain</span>
+                <span
+                  class="flow-handle ml-auto px-1 text-muted-foreground select-none"
+                  data-flow-handle
+                  aria-hidden="true"
+                  >⠿</span
+                >
+              </div>
+              <p class="mt-2 text-sm font-medium">shop.example</p>
+              <p class="text-sm text-muted-foreground">DNS points to 203.0.113.10</p>
+              <button
+                type="button"
+                data-flow-toggle="domain"
+                class="mt-3 flex w-full items-center justify-end gap-2 text-xs text-muted-foreground hover:text-foreground"
+              >
+                domain <span class="flow-port lg:-mr-[1.4rem]" data-port="in-domain"></span>
+              </button>
             </div>
-            <h3 class="mt-4 font-semibold">Zero downtime and rollback</h3>
-            <p class="mt-1.5 text-sm text-muted-foreground">
-              The new version starts and passes its health check before traffic moves. One click
-              takes you back to the last good deploy.
-            </p>
-          </li>
-          <li class="rounded-xl border bg-card p-6 shadow-xs">
-            <div class="flex items-center justify-between">
-              <span class="flex size-9 items-center justify-center rounded-lg border bg-muted">
+
+            <div
+              class="flow-node flow-in rounded-xl border bg-card p-4 shadow-sm"
+              data-flow-node
+              data-flow-input="db"
+              data-flow-key="db"
+              style="--x0: 2%; --y0: 31.5rem"
+            >
+              <div class="flex items-center gap-2">
                 <svg
                   class="size-4"
                   viewBox="0 0 24 24"
@@ -307,71 +371,427 @@
                   <path d="M3 5v14a9 3 0 0 0 18 0V5" />
                   <path d="M3 12a9 3 0 0 0 18 0" />
                 </svg>
-              </span>
+                <span class="text-sm font-semibold">Database</span>
+                <span
+                  class="flow-handle ml-auto px-1 text-muted-foreground select-none"
+                  data-flow-handle
+                  aria-hidden="true"
+                  >⠿</span
+                >
+              </div>
+              <p class="mt-2 text-sm font-medium">PostgreSQL 16</p>
+              <p class="text-sm text-muted-foreground">Linked as DATABASE_URL</p>
+              <button
+                type="button"
+                data-flow-toggle="db"
+                class="mt-3 flex w-full items-center justify-end gap-2 text-xs text-muted-foreground hover:text-foreground"
+              >
+                database <span class="flow-port lg:-mr-[1.4rem]" data-port="in-db"></span>
+              </button>
+            </div>
+
+            <!-- The app in the middle -->
+            <div
+              class="flow-node rounded-2xl border bg-card p-3 shadow-xl"
+              data-flow-node
+              style="--x0: calc(50% - 7.5rem); --y0: 10rem"
+            >
+              <div class="flex items-center gap-2 px-1 pb-3">
+                <svg class="h-4 w-6" aria-hidden="true"><use href="#cap" /></svg>
+                <span class="text-sm font-semibold">shop-api</span>
+                <span class="text-xs text-muted-foreground">app</span>
+                <span
+                  class="flow-handle ml-auto px-1 text-muted-foreground select-none"
+                  data-flow-handle
+                  aria-hidden="true"
+                  >⠿</span
+                >
+              </div>
+              <div class="divide-y rounded-xl border bg-background">
+                <button
+                  type="button"
+                  data-flow-toggle="git"
+                  class="flow-row flex w-full items-center gap-3 px-3 py-3 text-sm text-muted-foreground"
+                  data-flow-key="git"
+                >
+                  <span class="flow-port lg:-ml-[1.15rem]" data-port="hub-in-git"></span>
+                  <span class="flex-1 text-left">Source</span>
+                  <svg class="flow-check size-4" aria-hidden="true"><use href="#check" /></svg>
+                  <span class="flow-port lg:-mr-[1.15rem]" data-port="hub-out-git"></span>
+                </button>
+                <button
+                  type="button"
+                  data-flow-toggle="env"
+                  class="flow-row flex w-full items-center gap-3 px-3 py-3 text-sm text-muted-foreground"
+                  data-flow-key="env"
+                >
+                  <span class="flow-port lg:-ml-[1.15rem]" data-port="hub-in-env"></span>
+                  <span class="flex-1 text-left">Variables</span>
+                  <svg class="flow-check size-4" aria-hidden="true"><use href="#check" /></svg>
+                  <span class="flow-port lg:-mr-[1.15rem]" data-port="hub-out-env"></span>
+                </button>
+                <button
+                  type="button"
+                  data-flow-toggle="domain"
+                  class="flow-row flex w-full items-center gap-3 px-3 py-3 text-sm text-muted-foreground"
+                  data-flow-key="domain"
+                >
+                  <span class="flow-port lg:-ml-[1.15rem]" data-port="hub-in-domain"></span>
+                  <span class="flex-1 text-left">Domain</span>
+                  <svg class="flow-check size-4" aria-hidden="true"><use href="#check" /></svg>
+                  <span class="flow-port lg:-mr-[1.15rem]" data-port="hub-out-domain"></span>
+                </button>
+                <button
+                  type="button"
+                  data-flow-toggle="db"
+                  class="flow-row flex w-full items-center gap-3 px-3 py-3 text-sm text-muted-foreground"
+                  data-flow-key="db"
+                >
+                  <span class="flow-port lg:-ml-[1.15rem]" data-port="hub-in-db"></span>
+                  <span class="flex-1 text-left">Database</span>
+                  <svg class="flow-check size-4" aria-hidden="true"><use href="#check" /></svg>
+                  <span class="flow-port lg:-mr-[1.15rem]" data-port="hub-out-db"></span>
+                </button>
+              </div>
+              <p
+                class="flex items-center gap-2 px-1 pt-3 text-xs text-muted-foreground"
+                data-flow-summary
+                aria-live="polite"
+              ></p>
+            </div>
+
+            <!-- Results -->
+            <div
+              class="flow-node flow-out rounded-xl border bg-card p-4 shadow-sm"
+              data-flow-node
+              data-flow-key="git"
+              style="--x0: calc(100% - 15rem - 9%); --y0: 0rem"
+            >
+              <div class="flex items-center gap-2">
+                <svg
+                  class="size-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"
+                  />
+                  <path d="m3.3 7 8.7 5 8.7-5M12 22V12" />
+                </svg>
+                <span class="text-sm font-semibold">Build</span>
+                <span
+                  class="flow-handle ml-auto px-1 text-muted-foreground select-none"
+                  data-flow-handle
+                  aria-hidden="true"
+                  >⠿</span
+                >
+              </div>
+              <p class="mt-2 text-sm font-medium">Image shop-api:3f9c2a1</p>
+              <p class="text-sm text-muted-foreground">From the Dockerfile in 34 s</p>
+              <div class="mt-3 flex items-center gap-2 text-xs">
+                <span class="flow-port lg:-ml-[1.4rem]" data-port="out-git"></span>
+                <span class="flow-state-wait text-muted-foreground"
+                  ><span class="size-1.5 rounded-full bg-muted-foreground/50"></span>Waiting for the
+                  app</span
+                >
+                <span class="flow-state-ready"
+                  ><span class="size-1.5 rounded-full bg-foreground"></span>Ready</span
+                >
+              </div>
+            </div>
+
+            <div
+              class="flow-node flow-out rounded-xl border bg-card p-4 shadow-sm"
+              data-flow-node
+              data-flow-key="env"
+              style="--x0: calc(100% - 15rem); --y0: 10.5rem"
+            >
+              <div class="flex items-center gap-2">
+                <svg
+                  class="size-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect width="20" height="8" x="2" y="2" rx="2" />
+                  <rect width="20" height="8" x="2" y="14" rx="2" />
+                  <path d="M6 6h.01M6 18h.01" />
+                </svg>
+                <span class="text-sm font-semibold">Container</span>
+                <span
+                  class="flow-handle ml-auto px-1 text-muted-foreground select-none"
+                  data-flow-handle
+                  aria-hidden="true"
+                  >⠿</span
+                >
+              </div>
+              <p class="mt-2 text-sm font-medium">Running with 3 variables</p>
+              <p class="text-sm text-muted-foreground">Health check passed</p>
+              <div class="mt-3 flex items-center gap-2 text-xs">
+                <span class="flow-port lg:-ml-[1.4rem]" data-port="out-env"></span>
+                <span class="flow-state-wait text-muted-foreground"
+                  ><span class="size-1.5 rounded-full bg-muted-foreground/50"></span>Waiting for the
+                  app</span
+                >
+                <span class="flow-state-ready"
+                  ><span class="size-1.5 rounded-full bg-foreground"></span>Running</span
+                >
+              </div>
+            </div>
+
+            <div
+              class="flow-node flow-out rounded-xl border bg-card p-4 shadow-sm"
+              data-flow-node
+              data-flow-key="domain"
+              style="--x0: calc(100% - 15rem - 11%); --y0: 21rem"
+            >
+              <div class="flex items-center gap-2">
+                <svg
+                  class="size-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect width="18" height="11" x="3" y="11" rx="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                <span class="text-sm font-semibold">HTTPS</span>
+                <span
+                  class="flow-handle ml-auto px-1 text-muted-foreground select-none"
+                  data-flow-handle
+                  aria-hidden="true"
+                  >⠿</span
+                >
+              </div>
+              <p class="mt-2 text-sm font-medium">Certificate for shop.example</p>
+              <p class="text-sm text-muted-foreground">Let's Encrypt, renews by itself</p>
+              <div class="mt-3 flex items-center gap-2 text-xs">
+                <span class="flow-port lg:-ml-[1.4rem]" data-port="out-domain"></span>
+                <span class="flow-state-wait text-muted-foreground"
+                  ><span class="size-1.5 rounded-full bg-muted-foreground/50"></span>Waiting for the
+                  app</span
+                >
+                <span class="flow-state-ready"
+                  ><span class="size-1.5 rounded-full bg-foreground"></span>Secure</span
+                >
+              </div>
+            </div>
+
+            <div
+              class="flow-node flow-out rounded-xl border bg-card p-4 shadow-sm"
+              data-flow-node
+              data-flow-key="db"
+              style="--x0: calc(100% - 15rem - 1%); --y0: 31.5rem"
+            >
+              <div class="flex items-center gap-2">
+                <svg
+                  class="size-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect width="20" height="5" x="2" y="3" rx="1" />
+                  <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8M10 12h4" />
+                </svg>
+                <span class="text-sm font-semibold">Backups</span>
+                <span
+                  class="flow-handle ml-auto px-1 text-muted-foreground select-none"
+                  data-flow-handle
+                  aria-hidden="true"
+                  >⠿</span
+                >
+              </div>
+              <p class="mt-2 text-sm font-medium">Daily at 03:00 to R2</p>
+              <p class="text-sm text-muted-foreground">Restore in one click</p>
+              <div class="mt-3 flex items-center gap-2 text-xs">
+                <span class="flow-port lg:-ml-[1.4rem]" data-port="out-db"></span>
+                <span class="flow-state-wait text-muted-foreground"
+                  ><span class="size-1.5 rounded-full bg-muted-foreground/50"></span>Waiting for the
+                  app</span
+                >
+                <span class="flow-state-ready"
+                  ><span class="size-1.5 rounded-full bg-foreground"></span>Scheduled</span
+                >
+              </div>
+            </div>
+          </div>
+          <p class="mt-6 text-center text-xs text-muted-foreground" data-reveal>
+            An illustration of how a deploy comes together. Deploys arrive with v0.1.
+          </p>
+        </div>
+      </section>
+
+      <!-- Architecture -->
+      <section class="border-t bg-muted/40">
+        <div class="mx-auto grid max-w-6xl gap-12 px-4 py-20 md:px-6 md:py-28 lg:grid-cols-5">
+          <div class="lg:col-span-2" data-reveal>
+            <p class="text-sm font-medium text-muted-foreground">Architecture</p>
+            <h2 class="mt-2 text-3xl font-bold tracking-tight text-balance sm:text-4xl">
+              Simple enough to understand in one look.
+            </h2>
+            <p class="mt-4 text-muted-foreground">
+              Traefik takes the traffic and gets the certificates. Nocap builds and runs your apps
+              as plain Docker containers next to it. Postgres keeps the panel data and the job
+              queue.
+            </p>
+            <a
+              href="./features.html#architecture"
+              class="mt-6 inline-flex items-center gap-1.5 text-sm font-medium hover:underline"
+            >
+              How it stays light
+              <svg class="size-4" aria-hidden="true"><use href="#arrow" /></svg>
+            </a>
+          </div>
+
+          <div class="lg:col-span-3" data-reveal style="--i: 1">
+            <div class="flex items-center justify-center gap-3 text-xs text-muted-foreground">
+              <span class="rounded-full border bg-background px-3 py-1">Internet</span>
+              <span aria-hidden="true">→ :80 :443</span>
+              <span class="rounded-full border bg-background px-3 py-1">git push</span>
+              <span aria-hidden="true">→ webhook</span>
+            </div>
+            <div
+              class="mt-4 rounded-2xl border border-dashed bg-background/60 p-4 sm:p-6"
+              role="img"
+              aria-label="Diagram: on your server, Traefik routes traffic to your apps and to the Nocap panel. Nocap uses Postgres and builds your apps with Docker."
+            >
+              <p class="font-mono text-xs text-muted-foreground">your server</p>
+              <div class="mt-3 grid gap-3 sm:grid-cols-3">
+                <div class="rounded-xl border bg-card p-4 shadow-xs">
+                  <p class="font-mono text-sm font-semibold">traefik</p>
+                  <p class="mt-1 text-xs text-muted-foreground">Routes traffic, SSL certificates</p>
+                </div>
+                <div class="rounded-xl border-2 border-foreground bg-card p-4 shadow-xs">
+                  <p class="flex items-center gap-1.5 font-mono text-sm font-semibold">
+                    <svg class="h-3.5 w-5" aria-hidden="true"><use href="#cap" /></svg> nocap
+                  </p>
+                  <p class="mt-1 text-xs text-muted-foreground">Panel, API, webhooks, worker</p>
+                </div>
+                <div class="rounded-xl border bg-card p-4 shadow-xs">
+                  <p class="font-mono text-sm font-semibold">postgres</p>
+                  <p class="mt-1 text-xs text-muted-foreground">Panel data and job queue</p>
+                </div>
+              </div>
+              <div
+                class="my-3 flex justify-center text-xs text-muted-foreground"
+                aria-hidden="true"
+              >
+                ↓ builds and runs with Docker ↓
+              </div>
+              <div class="grid grid-cols-3 gap-3">
+                <div class="rounded-lg border bg-muted/60 px-3 py-2.5 font-mono text-xs">
+                  shop-web
+                </div>
+                <div class="rounded-lg border bg-muted/60 px-3 py-2.5 font-mono text-xs">
+                  shop-api
+                </div>
+                <div class="rounded-lg border bg-muted/60 px-3 py-2.5 font-mono text-xs">
+                  shop-db
+                </div>
+              </div>
+              <p class="mt-3 font-mono text-xs text-muted-foreground">your apps</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features preview -->
+      <section class="mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
+        <div class="flex flex-col justify-between gap-6 md:flex-row md:items-end" data-reveal>
+          <div class="max-w-2xl">
+            <p class="text-sm font-medium text-muted-foreground">Features</p>
+            <h2 class="mt-2 text-3xl font-bold tracking-tight text-balance sm:text-4xl">
+              Everything a small team needs to ship.
+            </h2>
+            <p class="mt-4 text-muted-foreground">
+              Each card says what works today and what lands in v0.1. No surprises.
+            </p>
+          </div>
+          <a
+            href="./features.html"
+            class="inline-flex h-10 w-fit items-center gap-2 rounded-md border bg-background px-4 text-sm font-medium shadow-xs transition-colors hover:bg-accent"
+          >
+            All features
+            <svg class="size-4" aria-hidden="true"><use href="#arrow" /></svg>
+          </a>
+        </div>
+
+        <ul class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-stagger>
+          <li class="spotlight rounded-xl border bg-card p-6 shadow-xs">
+            <div class="flex items-center justify-between">
+              <h3 class="font-semibold">Git push to deploy</h3>
               <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground">v0.1</span>
             </div>
-            <h3 class="mt-4 font-semibold">Databases and backups</h3>
-            <p class="mt-1.5 text-sm text-muted-foreground">
-              PostgreSQL, MySQL and Redis next to your apps, with scheduled backups to any
-              S3-compatible storage.
+            <p class="mt-2 text-sm text-muted-foreground">
+              Every push builds and ships, with the result posted back to the commit.
             </p>
           </li>
-          <li class="rounded-xl border bg-card p-6 shadow-xs">
+          <li class="spotlight rounded-xl border bg-card p-6 shadow-xs">
             <div class="flex items-center justify-between">
-              <span class="flex size-9 items-center justify-center rounded-lg border bg-muted">
-                <svg
-                  class="size-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"
-                  />
-                </svg>
-              </span>
+              <h3 class="font-semibold">Automatic HTTPS</h3>
+              <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground">v0.1</span>
+            </div>
+            <p class="mt-2 text-sm text-muted-foreground">
+              Point a domain at your server. Traefik gets and renews the certificate.
+            </p>
+          </li>
+          <li class="spotlight rounded-xl border bg-card p-6 shadow-xs">
+            <div class="flex items-center justify-between">
+              <h3 class="font-semibold">Zero downtime and rollback</h3>
+              <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground">v0.1</span>
+            </div>
+            <p class="mt-2 text-sm text-muted-foreground">
+              Traffic moves only after the health check passes. One click to go back.
+            </p>
+          </li>
+          <li class="spotlight rounded-xl border bg-card p-6 shadow-xs">
+            <div class="flex items-center justify-between">
+              <h3 class="font-semibold">Databases and backups</h3>
+              <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground">v0.1</span>
+            </div>
+            <p class="mt-2 text-sm text-muted-foreground">
+              PostgreSQL, MySQL and Redis, backed up to S3, R2 or MinIO on a schedule.
+            </p>
+          </li>
+          <li class="spotlight rounded-xl border bg-card p-6 shadow-xs">
+            <div class="flex items-center justify-between">
+              <h3 class="font-semibold">Projects and a clean panel</h3>
               <span
                 class="rounded-md bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground"
                 >Works today</span
               >
             </div>
-            <h3 class="mt-4 font-semibold">Projects and a clean panel</h3>
-            <p class="mt-1.5 text-sm text-muted-foreground">
-              Group apps into projects. A fast panel with light and dark themes, built for the phone
-              as well as the desktop.
+            <p class="mt-2 text-sm text-muted-foreground">
+              Group apps into projects. Light and dark themes, on phone and desktop.
             </p>
           </li>
-          <li class="rounded-xl border bg-card p-6 shadow-xs">
+          <li class="spotlight rounded-xl border bg-card p-6 shadow-xs">
             <div class="flex items-center justify-between">
-              <span class="flex size-9 items-center justify-center rounded-lg border bg-muted">
-                <svg
-                  class="size-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
-                  />
-                </svg>
-              </span>
+              <h3 class="font-semibold">Secure by default</h3>
               <span
                 class="rounded-md bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground"
                 >Works today</span
               >
             </div>
-            <h3 class="mt-4 font-semibold">Secure by default</h3>
-            <p class="mt-1.5 text-sm text-muted-foreground">
-              Argon2 passwords, httpOnly sessions, rate-limited login, strict security headers and
-              an audit log of every change.
+            <p class="mt-2 text-sm text-muted-foreground">
+              Argon2 passwords, rate-limited login, strict headers and an audit log.
             </p>
           </li>
         </ul>
@@ -379,144 +799,213 @@
 
       <!-- How it works -->
       <section id="how" class="border-t bg-muted/40">
-        <div class="mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
-          <div class="max-w-2xl">
+        <div class="mx-auto grid max-w-6xl gap-12 px-4 py-20 md:px-6 md:py-28 lg:grid-cols-2">
+          <div class="min-w-0" data-reveal>
             <p class="text-sm font-medium text-muted-foreground">How it works</p>
             <h2 class="mt-2 text-3xl font-bold tracking-tight text-balance sm:text-4xl">
               From a clean server to a live app in three steps.
             </h2>
+            <ol class="mt-10 space-y-6" data-stagger>
+              <li class="flex gap-4">
+                <span
+                  class="flex size-8 shrink-0 items-center justify-center rounded-full border bg-background font-mono text-xs"
+                  >1</span
+                >
+                <div>
+                  <h3 class="font-semibold">Install with one command</h3>
+                  <p class="mt-1 text-sm text-muted-foreground">
+                    The installer checks the server, sets up Docker and starts the stack. Then you
+                    create your admin account in the browser.
+                  </p>
+                </div>
+              </li>
+              <li class="flex gap-4">
+                <span
+                  class="flex size-8 shrink-0 items-center justify-center rounded-full border bg-background font-mono text-xs"
+                  >2</span
+                >
+                <div>
+                  <h3 class="font-semibold">Connect GitHub or GitLab</h3>
+                  <p class="mt-1 text-sm text-muted-foreground">
+                    Pick the repository and branch. Nocap builds from your Dockerfile or Compose
+                    file, and detects the port for you.
+                  </p>
+                </div>
+              </li>
+              <li class="flex gap-4">
+                <span
+                  class="flex size-8 shrink-0 items-center justify-center rounded-full border bg-background font-mono text-xs"
+                  >3</span
+                >
+                <div>
+                  <h3 class="font-semibold">Push and it is live</h3>
+                  <p class="mt-1 text-sm text-muted-foreground">
+                    Each push deploys with HTTPS on your domain. Watch the logs live and roll back
+                    if something looks wrong.
+                  </p>
+                </div>
+              </li>
+            </ol>
           </div>
-          <ol class="mt-12 grid gap-4 md:grid-cols-3">
-            <li class="rounded-xl border bg-card p-6 shadow-xs">
-              <span class="font-mono text-sm text-muted-foreground">01</span>
-              <h3 class="mt-3 font-semibold">Install with one command</h3>
-              <p class="mt-1.5 text-sm text-muted-foreground">
-                The installer checks the server, sets up Docker and starts Nocap, Postgres and
-                Traefik. Then you create your admin account in the browser.
+
+          <div class="min-w-0 self-center" data-reveal style="--i: 1">
+            <div
+              class="overflow-hidden rounded-xl border border-white/10 bg-terminal font-mono text-[13px] leading-relaxed text-neutral-200 shadow-2xl shadow-black/20"
+              data-terminal
+            >
+              <div class="flex items-center gap-2 border-b border-white/10 px-4 py-2.5">
+                <span class="size-2.5 rounded-full bg-white/20"></span>
+                <span class="size-2.5 rounded-full bg-white/20"></span>
+                <span class="size-2.5 rounded-full bg-white/20"></span>
+                <span class="ml-2 text-xs text-neutral-400">root@server: ~</span>
+              </div>
+              <div class="no-scrollbar overflow-x-auto p-4 whitespace-nowrap">
+                <p class="term-line" data-delay="0">
+                  <span class="text-neutral-500">$</span> curl -fsSL https://get.nocapcloud.click |
+                  sudo sh
+                </p>
+                <p class="term-line" data-delay="700">
+                  <span class="text-neutral-400">==></span> Checking the server
+                </p>
+                <p class="term-line" data-delay="1100">
+                  <span class="text-neutral-400">==></span> Installing Docker
+                </p>
+                <p class="term-line" data-delay="1800">
+                  <span class="text-neutral-400">==></span> Installing Nocap Cloud v0.1.0
+                </p>
+                <p class="term-line" data-delay="2200">
+                  <span class="text-neutral-400">==></span> Generating secrets
+                </p>
+                <p class="term-line" data-delay="2600">
+                  <span class="text-neutral-400">==></span> Downloading images
+                </p>
+                <p class="term-line" data-delay="3300">
+                  <span class="text-neutral-400">==></span> Starting Nocap Cloud
+                </p>
+                <p class="term-line" data-delay="3800">
+                  <span class="text-neutral-400">==></span> Waiting for the panel to start
+                </p>
+                <p class="term-line mt-3 font-semibold text-white" data-delay="4600">
+                  Nocap Cloud v0.1.0 is running.
+                </p>
+                <p class="term-line" data-delay="4800">
+                  Open <span class="text-white underline">http://203.0.113.10:3000</span> to create
+                  your admin account.
+                </p>
+                <p class="term-line mt-2" data-delay="5100">
+                  <span class="text-neutral-500">$</span> <span class="cursor"></span>
+                </p>
+              </div>
+            </div>
+            <p class="mt-3 text-center text-xs text-muted-foreground">
+              What the installer prints. It ships with v0.1.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Built with -->
+      <section class="border-t py-10" aria-label="Built with">
+        <p class="text-center text-xs font-medium tracking-wide text-muted-foreground uppercase">
+          Built from scratch with
+        </p>
+        <div class="marquee mt-5 overflow-hidden">
+          <div
+            class="marquee-track flex w-max gap-10 pr-10 text-lg font-semibold text-muted-foreground"
+          >
+            <span>TypeScript</span><span>Fastify</span><span>React</span><span>PostgreSQL</span
+            ><span>Drizzle</span><span>Traefik</span><span>Docker</span><span>Let's Encrypt</span
+            ><span>Vite</span><span>Tailwind CSS</span><span>Vitest</span
+            ><span aria-hidden="true">TypeScript</span><span aria-hidden="true">Fastify</span
+            ><span aria-hidden="true">React</span><span aria-hidden="true">PostgreSQL</span
+            ><span aria-hidden="true">Drizzle</span><span aria-hidden="true">Traefik</span
+            ><span aria-hidden="true">Docker</span><span aria-hidden="true">Let's Encrypt</span
+            ><span aria-hidden="true">Vite</span><span aria-hidden="true">Tailwind CSS</span
+            ><span aria-hidden="true">Vitest</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Roadmap teaser -->
+      <section class="border-t bg-muted/40">
+        <div class="mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
+          <div class="flex flex-col justify-between gap-6 md:flex-row md:items-end" data-reveal>
+            <div class="max-w-2xl">
+              <p class="text-sm font-medium text-muted-foreground">Roadmap</p>
+              <h2 class="mt-2 text-3xl font-bold tracking-tight text-balance sm:text-4xl">
+                Built in the open, one version at a time.
+              </h2>
+            </div>
+            <a
+              href="./roadmap.html"
+              class="inline-flex h-10 w-fit items-center gap-2 rounded-md border bg-background px-4 text-sm font-medium shadow-xs transition-colors hover:bg-accent"
+            >
+              See the version tree
+              <svg class="size-4" aria-hidden="true"><use href="#arrow" /></svg>
+            </a>
+          </div>
+          <ol class="mt-12 grid gap-4 md:grid-cols-3" data-stagger>
+            <li class="spotlight rounded-xl border-2 border-foreground bg-card p-6 shadow-xs">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-sm font-semibold">v0.0.1</span>
+                <span
+                  class="inline-flex items-center gap-1.5 rounded-md bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground"
+                  ><span class="pulse-dot size-1.5 rounded-full bg-primary-foreground"></span>In
+                  progress</span
+                >
+              </div>
+              <h3 class="mt-3 font-semibold">Foundations</h3>
+              <p class="mt-1 text-sm text-muted-foreground">
+                Repo, CI, login, projects, installer, website and demo.
+              </p>
+              <div class="mt-4 h-1.5 overflow-hidden rounded-full bg-muted">
+                <div class="h-full w-[85%] rounded-full bg-foreground"></div>
+              </div>
+            </li>
+            <li class="spotlight rounded-xl border bg-card p-6 shadow-xs">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-sm font-semibold">v0.0.2</span>
+                <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground"
+                  >Next</span
+                >
+              </div>
+              <h3 class="mt-3 font-semibold">Deploy</h3>
+              <p class="mt-1 text-sm text-muted-foreground">
+                Build and run apps, Traefik routing, SSL and live logs.
               </p>
             </li>
-            <li class="rounded-xl border bg-card p-6 shadow-xs">
-              <span class="font-mono text-sm text-muted-foreground">02</span>
-              <h3 class="mt-3 font-semibold">Connect GitHub or GitLab</h3>
-              <p class="mt-1.5 text-sm text-muted-foreground">
-                Pick the repository and branch. Nocap builds from your Dockerfile or Docker Compose
-                file, so there is nothing new to learn.
-              </p>
-            </li>
-            <li class="rounded-xl border bg-card p-6 shadow-xs">
-              <span class="font-mono text-sm text-muted-foreground">03</span>
-              <h3 class="mt-3 font-semibold">Push and it is live</h3>
-              <p class="mt-1.5 text-sm text-muted-foreground">
-                Each push deploys with HTTPS on your domain. Watch the logs as it builds and roll
-                back if something looks wrong.
+            <li class="spotlight rounded-xl border bg-card p-6 shadow-xs">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-sm font-semibold">v0.1.0</span>
+                <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground"
+                  >Planned</span
+                >
+              </div>
+              <h3 class="mt-3 font-semibold">First release</h3>
+              <p class="mt-1 text-sm text-muted-foreground">
+                Git deploys, zero downtime, databases, backups and the one-line installer.
               </p>
             </li>
           </ol>
-
-          <div class="mt-12 overflow-hidden rounded-xl border bg-card shadow-xs">
-            <picture>
-              <source srcset="./panel-project-dark.webp" media="(prefers-color-scheme: dark)" />
-              <img
-                src="./panel-project-light.webp"
-                width="2560"
-                height="1600"
-                loading="lazy"
-                alt="A project page in the Nocap Cloud panel with its stats and an empty applications list."
-                class="block h-auto w-full"
-              />
-            </picture>
-          </div>
         </div>
-      </section>
-
-      <!-- Roadmap -->
-      <section id="roadmap" class="mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
-        <div class="max-w-2xl">
-          <p class="text-sm font-medium text-muted-foreground">Roadmap</p>
-          <h2 class="mt-2 text-3xl font-bold tracking-tight text-balance sm:text-4xl">
-            Built in the open, one phase at a time.
-          </h2>
-          <p class="mt-4 text-muted-foreground">
-            Follow the work on GitHub. Each phase ships with tests and its own release notes.
-          </p>
-        </div>
-        <ol class="mt-12 divide-y rounded-xl border bg-card shadow-xs">
-          <li class="flex flex-col gap-2 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p class="font-medium">0. Foundations</p>
-              <p class="text-sm text-muted-foreground">
-                Repo, CI, login, first-run setup, projects, install script
-              </p>
-            </div>
-            <span
-              class="w-fit rounded-md bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground"
-              >In progress</span
-            >
-          </li>
-          <li class="flex flex-col gap-2 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p class="font-medium">1. Deploy</p>
-              <p class="text-sm text-muted-foreground">
-                Build and run apps, Traefik routing, SSL, live logs
-              </p>
-            </div>
-            <span class="w-fit rounded-md border px-2 py-0.5 text-xs text-muted-foreground"
-              >Next</span
-            >
-          </li>
-          <li class="flex flex-col gap-2 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p class="font-medium">2. Git</p>
-              <p class="text-sm text-muted-foreground">
-                GitHub App, GitLab token, deploy on push, commit status
-              </p>
-            </div>
-            <span class="w-fit rounded-md border px-2 py-0.5 text-xs text-muted-foreground"
-              >Planned</span
-            >
-          </li>
-          <li class="flex flex-col gap-2 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p class="font-medium">3. Reliability</p>
-              <p class="text-sm text-muted-foreground">
-                Encrypted variables, health checks, zero downtime, rollback
-              </p>
-            </div>
-            <span class="w-fit rounded-md border px-2 py-0.5 text-xs text-muted-foreground"
-              >Planned</span
-            >
-          </li>
-          <li class="flex flex-col gap-2 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p class="font-medium">4. Databases and backups</p>
-              <p class="text-sm text-muted-foreground">PostgreSQL, MySQL, Redis, S3 backups</p>
-            </div>
-            <span class="w-fit rounded-md border px-2 py-0.5 text-xs text-muted-foreground"
-              >Planned</span
-            >
-          </li>
-          <li class="flex flex-col gap-2 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p class="font-medium">5. Release v0.1</p>
-              <p class="text-sm text-muted-foreground">
-                Images on GHCR, updates from the panel, documentation
-              </p>
-            </div>
-            <span class="w-fit rounded-md border px-2 py-0.5 text-xs text-muted-foreground"
-              >Planned</span
-            >
-          </li>
-        </ol>
       </section>
 
       <!-- FAQ -->
-      <section id="faq" class="border-t bg-muted/40">
+      <section id="faq" class="border-t">
         <div class="mx-auto grid max-w-6xl gap-10 px-4 py-20 md:grid-cols-3 md:px-6 md:py-28">
-          <div>
+          <div data-reveal>
             <p class="text-sm font-medium text-muted-foreground">FAQ</p>
             <h2 class="mt-2 text-3xl font-bold tracking-tight">Questions</h2>
+            <p class="mt-3 text-sm text-muted-foreground">
+              Something else?
+              <a
+                class="font-medium text-foreground underline"
+                href="https://github.com/LGYx2/nocap-cloud/discussions"
+                >Ask in Discussions</a
+              >.
+            </p>
           </div>
-          <div class="divide-y rounded-xl border bg-card shadow-xs md:col-span-2">
+          <div class="divide-y rounded-xl border bg-card shadow-xs md:col-span-2" data-reveal>
             <details class="group p-5" open>
               <summary
                 class="flex cursor-pointer list-none items-center justify-between gap-4 font-medium"
@@ -562,8 +1051,8 @@
                 >
               </summary>
               <p class="mt-3 text-sm text-muted-foreground">
-                Not yet. The project is in early development and deploys arrive in the next phases.
-                Star the repository to follow the first release.
+                Not yet. The project is in early development and deploys arrive in the next
+                versions. Follow the roadmap or star the repository to hear about v0.1.
               </p>
             </details>
             <details class="group p-5">
@@ -578,8 +1067,8 @@
                 >
               </summary>
               <p class="mt-3 text-sm text-muted-foreground">
-                No. There is no telemetry and the panel loads no third-party scripts or fonts.
-                Everything stays on your server.
+                No. There is no telemetry and the panel loads no third-party scripts or fonts. The
+                only outside call is a daily check for new releases on GitHub, starting in v0.1.
               </p>
             </details>
             <details class="group p-5">
@@ -598,70 +1087,62 @@
                 three containers, no Redis, and one image for the whole panel.
               </p>
             </details>
+            <details class="group p-5">
+              <summary
+                class="flex cursor-pointer list-none items-center justify-between gap-4 font-medium"
+              >
+                How can I help?
+                <span
+                  class="text-muted-foreground transition-transform group-open:rotate-45"
+                  aria-hidden="true"
+                  >+</span
+                >
+              </summary>
+              <p class="mt-3 text-sm text-muted-foreground">
+                Vote on ideas, report bugs or send a pull request. The
+                <a class="font-medium text-foreground underline" href="./community.html"
+                  >community page</a
+                >
+                has the ideas board and a guide to your first contribution.
+              </p>
+            </details>
           </div>
         </div>
       </section>
 
       <!-- Call to action -->
-      <section class="mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
+      <section class="mx-auto max-w-6xl px-4 pb-20 md:px-6 md:pb-28">
         <div
-          class="flex flex-col items-center rounded-2xl bg-primary px-6 py-16 text-center text-primary-foreground"
+          class="relative flex flex-col items-center overflow-hidden rounded-3xl bg-primary px-6 py-16 text-center text-primary-foreground sm:py-20"
+          data-reveal
         >
           <svg class="h-10 w-16" style="--background: var(--primary)" aria-hidden="true">
             <use href="#cap" />
           </svg>
-          <h2 class="mt-6 max-w-xl text-3xl font-bold tracking-tight text-balance sm:text-4xl">
+          <h2 class="mt-6 max-w-xl text-3xl font-bold tracking-tight text-balance sm:text-5xl">
             Your server. Your apps. No cap.
           </h2>
           <p class="mt-4 max-w-md opacity-75">
-            Star the project to follow the first release, or open an issue with the feature you want
-            next.
+            Try the demo in your browser, then star the project to follow the first release.
           </p>
           <div class="mt-8 flex flex-col gap-3 sm:flex-row">
             <a
-              href="https://github.com/LGYx2/nocap-cloud"
-              class="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary-foreground px-5 text-sm font-medium text-primary transition-opacity hover:opacity-90"
+              href="https://demo.nocapcloud.click"
+              class="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary-foreground px-6 text-sm font-medium text-primary transition-opacity hover:opacity-90"
             >
-              <svg class="size-4" aria-hidden="true"><use href="#github" /></svg>
-              Star on GitHub
+              Try the live demo
             </a>
             <a
-              href="https://github.com/LGYx2/nocap-cloud/discussions"
-              class="inline-flex h-10 items-center justify-center rounded-md border border-primary-foreground/25 px-5 text-sm font-medium transition-colors hover:bg-primary-foreground/10"
+              href="./community.html"
+              class="inline-flex h-11 items-center justify-center rounded-md border border-primary-foreground/25 px-6 text-sm font-medium transition-colors hover:bg-primary-foreground/10"
             >
-              Join the discussion
+              Vote on what comes next
             </a>
           </div>
         </div>
       </section>
     </main>
 
-    <footer class="border-t">
-      <div
-        class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-muted-foreground sm:flex-row md:px-6"
-      >
-        <span class="flex items-center gap-2">
-          <svg class="h-4 w-6 text-foreground" aria-hidden="true"><use href="#cap" /></svg>
-          <span>© <span data-year>2026</span> The Nocap Cloud Authors. Apache 2.0.</span>
-        </span>
-        <nav aria-label="Footer" class="flex gap-5">
-          <a
-            class="transition-colors hover:text-foreground"
-            href="https://github.com/LGYx2/nocap-cloud"
-            >GitHub</a
-          >
-          <a
-            class="transition-colors hover:text-foreground"
-            href="https://github.com/LGYx2/nocap-cloud/blob/main/CONTRIBUTING.md"
-            >Contribute</a
-          >
-          <a
-            class="transition-colors hover:text-foreground"
-            href="https://github.com/LGYx2/nocap-cloud/blob/main/SECURITY.md"
-            >Security</a
-          >
-        </nav>
-      </div>
-    </footer>
+    <!-- partial:footer -->
   </body>
 </html>

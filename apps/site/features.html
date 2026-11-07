@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+    <title>Features: Nocap Cloud</title>
+    <meta
+      name="description"
+      content="Everything Nocap Cloud does: Git deploys, automatic HTTPS, zero-downtime swaps, rollback, databases, backups and a security-first panel."
+    />
+    <link rel="canonical" href="https://nocapcloud.click/features" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <script type="module" src="./src/main.js"></script>
+  </head>
+  <body data-page="features">
+    <!-- partial:header -->
+
+    <main id="main">
+      <section class="relative overflow-hidden border-b">
+        <div class="hero-grid pointer-events-none absolute inset-0" aria-hidden="true"></div>
+        <div class="relative mx-auto max-w-6xl px-4 py-16 md:px-6 md:py-24">
+          <p class="animate-in text-sm font-medium text-muted-foreground">Features</p>
+          <h1
+            class="animate-in mt-2 max-w-3xl text-4xl font-bold tracking-tighter text-balance sm:text-6xl"
+            style="--i: 1"
+          >
+            Everything you need to ship from your own server.
+          </h1>
+          <p class="animate-in mt-5 max-w-2xl text-muted-foreground sm:text-lg" style="--i: 2">
+            Every section says what works today and which version brings the rest. Status follows
+            the <a class="font-medium text-foreground underline" href="./roadmap.html">roadmap</a>.
+          </p>
+          <div class="animate-in mt-6 flex flex-wrap gap-2 text-xs" style="--i: 3">
+            <span
+              class="inline-flex items-center gap-1.5 rounded-md bg-primary px-2 py-1 font-medium text-primary-foreground"
+              >Works today</span
+            >
+            <span class="rounded-md border px-2 py-1 text-muted-foreground"
+              >v0.1 First release</span
+            >
+            <span class="rounded-md border border-dashed px-2 py-1 text-muted-foreground"
+              >Later versions</span
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- In-page navigation -->
+      <nav
+        aria-label="Feature areas"
+        class="sticky top-14 z-30 border-b bg-background/80 backdrop-blur-lg"
+      >
+        <div class="no-scrollbar mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 py-2 md:px-6">
+          <a class="nav-link shrink-0" href="#deploy">Deploy</a>
+          <a class="nav-link shrink-0" href="#git">Git</a>
+          <a class="nav-link shrink-0" href="#domains">Domains and HTTPS</a>
+          <a class="nav-link shrink-0" href="#reliability">Reliability</a>
+          <a class="nav-link shrink-0" href="#data">Databases and backups</a>
+          <a class="nav-link shrink-0" href="#updates">Updates</a>
+          <a class="nav-link shrink-0" href="#security">Security</a>
+          <a class="nav-link shrink-0" href="#architecture">Architecture</a>
+        </div>
+      </nav>
+
+      <!-- Deploy -->
+      <section id="deploy" class="mx-auto grid max-w-6xl gap-12 px-4 py-20 md:px-6 lg:grid-cols-2">
+        <div data-reveal>
+          <div class="flex items-center gap-3">
+            <span class="font-mono text-xs text-muted-foreground">01</span>
+            <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground">v0.1</span>
+          </div>
+          <h2 class="mt-3 text-3xl font-bold tracking-tight">Deploy</h2>
+          <p class="mt-3 text-muted-foreground">
+            Bring a Dockerfile or a Docker Compose file. Nocap clones the last commit, builds the
+            image and runs it as a normal container on your server.
+          </p>
+          <ul class="mt-6 space-y-3 text-sm">
+            <li class="flex gap-3">
+              <svg class="mt-0.5 size-4 shrink-0" aria-hidden="true"><use href="#check" /></svg>
+              <span
+                ><strong class="font-medium">Dockerfile and Compose.</strong>
+                <span class="text-muted-foreground"
+                  >The port comes from the EXPOSE line, so most apps need no settings.</span
+                ></span
+              >
+            </li>
+            <li class="flex gap-3">
+              <svg class="mt-0.5 size-4 shrink-0" aria-hidden="true"><use href="#check" /></svg>
+              <span
+                ><strong class="font-medium">One build at a time.</strong>
+                <span class="text-muted-foreground"
+                  >A queue in Postgres keeps builds from using all the RAM of a small server.</span
+                ></span
+              >
+            </li>
+            <li class="flex gap-3">
+              <svg class="mt-0.5 size-4 shrink-0" aria-hidden="true"><use href="#check" /></svg>
+              <span
+                ><strong class="font-medium">Live logs.</strong>
+                <span class="text-muted-foreground"
+                  >Build and runtime logs stream to the panel as they happen.</span
+                ></span
+              >
+            </li>
+            <li class="flex gap-3">
+              <svg class="mt-0.5 size-4 shrink-0" aria-hidden="true"><use href="#check" /></svg>
+              <span
+                ><strong class="font-medium">Deploy, restart, stop.</strong>
+                <span class="text-muted-foreground">One button each, from any device.</span></span
+              >
+            </li>
+          </ul>
+        </div>
+        <div class="self-center" data-reveal style="--i: 1">
+          <div
+            class="overflow-hidden rounded-xl border border-white/10 bg-terminal font-mono text-[13px] leading-relaxed text-neutral-300 shadow-xl"
+            data-terminal
+          >
+            <div class="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
+              <span class="text-xs text-neutral-400">shop-api · build #42</span>
+              <span class="flex items-center gap-1.5 text-xs text-white"
+                ><span class="pulse-dot size-1.5 rounded-full bg-white"></span>Building</span
+              >
+            </div>
+            <div class="no-scrollbar overflow-x-auto p-4 whitespace-nowrap">
+              <p class="term-line" data-delay="0">
+                <span class="text-neutral-500">12:04:01</span> Cloning main at 3f9c2a1
+              </p>
+              <p class="term-line" data-delay="400">
+                <span class="text-neutral-500">12:04:03</span> Step 1/6 FROM node:22-alpine
+              </p>
+              <p class="term-line" data-delay="800">
+                <span class="text-neutral-500">12:04:09</span> Step 4/6 RUN pnpm install --frozen
+              </p>
+              <p class="term-line" data-delay="1200">
+                <span class="text-neutral-500">12:04:31</span> Step 6/6 CMD ["node",
+                "dist/index.js"]
+              </p>
+              <p class="term-line" data-delay="1600">
+                <span class="text-neutral-500">12:04:33</span> Image shop-api:3f9c2a1 built
+              </p>
+              <p class="term-line" data-delay="2000">
+                <span class="text-neutral-500">12:04:35</span> Health check passed
+              </p>
+              <p class="term-line text-white" data-delay="2400">
+                <span class="text-neutral-500">12:04:35</span> Live at https://api.shop.example
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Git -->
+      <section id="git" class="border-y bg-muted/40">
+        <div class="mx-auto grid max-w-6xl gap-12 px-4 py-20 md:px-6 lg:grid-cols-2">
+          <div class="lg:order-2" data-reveal>
+            <div class="flex items-center gap-3">
+              <span class="font-mono text-xs text-muted-foreground">02</span>
+              <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground">v0.1</span>
+            </div>
+            <h2 class="mt-3 text-3xl font-bold tracking-tight">GitHub and GitLab</h2>
+            <p class="mt-3 text-muted-foreground">
+              Connect an account once, then pick repositories from a list. Webhooks, code access and
+              commit status are created for you.
+            </p>
+            <ul class="mt-6 space-y-3 text-sm">
+              <li class="flex gap-3">
+                <svg class="mt-0.5 size-4 shrink-0" aria-hidden="true"><use href="#check" /></svg>
+                <span
+                  ><strong class="font-medium">GitHub App from a manifest.</strong>
+                  <span class="text-muted-foreground"
+                    >Click "Connect GitHub", confirm the name, install. Each install gets its own
+                    app and keys.</span
+                  ></span
+                >
+              </li>
+              <li class="flex gap-3">
+                <svg class="mt-0.5 size-4 shrink-0" aria-hidden="true"><use href="#check" /></svg>
+                <span
+                  ><strong class="font-medium">GitLab with one token.</strong>
+                  <span class="text-muted-foreground"
+                    >GitLab.com or self-managed. A test button checks the scopes, and the panel
+                    warns 14 days before the token expires.</span
+                  ></span
+                >
+              </li>
+              <li class="flex gap-3">
+                <svg class="mt-0.5 size-4 shrink-0" aria-hidden="true"><use href="#check" /></svg>
+                <span
+                  ><strong class="font-medium">Verified webhooks.</strong>
+                  <span class="text-muted-foreground"
+                    >HMAC signatures for GitHub and a secret per project for GitLab. Anything else
+                    is rejected.</span
+                  ></span
+                >
+              </li>
+              <li class="flex gap-3">
+                <svg class="mt-0.5 size-4 shrink-0" aria-hidden="true"><use href="#check" /></svg>
+                <span
+                  ><strong class="font-medium">Status on every commit.</strong>
+                  <span class="text-muted-foreground"
+                    >Building, live or failed, on both services.</span
+                  ></span
+                >
+              </li>
+            </ul>
+          </div>
+          <div class="self-center lg:order-1" data-reveal style="--i: 1">
+            <div class="rounded-xl border bg-card p-5 shadow-xl">
+              <div class="flex items-center gap-3 border-b pb-4">
+                <svg class="size-5" aria-hidden="true"><use href="#github" /></svg>
+                <span class="text-sm font-medium">acme/shop-api</span>
+                <span class="ml-auto rounded-md border px-2 py-0.5 font-mono text-xs">main</span>
+              </div>
+              <ul class="divide-y text-sm" data-stagger>
+                <li class="flex items-center gap-3 py-3">
+                  <span
+                    class="flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground"
+                    ><svg class="size-3" aria-hidden="true"><use href="#check" /></svg
+                  ></span>
+                  <span class="min-w-0 flex-1 truncate">Add order export</span>
+                  <span class="font-mono text-xs text-muted-foreground">3f9c2a1</span>
+                  <span class="text-xs text-muted-foreground">nocap: live</span>
+                </li>
+                <li class="flex items-center gap-3 py-3">
+                  <span
+                    class="flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground"
+                    ><svg class="size-3" aria-hidden="true"><use href="#check" /></svg
+                  ></span>
+                  <span class="min-w-0 flex-1 truncate">Fix currency rounding</span>
+                  <span class="font-mono text-xs text-muted-foreground">a81e07d</span>
+                  <span class="text-xs text-muted-foreground">nocap: live</span>
+                </li>
+                <li class="flex items-center gap-3 py-3">
+                  <span
+                    class="flex size-5 items-center justify-center rounded-full border-2 border-foreground text-[10px] font-bold"
+                    >×</span
+                  >
+                  <span class="min-w-0 flex-1 truncate">Try new payment SDK</span>
+                  <span class="font-mono text-xs text-muted-foreground">5c42b9e</span>
+                  <span class="text-xs text-muted-foreground">nocap: failed</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Domains -->
+      <section id="domains" class="mx-auto grid max-w-6xl gap-12 px-4 py-20 md:px-6 lg:grid-cols-2">
+        <div data-reveal>
+          <div class="flex items-center gap-3">
+            <span class="font-mono text-xs text-muted-foreground">03</span>
+            <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground">v0.1</span>
+          </div>
+          <h2 class="mt-3 text-3xl font-bold tracking-tight">Domains and HTTPS</h2>
+          <p class="mt-3 text-muted-foreground">
+            Add a domain to an app and point its DNS at your server. Traefik routes the traffic and
+            gets a Let's Encrypt certificate, then renews it before it expires.
+          </p>
+          <ul class="mt-6 space-y-3 text-sm">
+            <li class="flex gap-3">
+              <svg class="mt-0.5 size-4 shrink-0" aria-hidden="true"><use href="#check" /></svg>
+              <span class="text-muted-foreground"
+                >Several domains per app, HTTP always redirected to HTTPS.</span
+              >
+            </li>
+            <li class="flex gap-3">
+              <svg class="mt-0.5 size-4 shrink-0" aria-hidden="true"><use href="#check" /></svg>
+              <span class="text-muted-foreground"
+                >The panel itself can live on its own domain.</span
+              >
+            </li>
+            <li class="flex gap-3">
+              <svg class="mt-0.5 size-4 shrink-0" aria-hidden="true"><use href="#check" /></svg>
+              <span class="text-muted-foreground"
+                >Clear errors when DNS does not point to the server yet.</span
+              >
+            </li>
+          </ul>
+        </div>
+        <div class="self-center" data-reveal style="--i: 1">
+          <div class="rounded-xl border bg-card shadow-xl">
+            <div class="border-b px-5 py-3 text-sm font-medium">Domains</div>
+            <ul class="divide-y text-sm" data-stagger>
+              <li class="flex items-center justify-between gap-3 px-5 py-3">
+                <span class="font-mono">shop.example</span>
+                <span class="flex items-center gap-1.5 text-xs"
+                  ><svg class="size-3.5" aria-hidden="true"><use href="#check" /></svg>Certificate
+                  valid</span
+                >
+              </li>
+              <li class="flex items-center justify-between gap-3 px-5 py-3">
+                <span class="font-mono">www.shop.example</span>
+                <span class="text-xs text-muted-foreground">Redirects to shop.example</span>
+              </li>
+              <li class="flex items-center justify-between gap-3 px-5 py-3">
+                <span class="font-mono">api.shop.example</span>
+                <span class="flex items-center gap-1.5 text-xs text-muted-foreground"
+                  ><span class="pulse-dot size-1.5 rounded-full bg-foreground"></span>Getting
+                  certificate</span
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Reliability -->
+      <section id="reliability" class="border-y bg-muted/40">
+        <div class="mx-auto max-w-6xl px-4 py-20 md:px-6">
+          <div class="max-w-2xl" data-reveal>
+            <div class="flex items-center gap-3">
+              <span class="font-mono text-xs text-muted-foreground">04</span>
+              <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground">v0.1</span>
+            </div>
+            <h2 class="mt-3 text-3xl font-bold tracking-tight">Reliability</h2>
+            <p class="mt-3 text-muted-foreground">
+              A broken deploy should never take the working version offline. Every deploy follows
+              the same safe path.
+            </p>
+          </div>
+          <ol class="mt-10 grid gap-3 md:grid-cols-4" data-stagger>
+            <li class="rounded-xl border bg-card p-5 shadow-xs">
+              <span class="font-mono text-xs text-muted-foreground">Step 1</span>
+              <p class="mt-2 font-medium">Build</p>
+              <p class="mt-1 text-sm text-muted-foreground">
+                The new image is built while the old one keeps serving.
+              </p>
+            </li>
+            <li class="rounded-xl border bg-card p-5 shadow-xs">
+              <span class="font-mono text-xs text-muted-foreground">Step 2</span>
+              <p class="mt-2 font-medium">Health check</p>
+              <p class="mt-1 text-sm text-muted-foreground">
+                The new container must answer on its health URL.
+              </p>
+            </li>
+            <li class="rounded-xl border bg-card p-5 shadow-xs">
+              <span class="font-mono text-xs text-muted-foreground">Step 3</span>
+              <p class="mt-2 font-medium">Swap</p>
+              <p class="mt-1 text-sm text-muted-foreground">
+                Traffic moves over. Nobody sees an error page.
+              </p>
+            </li>
+            <li class="rounded-xl border-2 border-foreground bg-card p-5 shadow-xs">
+              <span class="font-mono text-xs text-muted-foreground">Anytime</span>
+              <p class="mt-2 font-medium">Roll back</p>
+              <p class="mt-1 text-sm text-muted-foreground">
+                Any of the last 5 images, in one click.
+              </p>
+            </li>
+          </ol>
+          <div class="mt-6 grid gap-3 text-sm sm:grid-cols-3" data-stagger>
+            <p class="rounded-xl border bg-card p-4 text-muted-foreground">
+              <strong class="font-medium text-foreground">Encrypted variables.</strong> AES-256-GCM
+              before they reach the database.
+            </p>
+            <p class="rounded-xl border bg-card p-4 text-muted-foreground">
+              <strong class="font-medium text-foreground">CPU and RAM limits</strong> per app, so
+              one app cannot starve the rest.
+            </p>
+            <p class="rounded-xl border bg-card p-4 text-muted-foreground">
+              <strong class="font-medium text-foreground">Weekly cleanup</strong> of old images and
+              build cache, so the disk never fills up.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Data -->
+      <section id="data" class="mx-auto grid max-w-6xl gap-12 px-4 py-20 md:px-6 lg:grid-cols-2">
+        <div data-reveal>
+          <div class="flex items-center gap-3">
+            <span class="font-mono text-xs text-muted-foreground">05</span>
+            <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground">v0.1</span>
+          </div>
+          <h2 class="mt-3 text-3xl font-bold tracking-tight">Databases and backups</h2>
+          <p class="mt-3 text-muted-foreground">
+            Start a database next to your app in one click, on a private network. Link it and the
+            connection string arrives as an environment variable.
+          </p>
+          <ul class="mt-6 space-y-3 text-sm">
+            <li class="flex gap-3">
+              <svg class="mt-0.5 size-4 shrink-0" aria-hidden="true"><use href="#check" /></svg>
+              <span class="text-muted-foreground"
+                >PostgreSQL, MySQL and Redis in v0.1. MariaDB and MongoDB in v0.2.</span
+              >
+            </li>
+            <li class="flex gap-3">
+              <svg class="mt-0.5 size-4 shrink-0" aria-hidden="true"><use href="#check" /></svg>
+              <span class="text-muted-foreground"
+                >Scheduled backups to any S3-compatible storage: Amazon S3, Cloudflare R2,
+                MinIO.</span
+              >
+            </li>
+            <li class="flex gap-3">
+              <svg class="mt-0.5 size-4 shrink-0" aria-hidden="true"><use href="#check" /></svg>
+              <span class="text-muted-foreground"
+                >Restore from the panel. Every release is tested by restoring a real backup.</span
+              >
+            </li>
+          </ul>
+        </div>
+        <div class="self-center" data-reveal style="--i: 1">
+          <div class="rounded-xl border bg-card shadow-xl">
+            <div class="flex items-center justify-between border-b px-5 py-3">
+              <span class="text-sm font-medium">shop-db backups</span>
+              <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground"
+                >Daily at 03:00 · R2</span
+              >
+            </div>
+            <ul class="divide-y text-sm" data-stagger>
+              <li class="flex items-center justify-between gap-3 px-5 py-3">
+                <span>Today, 03:00</span><span class="text-muted-foreground">48.2 MB</span
+                ><span class="text-xs">Restore</span>
+              </li>
+              <li class="flex items-center justify-between gap-3 px-5 py-3">
+                <span>Yesterday, 03:00</span><span class="text-muted-foreground">47.9 MB</span
+                ><span class="text-xs">Restore</span>
+              </li>
+              <li class="flex items-center justify-between gap-3 px-5 py-3">
+                <span>2 days ago, 03:00</span><span class="text-muted-foreground">47.5 MB</span
+                ><span class="text-xs">Restore</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Updates -->
+      <section id="updates" class="border-y bg-muted/40">
+        <div class="mx-auto grid max-w-6xl gap-12 px-4 py-20 md:px-6 lg:grid-cols-2">
+          <div data-reveal>
+            <div class="flex items-center gap-3">
+              <span class="font-mono text-xs text-muted-foreground">06</span>
+              <span class="rounded-md border px-2 py-0.5 text-xs text-muted-foreground">v0.1</span>
+            </div>
+            <h2 class="mt-3 text-3xl font-bold tracking-tight">Updates without SSH</h2>
+            <p class="mt-3 text-muted-foreground">
+              The panel checks for new releases once a day. Click update and it pulls the new
+              images, runs the migrations and restarts. If the new version fails its health check,
+              the previous one comes back.
+            </p>
+          </div>
+          <div class="self-center" data-reveal style="--i: 1">
+            <div
+              class="flex flex-col gap-4 rounded-xl border bg-card p-5 shadow-xl sm:flex-row sm:items-center"
+            >
+              <div class="min-w-0 flex-1">
+                <p class="font-medium">Nocap Cloud v0.2.0 is available</p>
+                <p class="mt-1 text-sm text-muted-foreground">
+                  You are on v0.1.0. Monitoring, notifications and two more databases.
+                </p>
+              </div>
+              <span
+                class="inline-flex h-9 shrink-0 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
+                >Update now</span
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Security -->
+      <section id="security" class="mx-auto max-w-6xl px-4 py-20 md:px-6">
+        <div class="max-w-2xl" data-reveal>
+          <div class="flex items-center gap-3">
+            <span class="font-mono text-xs text-muted-foreground">07</span>
+            <span
+              class="rounded-md bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground"
+              >Works today</span
+            >
+          </div>
+          <h2 class="mt-3 text-3xl font-bold tracking-tight">Security first</h2>
+          <p class="mt-3 text-muted-foreground">
+            The panel controls Docker on your server, so it is built to be hard to break into. These
+            protections are already in the code.
+          </p>
+        </div>
+        <ul class="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-stagger>
+          <li class="spotlight rounded-xl border bg-card p-5 shadow-xs">
+            <p class="font-medium">Argon2id passwords</p>
+            <p class="mt-1 text-sm text-muted-foreground">
+              With the OWASP baseline settings. Plain passwords are never stored.
+            </p>
+          </li>
+          <li class="spotlight rounded-xl border bg-card p-5 shadow-xs">
+            <p class="font-medium">Hashed sessions</p>
+            <p class="mt-1 text-sm text-muted-foreground">
+              httpOnly cookies. The database keeps only a hash of each token.
+            </p>
+          </li>
+          <li class="spotlight rounded-xl border bg-card p-5 shadow-xs">
+            <p class="font-medium">Rate-limited login</p>
+            <p class="mt-1 text-sm text-muted-foreground">
+              10 tries a minute, and the same answer for a wrong email or password.
+            </p>
+          </li>
+          <li class="spotlight rounded-xl border bg-card p-5 shadow-xs">
+            <p class="font-medium">Strict headers</p>
+            <p class="mt-1 text-sm text-muted-foreground">
+              Content Security Policy, no framing, no third-party scripts or fonts.
+            </p>
+          </li>
+          <li class="spotlight rounded-xl border bg-card p-5 shadow-xs">
+            <p class="font-medium">Audit log</p>
+            <p class="mt-1 text-sm text-muted-foreground">
+              Logins, failed logins and every change, with who and when.
+            </p>
+          </li>
+          <li class="spotlight rounded-xl border bg-card p-5 shadow-xs">
+            <p class="font-medium">Private reporting</p>
+            <p class="mt-1 text-sm text-muted-foreground">
+              Security reports go through GitHub's private vulnerability reporting.
+            </p>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Architecture -->
+      <section id="architecture" class="border-t bg-muted/40">
+        <div class="mx-auto max-w-6xl px-4 py-20 md:px-6">
+          <div class="max-w-2xl" data-reveal>
+            <span class="font-mono text-xs text-muted-foreground">08</span>
+            <h2 class="mt-3 text-3xl font-bold tracking-tight">Light by design</h2>
+            <p class="mt-3 text-muted-foreground">
+              Fewer moving parts means less memory, fewer things to back up and fewer things to
+              break. Every choice below keeps the footprint small.
+            </p>
+          </div>
+          <div class="mt-10 overflow-x-auto rounded-xl border bg-card shadow-xs" data-reveal>
+            <table class="w-full min-w-[600px] text-left text-sm">
+              <thead class="border-b text-xs text-muted-foreground">
+                <tr>
+                  <th class="px-5 py-3 font-medium">We use</th>
+                  <th class="px-5 py-3 font-medium">Instead of</th>
+                  <th class="px-5 py-3 font-medium">Saves</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                <tr>
+                  <td class="px-5 py-3 font-medium">Panel, API and worker in one image</td>
+                  <td class="px-5 py-3 text-muted-foreground">Three separate images</td>
+                  <td class="px-5 py-3 text-muted-foreground">
+                    Two containers and their idle memory
+                  </td>
+                </tr>
+                <tr>
+                  <td class="px-5 py-3 font-medium">Job queue inside Postgres</td>
+                  <td class="px-5 py-3 text-muted-foreground">Redis with a queue library</td>
+                  <td class="px-5 py-3 text-muted-foreground">
+                    One container and one more thing to back up
+                  </td>
+                </tr>
+                <tr>
+                  <td class="px-5 py-3 font-medium">Panel served by the same Node process</td>
+                  <td class="px-5 py-3 text-muted-foreground">A separate web server</td>
+                  <td class="px-5 py-3 text-muted-foreground">One container</td>
+                </tr>
+                <tr>
+                  <td class="px-5 py-3 font-medium">Alpine image, bundled server</td>
+                  <td class="px-5 py-3 text-muted-foreground">
+                    Full Node image with all dependencies
+                  </td>
+                  <td class="px-5 py-3 text-muted-foreground">
+                    A smaller download and a faster install
+                  </td>
+                </tr>
+                <tr>
+                  <td class="px-5 py-3 font-medium">Logs on disk with rotation</td>
+                  <td class="px-5 py-3 text-muted-foreground">Logs in the database</td>
+                  <td class="px-5 py-3 text-muted-foreground">The database stays small</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="mt-4 text-sm text-muted-foreground" data-reveal>
+            Targets for v0.1, checked on every release: idle memory under 400 MB for the whole
+            stack, the Nocap image under 200 MB, and install under 2 minutes on a 2-vCPU server.
+            These are goals we measure, not results yet.
+          </p>
+        </div>
+      </section>
+
+      <!-- After v0.1 -->
+      <section class="mx-auto max-w-6xl px-4 py-20 md:px-6">
+        <div class="max-w-2xl" data-reveal>
+          <p class="text-sm font-medium text-muted-foreground">After v0.1</p>
+          <h2 class="mt-2 text-3xl font-bold tracking-tight">Coming soon</h2>
+          <p class="mt-3 text-muted-foreground">
+            Each version after the first release adds more, without adding containers.
+            <a class="font-medium text-foreground underline" href="./community.html#ideas"
+              >Vote on the order</a
+            >.
+          </p>
+        </div>
+        <ul class="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-stagger>
+          <li class="rounded-xl border border-dashed bg-card p-5">
+            <span class="font-mono text-xs text-muted-foreground">v0.2</span>
+            <p class="mt-2 font-medium">Monitoring and alerts</p>
+            <p class="mt-1 text-sm text-muted-foreground">
+              CPU, RAM, disk and network per app. Alerts on email, Slack, Discord and Telegram.
+            </p>
+          </li>
+          <li class="rounded-xl border border-dashed bg-card p-5">
+            <span class="font-mono text-xs text-muted-foreground">v0.3</span>
+            <p class="mt-2 font-medium">Templates and previews</p>
+            <p class="mt-1 text-sm text-muted-foreground">
+              One-click apps like n8n and Plausible, and a preview URL for every pull request.
+            </p>
+          </li>
+          <li class="rounded-xl border border-dashed bg-card p-5">
+            <span class="font-mono text-xs text-muted-foreground">v0.4</span>
+            <p class="mt-2 font-medium">Teams and API</p>
+            <p class="mt-1 text-sm text-muted-foreground">
+              Roles, two-factor login, API tokens and a command-line tool.
+            </p>
+          </li>
+          <li class="rounded-xl border border-dashed bg-card p-5">
+            <span class="font-mono text-xs text-muted-foreground">v0.5</span>
+            <p class="mt-2 font-medium">Multi-server</p>
+            <p class="mt-1 text-sm text-muted-foreground">
+              Deploy to other servers over SSH from one panel.
+            </p>
+          </li>
+          <li class="rounded-xl border border-dashed bg-card p-5">
+            <span class="font-mono text-xs text-muted-foreground">v0.6</span>
+            <p class="mt-2 font-medium">No Dockerfile needed</p>
+            <p class="mt-1 text-sm text-muted-foreground">
+              Automatic builds with Nixpacks or buildpacks, and volume backups.
+            </p>
+          </li>
+          <li class="rounded-xl border border-dashed bg-card p-5">
+            <span class="font-mono text-xs text-muted-foreground">v1.0</span>
+            <p class="mt-2 font-medium">Stable</p>
+            <p class="mt-1 text-sm text-muted-foreground">
+              A stable API and upgrade path you can rely on for years.
+            </p>
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <!-- partial:footer -->
+  </body>
+</html>
