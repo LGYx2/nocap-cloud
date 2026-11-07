@@ -10,23 +10,29 @@
 import {
   applicationInputSchema,
   applicationUpdateSchema,
+  databaseInputSchema,
+  databaseLinkSchema,
   domainInputSchema,
   envVarsSchema,
   type ApiError,
   type Application,
   type AppStatus,
+  type DatabaseEngine,
   type Deployment,
   type Domain,
   type EnvVar,
   type GitProvider,
   type GitRepo,
+  type LinkedVariable,
+  type ManagedDatabase,
   type Overview,
   type Project,
   type PublicUser,
 } from "@nocap/shared";
+import { DATABASE_ENGINES } from "@nocap/shared/catalog";
 import { PROJECT_DESCRIPTION_MAX, PROJECT_NAME_MAX } from "@nocap/shared/constants";
 
-const STORAGE_KEY = "nocap-demo-v3";
+const STORAGE_KEY = "nocap-demo-v4";
 
 const DEMO_GITHUB: GitProvider = {
   id: "9a000000-0000-4000-8000-000000000001",
@@ -62,7 +68,19 @@ export const DEMO_USER: PublicUser = {
   email: "demo@nocap.cloud",
 };
 
-type DemoProject = Omit<Project, "applicationCount">;
+type DemoProject = Omit<Project, "applicationCount" | "databaseCount">;
+type DemoDatabase = Omit<ManagedDatabase, "projectName" | "links" | "host" | "port"> & {
+  password: string;
+};
+interface DemoLink {
+  id: string;
+  databaseId: string;
+  applicationId: string;
+  variable: string;
+}
+
+/** How long a new demo database shows as starting. */
+const DB_START_MS = 6000;
 type DemoApp = Omit<Application, "projectName" | "domains" | "lastDeployment">;
 type DemoDeployment = Omit<Deployment, "applicationName" | "projectId"> & {
   /** Planned outcome, revealed when the script ends. */
@@ -74,6 +92,8 @@ export interface DemoState {
   projects: DemoProject[];
   apps: DemoApp[];
   deployments: DemoDeployment[];
+  databases: DemoDatabase[];
+  links: DemoLink[];
   domains: Domain[];
   env: Record<string, EnvVar[]>;
   providers: GitProvider[];
@@ -142,6 +162,7 @@ export function seedState(now = Date.now()): DemoState {
     dockerfilePath: "Dockerfile",
     image: source === "image" ? where : null,
     port,
+    releaseCommand: null,
     status,
     // Meridian's repositories come through the sample GitHub account and deploy on push.
     gitProvider: where.includes("meridian-labs")
@@ -278,6 +299,63 @@ export function seedState(now = Date.now()): DemoState {
   past(api, 0.6, "running", 58);
   past(admin, 0.4, "failed", 39, "build failed (exit code 1). See the log for details.");
 
+  // The API runs its Prisma migrations before each release.
+  const apiApp = apps.find((a) => a.id === api);
+  if (apiApp) apiApp.releaseCommand = "npx prisma migrate deploy";
+
+  const database = (
+    id: string,
+    projectId: string,
+    name: string,
+    engine: DatabaseEngine,
+    version: string,
+    created: number,
+  ): DemoDatabase => ({
+    id,
+    projectId,
+    name,
+    engine,
+    version,
+    status: "running",
+    error: null,
+    dbName: engine === "redis" ? "0" : "app",
+    username: engine === "redis" ? "default" : "nocap",
+    password: "demo-" + id.slice(0, 8) + "-not-a-real-password",
+    createdAt: hoursAgo(created, now),
+    updatedAt: hoursAgo(created, now),
+  });
+  const databases: DemoDatabase[] = [
+    database(
+      "a1c0d4e1-0000-4000-8000-000000000001",
+      P.meridian,
+      "Main database",
+      "postgres",
+      "17-alpine",
+      2,
+    ),
+    database("a2c0d4e1-0000-4000-8000-000000000002", P.meridian, "Cache", "redis", "7-alpine", 2),
+    database(
+      "a3c0d4e1-0000-4000-8000-000000000003",
+      P.harbor,
+      "Events",
+      "postgres",
+      "16-alpine",
+      30,
+    ),
+  ];
+  const links: DemoLink[] = [
+    ["a1c0d4e1-0000-4000-8000-000000000001", api, "DATABASE_URL"],
+    ["a1c0d4e1-0000-4000-8000-000000000001", worker, "DATABASE_URL"],
+    ["a2c0d4e1-0000-4000-8000-000000000002", api, "REDIS_URL"],
+    ["a3c0d4e1-0000-4000-8000-000000000003", ingest, "DATABASE_URL"],
+    ["a3c0d4e1-0000-4000-8000-000000000003", dash, "GF_DATABASE_URL"],
+  ].map(([databaseId = "", applicationId = "", variable = ""], i) => ({
+    id: `ab000000-0000-4000-8000-00000000000${i + 1}`,
+    databaseId,
+    applicationId,
+    variable,
+  }));
+
   return {
     signedIn: true,
     projects: [
@@ -306,12 +384,13 @@ export function seedState(now = Date.now()): DemoState {
     ],
     apps,
     deployments,
+    databases,
+    links,
     domains,
     providers: [DEMO_GITHUB],
     panelUrl: "https://panel.meridian.dev",
     env: {
       [api]: [
-        { key: "DATABASE_URL", value: "postgres://meridian:demo@db:5432/meridian" },
         { key: "JWT_SECRET", value: "demo-only-not-a-real-secret" },
         { key: "LOG_LEVEL", value: "info" },
       ],
@@ -413,7 +492,13 @@ interface Script {
   total: number;
 }
 
-function script(app: DemoApp, d: DemoDeployment, domains: string[], envCount: number): Script {
+function script(
+  app: DemoApp,
+  d: DemoDeployment,
+  domains: string[],
+  envCount: number,
+  linked: string[],
+): Script {
   const lines: Array<[number, string]> = [[0, `Deployment ${d.id.slice(0, 8)} of ${app.name}`]];
   let t = 300;
   const add = (gap: number, text: string) => {
@@ -465,6 +550,20 @@ function script(app: DemoApp, d: DemoDeployment, domains: string[], envCount: nu
     add(400, "#9 exporting to image");
     add(500, `#9 naming to docker.io/nocap/${app.id.slice(0, 8)}:${d.id.slice(0, 8)} done`);
   }
+  if (linked.length) add(200, `Linked databases: ${linked.join(", ")}`);
+  if (app.releaseCommand) {
+    add(300, "");
+    add(0, `==> Running the release command: ${app.releaseCommand}`);
+    if (app.releaseCommand.includes("prisma")) {
+      add(600, "Prisma schema loaded from prisma/schema.prisma");
+      add(300, 'Datasource "db": PostgreSQL database "app" at "nocap-db-a1c0d4e1:5432"');
+      add(700, "2 migrations found in prisma/migrations");
+      add(500, "No pending migrations to apply.");
+    } else {
+      add(900, "Migrations are up to date.");
+    }
+    add(200, "Release command finished.");
+  }
   add(300, "");
   add(0, `==> Starting the container on port ${app.port}`);
   add(
@@ -485,11 +584,19 @@ function scriptFor(state: DemoState, d: DemoDeployment): Script {
   const app = state.apps.find((a) => a.id === d.applicationId);
   if (!app) return { lines: [], total: 0 };
   const hosts = state.domains.filter((x) => x.applicationId === app.id).map((x) => x.hostname);
-  return script(app, d, hosts, state.env[app.id]?.length ?? 0);
+  const linked = (state.links ?? [])
+    .filter((l) => l.applicationId === app.id)
+    .map((l) => l.variable);
+  return script(app, d, hosts, (state.env[app.id]?.length ?? 0) + linked.length, linked);
 }
 
 /** Moves every playing deployment forward to `now`. */
 function advance(state: DemoState, now: number): void {
+  for (const db of state.databases) {
+    if (db.status === "starting" && now - new Date(db.updatedAt).getTime() >= DB_START_MS) {
+      db.status = "running";
+    }
+  }
   for (const d of state.deployments) {
     if (d.status !== "queued" && d.status !== "building") continue;
     const started = new Date(d.startedAt ?? d.createdAt).getTime();
@@ -575,8 +682,108 @@ function toProject(state: DemoState, project: DemoProject): Project {
   return {
     ...project,
     applicationCount: state.apps.filter((a) => a.projectId === project.id).length,
+    databaseCount: state.databases.filter((d) => d.projectId === project.id).length,
   };
 }
+
+const dbHost = (id: string) => `nocap-db-${id.replaceAll("-", "").slice(0, 8)}`;
+
+function toDatabase(state: DemoState, db: DemoDatabase): ManagedDatabase {
+  const rest: Partial<DemoDatabase> = { ...db };
+  delete rest.password; // only the connection endpoint returns it
+  return {
+    ...(rest as Omit<DemoDatabase, "password">),
+    projectName: state.projects.find((p) => p.id === db.projectId)?.name ?? "",
+    host: dbHost(db.id),
+    port: DATABASE_ENGINES[db.engine].port,
+    links: state.links
+      .filter((l) => l.databaseId === db.id)
+      .map((l) => ({
+        ...l,
+        applicationName: state.apps.find((a) => a.id === l.applicationId)?.name ?? "App",
+      })),
+  };
+}
+
+function connectionUrl(db: DemoDatabase): string {
+  const host = dbHost(db.id);
+  const auth = `${db.username}:${db.password}`;
+  switch (db.engine) {
+    case "postgres":
+      return `postgresql://${auth}@${host}:5432/${db.dbName}`;
+    case "mysql":
+    case "mariadb":
+      return `mysql://${auth}@${host}:3306/${db.dbName}`;
+    case "mongodb":
+      return `mongodb://${auth}@${host}:27017/${db.dbName}?authSource=admin`;
+    case "redis":
+      return `redis://default:${db.password}@${host}:6379/0`;
+  }
+}
+
+function linkedVariables(state: DemoState, appId: string): LinkedVariable[] {
+  return state.links
+    .filter((l) => l.applicationId === appId)
+    .flatMap((l) => {
+      const db = state.databases.find((d) => d.id === l.databaseId);
+      return db
+        ? [
+            {
+              linkId: l.id,
+              variable: l.variable,
+              databaseId: db.id,
+              databaseName: db.name,
+              engine: db.engine,
+            },
+          ]
+        : [];
+    })
+    .sort((a, b) => a.variable.localeCompare(b.variable));
+}
+
+/** Believable, slowly moving CPU and memory for a service. */
+function demoUsage(id: string, kind: "app" | "db", now: number) {
+  const seed = [...id].reduce((sum, c) => sum + c.charCodeAt(0), 0);
+  const wave = (Math.sin(now / 7000 + seed) + 1) / 2;
+  const base = kind === "db" ? 60 + (seed % 90) : 70 + (seed % 140);
+  return {
+    cpu: Math.round((0.3 + wave * (kind === "db" ? 2.5 : 6) + (seed % 3)) * 10) / 10,
+    memory: Math.round((base + wave * 12) * 1024 * 1024),
+  };
+}
+
+function databaseLogs(db: DemoDatabase, now: number): string {
+  const at = (minutes: number) => new Date(now - minutes * 60_000).toISOString();
+  const started = new Date(db.createdAt).getTime();
+  const t = (offset: number) => new Date(started + offset).toISOString();
+  if (db.engine === "redis") {
+    return [
+      `${t(1000)} 1:C Redis version=7.4.1, bits=64, started`,
+      `${t(1100)} 1:M Server initialized`,
+      `${t(1200)} 1:M Ready to accept connections tcp`,
+      `${at(12)} 1:M 100 changes in 300 seconds. Saving...`,
+      `${at(12)} 1:M Background saving terminated with success`,
+    ].join("\n");
+  }
+  if (db.engine === "postgres") {
+    return [
+      `${t(1000)} PostgreSQL init process complete; ready for start up.`,
+      `${t(1500)} LOG:  starting PostgreSQL ${versionOnly(db.version)} on x86_64-pc-linux-musl`,
+      `${t(1600)} LOG:  listening on IPv4 address "0.0.0.0", port 5432`,
+      `${t(1700)} LOG:  database system is ready to accept connections`,
+      `${at(31)} LOG:  checkpoint starting: time`,
+      `${at(31)} LOG:  checkpoint complete: wrote 42 buffers (0.3%)`,
+      `${at(1)} LOG:  checkpoint starting: time`,
+    ].join("\n");
+  }
+  return [
+    `${t(1000)} Initializing database files`,
+    `${t(4000)} Database files initialized`,
+    `${t(5000)} ready for connections. port: ${DATABASE_ENGINES[db.engine].port}`,
+  ].join("\n");
+}
+
+const versionOnly = (version: string) => version.replace(/-alpine$/, "");
 
 function overview(state: DemoState, now: number): Overview {
   const today = new Date(now);
@@ -774,6 +981,122 @@ export function handle(
     return ok({ project: toProject(state, project) }, 201);
   }
 
+  // ---- databases
+  if (route === "GET /api/databases") {
+    return ok({ databases: newest(state.databases).map((d) => toDatabase(state, d)) });
+  }
+  const pd = /^\/api\/projects\/([^/]+)\/(databases|usage)$/.exec(path);
+  if (pd) {
+    const project = state.projects.find((p) => p.id === pd[1]);
+    if (!project) return fail(404, "Project not found");
+    if (pd[2] === "usage" && method === "GET") {
+      const usage: Record<string, { cpu: number; memory: number }> = {};
+      for (const a of state.apps) {
+        if (a.projectId === project.id && a.status === "running")
+          usage[a.id] = demoUsage(a.id, "app", now);
+      }
+      for (const d of state.databases) {
+        if (d.projectId === project.id && d.status === "running")
+          usage[d.id] = demoUsage(d.id, "db", now);
+      }
+      return ok({ available: true, usage });
+    }
+    if (pd[2] === "databases" && method === "GET") {
+      const list = newest(state.databases.filter((d) => d.projectId === project.id));
+      return ok({ databases: list.map((d) => toDatabase(state, d)) });
+    }
+    if (pd[2] === "databases" && method === "POST") {
+      const input = parse(databaseInputSchema, body);
+      if (isResponse(input)) return input;
+      const stamp = new Date(now).toISOString();
+      const id = newId();
+      const db: DemoDatabase = {
+        id,
+        projectId: project.id,
+        name: input.name,
+        engine: input.engine,
+        version: input.version ?? DATABASE_ENGINES[input.engine].versions[0] ?? "latest",
+        status: "starting",
+        error: null,
+        dbName: input.engine === "redis" ? "0" : (input.dbName ?? "app"),
+        username: input.engine === "redis" ? "default" : "nocap",
+        password: newId().replaceAll("-", "").slice(0, 32),
+        createdAt: stamp,
+        updatedAt: stamp,
+      };
+      state.databases.push(db);
+      return ok({ database: toDatabase(state, db) }, 201);
+    }
+  }
+
+  const md = /^\/api\/databases\/([^/]+)(?:\/(.+))?$/.exec(path);
+  if (md) {
+    const db = state.databases.find((d) => d.id === md[1]);
+    if (!db) return fail(404, "Database not found");
+    const sub = md[2] ?? "";
+    if (sub === "" && method === "GET") return ok({ database: toDatabase(state, db) });
+    if (sub === "connection" && method === "GET") {
+      return ok({ password: db.password, url: connectionUrl(db) });
+    }
+    if (sub === "logs" && method === "GET") {
+      return ok({
+        logs: db.status === "starting" ? "" : databaseLogs(db, now),
+        running: db.status === "running",
+      });
+    }
+    const action = /^actions\/(start|stop|restart)$/.exec(sub)?.[1];
+    if (action && method === "POST") {
+      if (db.status === "starting") return fail(409, "The database is still starting.");
+      if (action === "stop" && db.status !== "running")
+        return fail(409, "The database is not running.");
+      if (db.status === "failed") {
+        db.status = "starting";
+        db.updatedAt = new Date(now).toISOString();
+      } else {
+        db.status = action === "stop" ? "stopped" : "running";
+      }
+      return ok({ database: toDatabase(state, db) });
+    }
+    if (sub === "links" && method === "POST") {
+      const input = parse(databaseLinkSchema, body);
+      if (isResponse(input)) return input;
+      const target = state.apps.find((a) => a.id === input.applicationId);
+      if (!target) return fail(404, "Application not found");
+      if (target.projectId !== db.projectId) {
+        return fail(400, "Link apps from the same project as the database.");
+      }
+      const variable = input.variable ?? DATABASE_ENGINES[db.engine].variable;
+      if ((state.env[target.id] ?? []).some((v) => v.key === variable)) {
+        return fail(400, "Check the highlighted fields", {
+          variable: `The app already has ${variable} in Environment. Remove it or pick another name.`,
+        });
+      }
+      if (state.links.some((l) => l.applicationId === target.id && l.variable === variable)) {
+        return fail(400, "Check the highlighted fields", {
+          variable: `The app already gets ${variable} from a linked database.`,
+        });
+      }
+      state.links.push({ id: newId(), databaseId: db.id, applicationId: target.id, variable });
+      return ok({ database: toDatabase(state, db) }, 201);
+    }
+    if (sub === "" && method === "DELETE") {
+      if (db.status === "starting") return fail(409, "Wait for the database to finish starting.");
+      const users = state.links
+        .filter((l) => l.databaseId === db.id)
+        .map((l) => state.apps.find((a) => a.id === l.applicationId)?.name ?? "an app");
+      if (users.length) return fail(409, `Unlink it from ${[...new Set(users)].join(", ")} first.`);
+      state.databases = state.databases.filter((d) => d.id !== db.id);
+      return ok(undefined, 204);
+    }
+  }
+
+  const ml = /^\/api\/database-links\/([^/]+)$/.exec(path);
+  if (ml && method === "DELETE") {
+    const before = state.links.length;
+    state.links = state.links.filter((l) => l.id !== ml[1]);
+    return state.links.length < before ? ok(undefined, 204) : fail(404, "Link not found");
+  }
+
   let m = /^\/api\/projects\/([^/]+)(\/applications)?$/.exec(path);
   if (m) {
     const project = state.projects.find((p) => p.id === m?.[1]);
@@ -810,6 +1133,7 @@ export function handle(
           dockerfilePath: input.source === "git" ? input.dockerfilePath : "Dockerfile",
           image: input.source === "image" ? input.image : null,
           port: input.port,
+          releaseCommand: null,
           status: "idle",
           createdAt: stamp,
           updatedAt: stamp,
@@ -831,6 +1155,13 @@ export function handle(
       state.apps = state.apps.filter((a) => !ids.has(a.id));
       state.deployments = state.deployments.filter((d) => !ids.has(d.applicationId));
       state.domains = state.domains.filter((d) => !ids.has(d.applicationId));
+      const dbIds = new Set(
+        state.databases.filter((d) => d.projectId === project.id).map((d) => d.id),
+      );
+      state.databases = state.databases.filter((d) => !dbIds.has(d.id));
+      state.links = state.links.filter(
+        (l) => !ids.has(l.applicationId) && !dbIds.has(l.databaseId),
+      );
       return ok(undefined, 204);
     }
   }
@@ -863,6 +1194,7 @@ export function handle(
       state.apps = state.apps.filter((a) => a.id !== app.id);
       state.deployments = state.deployments.filter((d) => d.applicationId !== app.id);
       state.domains = state.domains.filter((d) => d.applicationId !== app.id);
+      state.links = state.links.filter((l) => l.applicationId !== app.id);
       return ok(undefined, 204);
     }
 
@@ -946,10 +1278,20 @@ export function handle(
       return ok({ domain }, 201);
     }
 
-    if (sub === "env" && method === "GET") return ok({ vars: state.env[app.id] ?? [] });
+    if (sub === "env" && method === "GET") {
+      return ok({ vars: state.env[app.id] ?? [], linked: linkedVariables(state, app.id) });
+    }
     if (sub === "env" && method === "PUT") {
       const input = parse(envVarsSchema, body);
       if (isResponse(input)) return input;
+      const taken = new Set(linkedVariables(state, app.id).map((l) => l.variable));
+      const clash = input.vars.find((v) => taken.has(v.key));
+      if (clash) {
+        return fail(
+          400,
+          `${clash.key} comes from a linked database. Unlink it first or use another name.`,
+        );
+      }
       state.env[app.id] = [...input.vars].sort((a, b) => a.key.localeCompare(b.key));
       return ok({ vars: input.vars });
     }

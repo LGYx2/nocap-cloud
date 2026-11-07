@@ -9,10 +9,12 @@ import type { Database } from "@nocap/db";
 import type { ApiError, HealthResponse, PublicUser } from "@nocap/shared";
 import { findSessionUser, SESSION_COOKIE } from "./auth/sessions";
 import type { Config } from "./config";
+import { DatabaseService } from "./databases";
 import { Deployer } from "./deployer";
 import { GitService } from "./git";
 import { applicationRoutes } from "./routes/applications";
 import { authRoutes } from "./routes/auth";
+import { databaseRoutes } from "./routes/databases";
 import { gitRoutes } from "./routes/git";
 import { overviewRoutes } from "./routes/overview";
 import { projectRoutes } from "./routes/projects";
@@ -24,6 +26,7 @@ declare module "fastify" {
   }
   interface FastifyInstance {
     deployer: Deployer;
+    databases: DatabaseService;
   }
 }
 
@@ -33,6 +36,7 @@ export interface AppContext {
   runtime: Runtime;
   deployer: Deployer;
   git: GitService;
+  databases: DatabaseService;
 }
 
 /** What buildApp needs; the runtime and deployer are created when not given (tests pass fakes). */
@@ -42,6 +46,7 @@ export interface AppOptions {
   runtime?: Runtime;
   deployer?: Deployer;
   git?: GitService;
+  databases?: DatabaseService;
 }
 
 const SECURITY_HEADERS: Record<string, string> = {
@@ -69,9 +74,12 @@ export async function buildApp(
 
   const runtime = options.runtime ?? new DockerCliRuntime();
   const git = options.git ?? new GitService(db, config);
-  const deployer = options.deployer ?? new Deployer({ db, config, runtime, git, log: app.log });
-  const ctx: AppContext = { db, config, runtime, deployer, git };
+  const databases = options.databases ?? new DatabaseService({ db, config, runtime, log: app.log });
+  const deployer =
+    options.deployer ?? new Deployer({ db, config, runtime, git, databases, log: app.log });
+  const ctx: AppContext = { db, config, runtime, deployer, git, databases };
   app.decorate("deployer", deployer);
+  app.decorate("databases", databases);
 
   app.decorateRequest("user", null);
 
@@ -120,6 +128,7 @@ export async function buildApp(
   await applicationRoutes(app, ctx);
   await overviewRoutes(app, ctx);
   await gitRoutes(app, ctx);
+  await databaseRoutes(app, ctx);
 
   const publicDir = config.PUBLIC_DIR;
   const servePanel = publicDir !== undefined && existsSync(join(publicDir, "index.html"));

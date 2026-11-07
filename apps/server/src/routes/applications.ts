@@ -1,7 +1,15 @@
 import { open } from "node:fs/promises";
 import { and, eq, inArray } from "drizzle-orm";
 import type { FastifyInstance, FastifyRequest } from "fastify";
-import { applications, deployments, domains, envVars, projects } from "@nocap/db";
+import {
+  applications,
+  databaseLinks,
+  databases,
+  deployments,
+  domains,
+  envVars,
+  projects,
+} from "@nocap/db";
 import {
   applicationInputSchema,
   applicationUpdateSchema,
@@ -10,6 +18,7 @@ import {
   type AppAction,
   type DeploymentLog,
   type Domain,
+  type LinkedVariable,
 } from "@nocap/shared";
 import type { AppContext } from "../app";
 import { audit } from "../audit";
@@ -51,6 +60,22 @@ export async function applicationRoutes(app: FastifyInstance, ctx: AppContext): 
       },
       request.log,
     );
+
+  /** Variables the app gets from linked databases (names only, never the URL). */
+  async function linkedVariables(applicationId: string): Promise<LinkedVariable[]> {
+    return db
+      .select({
+        linkId: databaseLinks.id,
+        variable: databaseLinks.variable,
+        databaseId: databases.id,
+        databaseName: databases.name,
+        engine: databases.engine,
+      })
+      .from(databaseLinks)
+      .innerJoin(databases, eq(databases.id, databaseLinks.databaseId))
+      .where(eq(databaseLinks.applicationId, applicationId))
+      .orderBy(databaseLinks.variable);
+  }
 
   async function projectExists(id: string) {
     if (!UUID.test(id)) throw new HttpError(404, "Project not found");
@@ -334,9 +359,13 @@ export async function applicationRoutes(app: FastifyInstance, ctx: AppContext): 
       .from(envVars)
       .where(eq(envVars.applicationId, current.id))
       .orderBy(envVars.key);
-    if (rows.length === 0) return { vars: [] };
+    const linked = await linkedVariables(current.id);
+    if (rows.length === 0) return { vars: [], linked };
     const box = secretBox(config.NOCAP_SECRET);
-    return { vars: rows.map((row) => ({ key: row.key, value: box.open(row.valueEnc) })) };
+    return {
+      vars: rows.map((row) => ({ key: row.key, value: box.open(row.valueEnc) })),
+      linked,
+    };
   });
 
   app.put<IdParams>(
@@ -346,6 +375,13 @@ export async function applicationRoutes(app: FastifyInstance, ctx: AppContext): 
       const input = parseBody(envVarsSchema, request, reply);
       if (!input) return;
       const current = await findApplication(db, request.params.id);
+      const linked = new Set((await linkedVariables(current.id)).map((link) => link.variable));
+      const clash = input.vars.find((v) => linked.has(v.key));
+      if (clash) {
+        return reply.code(400).send({
+          error: `${clash.key} comes from a linked database. Unlink it first or use another name.`,
+        });
+      }
       const box = secretBox(config.NOCAP_SECRET);
       await db.transaction(async (tx) => {
         await tx.delete(envVars).where(eq(envVars.applicationId, current.id));

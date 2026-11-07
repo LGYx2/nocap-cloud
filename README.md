@@ -28,7 +28,9 @@ no telemetry.
 - **Lightweight:** three containers (Nocap, Postgres and Traefik), no Redis.
 - **Git push to deploy:** GitHub App and GitLab integration, set up in a few clicks.
 - **Zero-downtime deploys** with health checks and one-click rollback.
-- **Databases and backups:** PostgreSQL, MySQL and Redis, backed up to any S3-compatible storage.
+- **One-click databases:** PostgreSQL, MySQL, MariaDB, MongoDB and Redis, linked to your apps
+  with one click. Backups to any S3-compatible storage are next.
+- **Migrations built in:** a release command runs in the new version before it gets traffic.
 
 ## Install
 
@@ -49,7 +51,7 @@ ports 80, 443 and 3000 free.
 | 1. Deploy: build and run apps, Traefik, SSL, live logs                      | Done        |
 | 2. Git: GitHub App, GitLab token, deploy on push, deploy hooks              | Done        |
 | 3. Reliability: encrypted variables, health checks, zero downtime, rollback | In progress |
-| 4. Databases, release commands (migrations) and backups                     | Next        |
+| 4. Databases, release commands (migrations) and backups                     | In progress |
 | 5. Monitoring: per-app CPU and memory history, alerts, uptime checks        | Planned     |
 | 6. Release v0.1: images on GHCR, in-panel updates, docs                     | Planned     |
 
@@ -76,6 +78,35 @@ create the app.
 
 **Anything else** (Bitbucket, Gitea, a cron job): every app has a deploy hook URL under
 **Settings → Automatic deploys**. `curl -X POST <url>` deploys it.
+
+## Databases and migrations
+
+**Databases → New database** (or **New database** on a project) starts PostgreSQL, MySQL, MariaDB,
+MongoDB or Redis in its own container, with its data in a Docker volume and a generated password
+stored encrypted. It has no public port: only apps on the server can reach it.
+
+Under **Used by**, link it to an app. The app gets the connection URL as `DATABASE_URL` (or
+`REDIS_URL`, `MONGODB_URI`, or a name you pick) on its next deploy.
+
+The project page shows every service in it, apps and databases, with status, CPU, memory and
+which app uses which database.
+
+**Migrations:** in an app's **Settings → Release command**, pick your framework or type a
+command. It runs in the new image, with the app's variables and linked databases, before traffic
+moves to it. If it fails, the deployment stops and the current version keeps running. Presets:
+
+| Framework                | Command                                                     |
+| ------------------------ | ----------------------------------------------------------- |
+| Prisma                   | `npx prisma migrate deploy`                                 |
+| Drizzle                  | `npx drizzle-kit migrate`                                   |
+| Django                   | `python manage.py migrate --noinput`                        |
+| Alembic (FastAPI, Flask) | `alembic upgrade head`                                      |
+| Laravel                  | `php artisan migrate --force`                               |
+| Rails                    | `bin/rails db:migrate`                                      |
+| Spring Boot              | `java -Dspring.main.web-application-type=none -jar app.jar` |
+
+Knex, Sequelize, TypeORM, EF Core bundles and golang-migrate are in the list too. The command runs
+with `sh -c`, so the image needs a shell.
 
 ## Develop
 

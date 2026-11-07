@@ -26,17 +26,55 @@ import { type Theme, useTheme } from "../theme";
 
 type IconType = ComponentType<SVGProps<SVGSVGElement>>;
 
-/** Main pages. `short` is the label in the phone's bottom tab bar. */
+/**
+ * Main pages. `short` is the label in the phone's bottom tab bar, which has room for five;
+ * on phones, databases are reached from their project.
+ */
 const main = [
-  { to: "/", label: "Dashboard", short: "Home", icon: DashboardIcon, exact: true },
-  { to: "/projects", label: "Projects", short: "Projects", icon: FolderIcon, exact: false },
-  { to: "/deployments", label: "Deployments", short: "Deploys", icon: RocketIcon, exact: false },
-  { to: "/git", label: "Git providers", short: "Git", icon: GitBranchIcon, exact: false },
-  { to: "/settings", label: "Settings", short: "Settings", icon: SettingsIcon, exact: false },
+  { to: "/", label: "Dashboard", short: "Home", icon: DashboardIcon, exact: true, tab: true },
+  {
+    to: "/projects",
+    label: "Projects",
+    short: "Projects",
+    icon: FolderIcon,
+    exact: false,
+    tab: true,
+  },
+  {
+    to: "/deployments",
+    label: "Deployments",
+    short: "Deploys",
+    icon: RocketIcon,
+    exact: false,
+    tab: true,
+  },
+  {
+    to: "/databases",
+    label: "Databases",
+    short: "Databases",
+    icon: DatabaseIcon,
+    exact: false,
+    tab: false,
+  },
+  {
+    to: "/git",
+    label: "Git providers",
+    short: "Git",
+    icon: GitBranchIcon,
+    exact: false,
+    tab: true,
+  },
+  {
+    to: "/settings",
+    label: "Settings",
+    short: "Settings",
+    icon: SettingsIcon,
+    exact: false,
+    tab: true,
+  },
 ] as const;
 
 const soon: Array<{ label: string; icon: IconType }> = [
-  { label: "Databases", icon: DatabaseIcon },
   { label: "Monitoring", icon: ActivityIcon },
   { label: "Servers", icon: ServerIcon },
   { label: "Remote access", icon: LockIcon },
@@ -186,19 +224,21 @@ export function AppShell() {
         className="fixed inset-x-0 bottom-0 z-30 border-t bg-background pb-[calc(8px+env(safe-area-inset-bottom))] md:hidden"
       >
         <ul className="grid grid-cols-5">
-          {main.map(({ to, short, icon: Icon, exact }) => (
-            <li key={to}>
-              <Link
-                to={to}
-                activeOptions={{ exact }}
-                className="flex min-h-[52px] flex-col items-center justify-center gap-1 pt-2 text-[10.5px] font-medium text-muted-foreground transition-colors"
-                activeProps={{ className: "!text-foreground", "aria-current": "page" }}
-              >
-                <Icon className="size-[22px]" />
-                {short}
-              </Link>
-            </li>
-          ))}
+          {main
+            .filter((item) => item.tab)
+            .map(({ to, short, icon: Icon, exact }) => (
+              <li key={to}>
+                <Link
+                  to={to}
+                  activeOptions={{ exact }}
+                  className="flex min-h-[52px] flex-col items-center justify-center gap-1 pt-2 text-[10.5px] font-medium text-muted-foreground transition-colors"
+                  activeProps={{ className: "!text-foreground", "aria-current": "page" }}
+                >
+                  <Icon className="size-[22px]" />
+                  {short}
+                </Link>
+              </li>
+            ))}
         </ul>
       </nav>
     </div>

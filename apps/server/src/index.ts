@@ -20,6 +20,7 @@ await migrate(db, { migrationsFolder });
 
 const app = await buildApp({ db, config }, logger);
 await app.deployer.recover();
+await app.databases.recover();
 
 const cleanup = setInterval(
   () => {

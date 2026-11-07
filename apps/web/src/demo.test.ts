@@ -127,4 +127,38 @@ describe("demo API", () => {
     expect(login.status).toBe(200);
     expect(handle(state, "GET", "/api/auth/me", undefined, now).status).toBe(200);
   });
+
+  it("creates a database, starts it on a clock and links it to an app", () => {
+    const state = seedState(now);
+    const projectId = "a1111111-1111-4111-8111-111111111111";
+    const created = handle(
+      state,
+      "POST",
+      `/api/projects/${projectId}/databases`,
+      { name: "Search", engine: "mongodb" },
+      now,
+    );
+    expect(created.status).toBe(201);
+    const db = (created.data as { database: { id: string; status: string } }).database;
+    expect(db.status).toBe("starting");
+    expect(db).not.toHaveProperty("password");
+
+    const later = handle(state, "GET", `/api/databases/${db.id}`, undefined, now + 10_000);
+    expect((later.data as { database: { status: string } }).database.status).toBe("running");
+
+    const appId = "e1000000-0000-4000-8000-000000000003";
+    const link = handle(
+      state,
+      "POST",
+      `/api/databases/${db.id}/links`,
+      { applicationId: appId },
+      now,
+    );
+    expect(link.status).toBe(201);
+    const env = handle(state, "GET", `/api/applications/${appId}/env`, undefined, now);
+    expect((env.data as { linked: { variable: string }[] }).linked).toMatchObject([
+      { variable: "MONGODB_URI" },
+    ]);
+    expect(handle(state, "DELETE", `/api/databases/${db.id}`, undefined, now).status).toBe(409);
+  });
 });

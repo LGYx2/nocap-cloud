@@ -1,10 +1,11 @@
-import type { AppStatus, DeploymentStatus } from "@nocap/shared";
+import type { AppStatus, DatabaseStatus, DeploymentStatus } from "@nocap/shared";
 import { cn } from "./ui";
 
-type Status = AppStatus | DeploymentStatus;
+type Status = AppStatus | DeploymentStatus | DatabaseStatus;
 
 const LABELS: Record<Status, string> = {
   idle: "Not deployed",
+  starting: "Starting",
   building: "Building",
   queued: "Queued",
   running: "Running",
@@ -16,7 +17,7 @@ const LABELS: Record<Status, string> = {
 
 function tone(status: Status): "live" | "busy" | "bad" | "quiet" {
   if (status === "running") return "live";
-  if (status === "building" || status === "queued") return "busy";
+  if (status === "building" || status === "queued" || status === "starting") return "busy";
   if (status === "failed") return "bad";
   return "quiet";
 }

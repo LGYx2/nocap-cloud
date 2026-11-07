@@ -129,6 +129,8 @@ export const applications = pgTable(
     dockerfilePath: text("dockerfile_path").notNull().default("Dockerfile"),
     image: text("image"),
     port: integer("port"),
+    /** Runs in the new image before traffic moves to it, for database migrations. */
+    releaseCommand: text("release_command"),
     status: appStatusEnum("status").notNull().default("idle"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -200,4 +202,63 @@ export const envVars = pgTable(
     updatedAt: updatedAt(),
   },
   (t) => [uniqueIndex("env_vars_app_key_unique").on(t.applicationId, t.key)],
+);
+
+export const databaseEngineEnum = pgEnum("database_engine", [
+  "postgres",
+  "mysql",
+  "mariadb",
+  "mongodb",
+  "redis",
+]);
+export const databaseStatusEnum = pgEnum("database_status", [
+  "starting",
+  "running",
+  "stopped",
+  "failed",
+]);
+
+/** One-click databases. Each runs in its own container with a named volume for its data. */
+export const databases = pgTable(
+  "databases",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    engine: databaseEngineEnum("engine").notNull(),
+    /** Image tag, like 17-alpine. */
+    version: text("version").notNull(),
+    dbName: text("db_name").notNull(),
+    username: text("username").notNull(),
+    /** Generated password, encrypted with AES-256-GCM. */
+    passwordEnc: text("password_enc").notNull(),
+    status: databaseStatusEnum("status").notNull().default("starting"),
+    /** Short reason shown in the panel when the database could not start. */
+    error: text("error"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("databases_project_id_idx").on(t.projectId)],
+);
+
+/** A database linked to an app: the app gets the connection URL in `variable` on deploy. */
+export const databaseLinks = pgTable(
+  "database_links",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    databaseId: uuid("database_id")
+      .notNull()
+      .references(() => databases.id, { onDelete: "cascade" }),
+    applicationId: uuid("application_id")
+      .notNull()
+      .references(() => applications.id, { onDelete: "cascade" }),
+    variable: text("variable").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex("database_links_app_variable_unique").on(t.applicationId, t.variable),
+    index("database_links_database_id_idx").on(t.databaseId),
+  ],
 );

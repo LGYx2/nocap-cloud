@@ -114,6 +114,7 @@ export async function loadApplications(
       dockerfilePath: row.dockerfilePath,
       image: row.image,
       port: row.port ?? 3000,
+      releaseCommand: row.releaseCommand,
       status: row.status,
       domains: hostRows.filter((h) => h.applicationId === row.id).map((h) => h.hostname),
       lastDeployment: last ? toDeployment(last) : null,

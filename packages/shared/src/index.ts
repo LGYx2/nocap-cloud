@@ -4,6 +4,8 @@ import { PASSWORD_MIN_LENGTH, PROJECT_DESCRIPTION_MAX, PROJECT_NAME_MAX } from "
 export * from "./constants";
 export * from "./apps";
 export * from "./git";
+export * from "./catalog";
+export * from "./databases";
 
 const email = z
   .string()
@@ -56,6 +58,7 @@ export interface Project {
   name: string;
   description: string | null;
   applicationCount: number;
+  databaseCount: number;
   createdAt: string;
   updatedAt: string;
 }

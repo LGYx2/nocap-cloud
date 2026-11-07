@@ -2,7 +2,10 @@ import type { AppAction, DockerInfo } from "@nocap/shared";
 import {
   CommandError,
   type AppContainer,
+  type ContainerStats,
+  type DatabaseRunOptions,
   type LogLine,
+  type ReleaseOptions,
   type RunOptions,
   type Runtime,
 } from "../src/runtime";
@@ -74,6 +77,8 @@ export class FakeRuntime implements Runtime {
     this.calls.push(`remove ${containerId}`);
     const index = this.containerList.findIndex((c) => c.id === containerId);
     if (index >= 0) this.containerList.splice(index, 1);
+    const dbIndex = this.databaseList.findIndex((c) => c.id === containerId);
+    if (dbIndex >= 0) this.databaseList.splice(dbIndex, 1);
   }
 
   async logs(containerId: string) {
@@ -82,7 +87,68 @@ export class FakeRuntime implements Runtime {
 
   async action(containerId: string, action: AppAction) {
     this.calls.push(`${action} ${containerId}`);
-    const container = this.containerList.find((c) => c.id === containerId);
+    const container =
+      this.containerList.find((c) => c.id === containerId) ??
+      this.databaseList.find((c) => c.id === containerId);
     if (container) container.running = action !== "stop";
+  }
+
+  readonly releases: ReleaseOptions[] = [];
+  /** Make the next release command fail. */
+  failRelease = false;
+
+  async runOnce(options: ReleaseOptions, log: LogLine) {
+    this.releases.push(options);
+    log(`$ ${options.command}`);
+    if (this.failRelease) {
+      this.failRelease = false;
+      throw new CommandError("run failed (exit code 1)", "migration failed");
+    }
+    log("All migrations have been applied");
+  }
+
+  readonly databaseList: (AppContainer & { databaseId: string; options: DatabaseRunOptions })[] =
+    [];
+  readonly volumes = new Set<string>();
+  /** Make the next database fail to start. */
+  failDatabase = false;
+
+  async startDatabase(options: DatabaseRunOptions, log: LogLine) {
+    this.calls.push(`pull ${options.image}`);
+    if (this.failDatabase) {
+      this.failDatabase = false;
+      log("Error response from daemon: manifest unknown");
+      throw new CommandError("pull failed (exit code 1)", "manifest unknown");
+    }
+    const id = `d${String(this.next++).padStart(11, "0")}`;
+    this.volumes.add(options.volume);
+    this.databaseList.push({
+      id,
+      deploymentId: "",
+      databaseId: options.databaseId,
+      running: true,
+      options,
+    });
+    return id;
+  }
+
+  async databaseContainer(databaseId: string) {
+    const found = this.databaseList.find((c) => c.databaseId === databaseId);
+    return found ? { id: found.id, deploymentId: "", running: found.running } : null;
+  }
+
+  async removeVolume(name: string) {
+    this.calls.push(`volume rm ${name}`);
+    this.volumes.delete(name);
+  }
+
+  async stats(): Promise<ContainerStats[]> {
+    return [
+      ...this.databaseList.map((c) => ({
+        name: c.options.name,
+        cpu: 1.5,
+        memory: 64 * 1024 * 1024,
+      })),
+    ];
   }
 }

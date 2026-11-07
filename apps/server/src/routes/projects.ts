@@ -1,6 +1,6 @@
-import { count, desc, eq, getTableColumns } from "drizzle-orm";
+import { countDistinct, desc, eq, getTableColumns } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
-import { applications, projects, type Database } from "@nocap/db";
+import { applications, databases, projects, type Database } from "@nocap/db";
 import { projectInputSchema, projectUpdateSchema, type Project } from "@nocap/shared";
 import { audit } from "../audit";
 import { HttpError, parseBody, requireAuth } from "../http";
@@ -8,7 +8,10 @@ import type { AppContext } from "../app";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-type ProjectRow = typeof projects.$inferSelect & { applicationCount: number };
+type ProjectRow = typeof projects.$inferSelect & {
+  applicationCount: number;
+  databaseCount: number;
+};
 
 function toProject(row: ProjectRow): Project {
   return {
@@ -16,17 +19,23 @@ function toProject(row: ProjectRow): Project {
     name: row.name,
     description: row.description,
     applicationCount: row.applicationCount,
+    databaseCount: row.databaseCount,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
 }
 
-/** Projects with the number of applications in each, newest first. */
+/** Projects with the number of applications and databases in each, newest first. */
 function selectProjects(db: Database) {
   return db
-    .select({ ...getTableColumns(projects), applicationCount: count(applications.id) })
+    .select({
+      ...getTableColumns(projects),
+      applicationCount: countDistinct(applications.id),
+      databaseCount: countDistinct(databases.id),
+    })
     .from(projects)
     .leftJoin(applications, eq(applications.projectId, projects.id))
+    .leftJoin(databases, eq(databases.projectId, projects.id))
     .groupBy(projects.id)
     .orderBy(desc(projects.createdAt));
 }
@@ -39,7 +48,7 @@ async function findProject(db: Database, id: string): Promise<Project> {
 }
 
 export async function projectRoutes(app: FastifyInstance, ctx: AppContext): Promise<void> {
-  const { db } = ctx;
+  const { db, runtime, databases: service } = ctx;
 
   app.get("/api/projects", { preHandler: requireAuth }, async () => {
     const rows = await selectProjects(db);
@@ -107,6 +116,26 @@ export async function projectRoutes(app: FastifyInstance, ctx: AppContext): Prom
     { preHandler: requireAuth },
     async (request, reply) => {
       const current = await findProject(db, request.params.id);
+      const apps = await db
+        .select({ id: applications.id, status: applications.status })
+        .from(applications)
+        .where(eq(applications.projectId, current.id));
+      if (apps.some((a) => a.status === "building")) {
+        throw new HttpError(409, "Wait for running deployments to finish first.");
+      }
+      const dbs = await db
+        .select({ id: databases.id, status: databases.status })
+        .from(databases)
+        .where(eq(databases.projectId, current.id));
+      if (dbs.some((d) => d.status === "starting")) {
+        throw new HttpError(409, "Wait for databases to finish starting first.");
+      }
+      // Remove what runs on the server, not only the rows.
+      for (const { id } of apps) {
+        const containers = await runtime.containers(id).catch(() => []);
+        for (const c of containers) await runtime.remove(c.id).catch(() => undefined);
+      }
+      for (const { id } of dbs) await service.destroy(id).catch(() => undefined);
       await db.delete(projects).where(eq(projects.id, current.id));
       await audit(
         db,

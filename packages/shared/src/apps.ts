@@ -80,6 +80,14 @@ export const applicationUpdateSchema = z.object({
   image: image.optional(),
   port: port.optional(),
   autoDeploy: z.boolean().optional(),
+  /** Empty clears it. */
+  releaseCommand: z
+    .string()
+    .trim()
+    .max(1000, { error: "Keep it under 1000 characters" })
+    .regex(/^[^\n\r\0]*$/, { error: "Use one line. Join commands with &&" })
+    .transform((value) => (value === "" ? null : value))
+    .nullish(),
 });
 export type ApplicationUpdate = z.input<typeof applicationUpdateSchema>;
 
@@ -100,6 +108,8 @@ export interface Application {
   dockerfilePath: string;
   image: string | null;
   port: number;
+  /** Runs in the new version before traffic moves to it, for migrations. */
+  releaseCommand: string | null;
   status: AppStatus;
   domains: string[];
   lastDeployment: Deployment | null;
@@ -179,6 +189,15 @@ export type EnvVarsInput = z.input<typeof envVarsSchema>;
 export interface EnvVar {
   key: string;
   value: string;
+}
+
+/** A variable the app gets from a linked database on every deploy. */
+export interface LinkedVariable {
+  linkId: string;
+  variable: string;
+  databaseId: string;
+  databaseName: string;
+  engine: "postgres" | "mysql" | "mariadb" | "mongodb" | "redis";
 }
 
 // ---------------------------------------------------------------- overview

@@ -8,6 +8,7 @@ import type { FastifyInstance } from "fastify";
 import { migrationsFolder, schema, type Database } from "@nocap/db";
 import { buildApp } from "../src/app";
 import { loadConfig } from "../src/config";
+import { DatabaseService } from "../src/databases";
 import { Deployer } from "../src/deployer";
 import { GitService } from "../src/git";
 import { fakeGitHosts } from "./fake-git";
@@ -18,6 +19,7 @@ export interface TestContext {
   db: Database;
   runtime: FakeRuntime;
   deployer: Deployer;
+  databases: DatabaseService;
   gitCalls: ReturnType<typeof fakeGitHosts>["calls"];
   close: () => Promise<void>;
 }
@@ -42,8 +44,9 @@ export async function createTestApp(env: Record<string, string> = {}): Promise<T
   const hosts = fakeGitHosts();
   const git = new GitService(db, config, hosts.fetch);
   const quiet = { info: () => {}, error: () => {} };
-  const deployer = new Deployer({ db, config, runtime, git, log: quiet, settleMs: 0 });
-  const app = await buildApp({ db, config, runtime, deployer, git });
+  const databases = new DatabaseService({ db, config, runtime, log: quiet });
+  const deployer = new Deployer({ db, config, runtime, git, databases, log: quiet, settleMs: 0 });
+  const app = await buildApp({ db, config, runtime, deployer, git, databases });
   await app.ready();
 
   return {
@@ -51,9 +54,11 @@ export async function createTestApp(env: Record<string, string> = {}): Promise<T
     db,
     runtime,
     deployer,
+    databases,
     gitCalls: hosts.calls,
     close: async () => {
       await deployer.idle();
+      await databases.idle();
       await app.close();
       await client.close();
       await rm(dataDir, { recursive: true, force: true });

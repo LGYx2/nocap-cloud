@@ -26,6 +26,35 @@ export interface AppContainer {
   running: boolean;
 }
 
+export interface DatabaseRunOptions {
+  databaseId: string;
+  /** Container name, also its hostname on the network. */
+  name: string;
+  image: string;
+  env: Record<string, string>;
+  volume: string;
+  dataPath: string;
+  command?: string[];
+  network: string;
+}
+
+export interface ReleaseOptions {
+  name: string;
+  image: string;
+  env: Record<string, string>;
+  /** One shell command line, run with `sh -c`. */
+  command: string;
+  network: string;
+}
+
+export interface ContainerStats {
+  name: string;
+  /** Percent of one core. */
+  cpu: number;
+  /** Bytes. */
+  memory: number;
+}
+
 export interface Runtime {
   info(): Promise<DockerInfo>;
   /** Shallow clone of one branch. Returns the commit that was checked out. */
@@ -44,6 +73,58 @@ export interface Runtime {
   remove(containerId: string): Promise<void>;
   logs(containerId: string, tail: number): Promise<string>;
   action(containerId: string, action: AppAction): Promise<void>;
+  /** Runs a command to completion in a throwaway container (release commands). */
+  runOnce(options: ReleaseOptions, log: LogLine): Promise<void>;
+  /** Pulls the image and starts a database container with its data in a named volume. */
+  startDatabase(options: DatabaseRunOptions, log: LogLine): Promise<string>;
+  databaseContainer(databaseId: string): Promise<AppContainer | null>;
+  removeVolume(name: string): Promise<void>;
+  /** CPU and memory of running Nocap containers. */
+  stats(): Promise<ContainerStats[]>;
+}
+
+/** Turns "45.2MiB" or "1.1GB" into bytes. */
+export function parseSize(text: string): number {
+  const match = /^([\d.]+)\s*([kKMGT]?i?B)$/.exec(text.trim());
+  if (!match) return 0;
+  const units: Record<string, number> = {
+    B: 1,
+    kB: 1e3,
+    KB: 1e3,
+    MB: 1e6,
+    GB: 1e9,
+    TB: 1e12,
+    KiB: 1024,
+    MiB: 1024 ** 2,
+    GiB: 1024 ** 3,
+    TiB: 1024 ** 4,
+  };
+  return Math.round(Number(match[1]) * (units[match[2] ?? "B"] ?? 1));
+}
+
+/** Parses `docker stats --format "{{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}"` output. */
+export function parseStats(output: string): ContainerStats[] {
+  return output
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => {
+      const [name = "", cpu = "", mem = ""] = line.split("\t");
+      return {
+        name,
+        cpu: Number.parseFloat(cpu) || 0,
+        memory: parseSize(mem.split("/")[0] ?? ""),
+      };
+    });
+}
+
+/** Only these reach `docker`, plus the variables meant for the container. */
+function dockerEnv(extra: Record<string, string>): NodeJS.ProcessEnv {
+  return {
+    PATH: process.env.PATH,
+    HOME: process.env.HOME,
+    DOCKER_HOST: process.env.DOCKER_HOST,
+    ...extra,
+  };
 }
 
 /** Short ids keep container and router names readable: nocap-1a2b3c4d. */
@@ -207,12 +288,7 @@ export class DockerCliRuntime implements Runtime {
     for (const key of Object.keys(options.env)) args.push("--env", key);
     args.push(options.image);
 
-    const env: NodeJS.ProcessEnv = {
-      PATH: process.env.PATH,
-      HOME: process.env.HOME,
-      DOCKER_HOST: process.env.DOCKER_HOST,
-      ...options.env,
-    };
+    const env = dockerEnv(options.env);
     const id = (await exec(this.docker, args, { log, env, timeoutMs: 120_000 })).trim();
     return id.slice(0, 12);
   }
@@ -259,5 +335,84 @@ export class DockerCliRuntime implements Runtime {
 
   async action(containerId: string, action: AppAction) {
     await exec(this.docker, [action, containerId], { timeoutMs: 60_000 });
+  }
+
+  async runOnce(options: ReleaseOptions, log: LogLine) {
+    const args = ["run", "--rm", "--name", options.name, "--network", options.network];
+    args.push("--label", "nocap.release=true");
+    for (const key of Object.keys(options.env)) args.push("--env", key);
+    args.push("--entrypoint", "sh", options.image, "-c", options.command);
+    try {
+      await exec(this.docker, args, { log, env: dockerEnv(options.env), timeoutMs: 15 * 60_000 });
+    } catch (err) {
+      // On a timeout the docker command is killed but the container keeps going; stop it.
+      await exec(this.docker, ["rm", "--force", options.name]).catch(() => undefined);
+      throw err;
+    }
+  }
+
+  async startDatabase(options: DatabaseRunOptions, log: LogLine) {
+    await exec(this.docker, ["pull", options.image], { log, timeoutMs: 15 * 60_000 });
+    const args = [
+      "run",
+      "--detach",
+      "--name",
+      options.name,
+      "--network",
+      options.network,
+      "--network-alias",
+      options.name,
+      "--restart",
+      "unless-stopped",
+      "--label",
+      `nocap.database=${options.databaseId}`,
+      "--volume",
+      `${options.volume}:${options.dataPath}`,
+    ];
+    for (const key of Object.keys(options.env)) args.push("--env", key);
+    args.push(options.image, ...(options.command ?? []));
+    const id = await exec(this.docker, args, {
+      log,
+      env: dockerEnv(options.env),
+      timeoutMs: 120_000,
+    });
+    return id.trim().slice(0, 12);
+  }
+
+  async databaseContainer(databaseId: string): Promise<AppContainer | null> {
+    const output = await exec(this.docker, [
+      "ps",
+      "-a",
+      "--filter",
+      `label=nocap.database=${databaseId}`,
+      "--format",
+      "{{.ID}}\t{{.State}}",
+    ]);
+    const [line] = output.split("\n").filter(Boolean);
+    if (!line) return null;
+    const [id = "", state = ""] = line.split("\t");
+    return { id, deploymentId: "", running: state === "running" };
+  }
+
+  async removeVolume(name: string) {
+    await exec(this.docker, ["volume", "rm", "--force", name]);
+  }
+
+  private statsCache: { value: Promise<ContainerStats[]>; expires: number } | null = null;
+
+  stats(): Promise<ContainerStats[]> {
+    // `docker stats` takes a second or two; every open panel tab shares one reading, and calls
+    // that arrive while a reading is running wait for it instead of starting another.
+    if (this.statsCache && this.statsCache.expires > Date.now()) return this.statsCache.value;
+    const value = exec(
+      this.docker,
+      ["stats", "--no-stream", "--format", "{{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}"],
+      { timeoutMs: 15_000 },
+    ).then((output) => parseStats(output).filter((s) => s.name.startsWith("nocap-")));
+    this.statsCache = { value, expires: Date.now() + 10_000 };
+    value.catch(() => {
+      this.statsCache = null;
+    });
+    return value;
   }
 }

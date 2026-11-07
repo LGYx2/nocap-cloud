@@ -1,8 +1,9 @@
 // The deploy queue. One deployment runs at a time, so builds never fight over the CPU.
 //
-// A deployment: clone (Git apps) or pull (image apps), build, start a new container next to the
-// old one, check that it stays up, then remove the old one. If the new container dies, the old
-// one keeps serving, so a bad commit never takes the app down.
+// A deployment: clone (Git apps) or pull (image apps), build, run the release command if there is
+// one, start a new container next to the old one, check that it stays up, then remove the old
+// one. If the release command fails or the new container dies, the old one keeps serving, so a
+// bad commit never takes the app down.
 import { createWriteStream, mkdirSync, type WriteStream } from "node:fs";
 import { rm } from "node:fs/promises";
 import { join, resolve } from "node:path";
@@ -10,6 +11,7 @@ import { and, eq, inArray, ne } from "drizzle-orm";
 import { applications, deployments, domains, envVars, type Database } from "@nocap/db";
 import type { Config } from "./config";
 import { SecretBox } from "./crypto";
+import type { DatabaseService } from "./databases";
 import type { GitService } from "./git";
 import { CommandError, short, type Runtime } from "./runtime";
 
@@ -25,6 +27,8 @@ export interface DeployerOptions {
   log: Logger;
   /** Gives clone access to repositories of connected Git accounts. */
   git?: GitService;
+  /** Gives apps the connection URLs of their linked databases. */
+  databases?: DatabaseService;
   /** How long a new container must stay up before traffic moves to it. */
   settleMs?: number;
 }
@@ -180,8 +184,37 @@ export class Deployer {
       }
       await db.update(deployments).set({ imageTag: image }).where(eq(deployments.id, deploymentId));
 
-      // 2. Start the new container next to the old one.
       const env = await this.environment(app.id);
+      const linked = (await this.options.databases?.linkedEnv(app.id)) ?? {};
+      if (Object.keys(linked).length > 0) {
+        log(`Linked databases: ${Object.keys(linked).join(", ")}`);
+        Object.assign(env, linked);
+      }
+
+      // 2. Release command (migrations), in the new image, while the old version still serves.
+      if (app.releaseCommand) {
+        step(`Running the release command: ${app.releaseCommand}`);
+        await runtime
+          .runOnce(
+            {
+              name: `nocap-${short(app.id)}-${short(deploymentId)}-release`,
+              image,
+              env,
+              command: app.releaseCommand,
+              network: config.DOCKER_NETWORK,
+            },
+            log,
+          )
+          .catch((err: unknown) => {
+            if (!(err instanceof CommandError)) throw err;
+            throw new DeployError(
+              "The release command failed, so the new version was not started. Check the log above.",
+            );
+          });
+        log("Release command finished.");
+      }
+
+      // 3. Start the new container next to the old one.
       const hosts = await db
         .select({ hostname: domains.hostname })
         .from(domains)
@@ -204,7 +237,7 @@ export class Deployer {
         log,
       );
 
-      // 3. Make sure it stays up before the old one goes away.
+      // 4. Make sure it stays up before the old one goes away.
       step("Checking that the app stays up");
       await new Promise((done) => setTimeout(done, this.settleMs));
       if (!(await runtime.isRunning(containerId))) {
@@ -217,7 +250,7 @@ export class Deployer {
         throw new DeployError("The app stopped right after it started. Check its logs above.");
       }
 
-      // 4. Switch over: remove older containers and mark older deployments as replaced.
+      // 5. Switch over: remove older containers and mark older deployments as replaced.
       for (const container of await runtime.containers(app.id)) {
         if (container.id !== containerId && !containerId.startsWith(container.id)) {
           await runtime.remove(container.id).catch(() => undefined);

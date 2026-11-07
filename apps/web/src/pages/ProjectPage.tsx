@@ -1,21 +1,32 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
+import type { Application, ContainerUsage } from "@nocap/shared";
 import { type FormEvent, useState } from "react";
 import { api } from "../api";
+import { DatabaseForm, EngineMark, engineLabel, versionLabel } from "../components/database";
 import { Dialog } from "../components/dialog";
 import {
   BoxIcon,
+  CpuIcon,
+  DatabaseIcon,
   GitBranchIcon,
   GlobeIcon,
   ImageIcon,
+  MemoryIcon,
   PencilIcon,
   PlusIcon,
   TrashIcon,
 } from "../components/icons";
 import { StatusBadge, StatusDot } from "../components/status";
 import { Alert, Button, Field } from "../components/ui";
-import { formatDate, timeAgo } from "../lib/format";
-import { projectApplicationsQuery, projectQuery, queryClient } from "../queries";
+import { formatBytes, formatDate, timeAgo } from "../lib/format";
+import {
+  projectApplicationsQuery,
+  projectDatabasesQuery,
+  projectQuery,
+  projectUsageQuery,
+  queryClient,
+} from "../queries";
 import { ApplicationForm } from "./ApplicationForm";
 import { PageHeader } from "./AppShell";
 import { ProjectForm } from "./ProjectForm";
@@ -26,6 +37,7 @@ export function ProjectPage() {
   const { data: project, isPending, error } = useQuery(projectQuery(projectId));
   const { data: apps = [] } = useQuery(projectApplicationsQuery(projectId));
   const [adding, setAdding] = useState(false);
+  const [addingDb, setAddingDb] = useState(false);
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmName, setConfirmName] = useState("");
@@ -101,9 +113,10 @@ export function ProjectPage() {
               </div>
             </div>
 
-            <dl className="mt-8 grid gap-4 sm:grid-cols-3">
+            <dl className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
               {[
                 { label: "Applications", value: String(project.applicationCount) },
+                { label: "Databases", value: String(project.databaseCount) },
                 { label: "Created", value: formatDate(project.createdAt) },
                 { label: "Last change", value: timeAgo(project.updatedAt) },
               ].map((item) => (
@@ -114,86 +127,12 @@ export function ProjectPage() {
               ))}
             </dl>
 
-            <section className="mt-8">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="text-base font-semibold">Applications</h2>
-                <div className="flex items-center gap-2">
-                  <Link
-                    to="/deployments"
-                    search={{ project: project.id }}
-                    className="inline-flex h-9 items-center gap-2 rounded-lg border bg-background px-3 text-sm font-medium shadow-xs hover:bg-accent"
-                  >
-                    Deployments
-                  </Link>
-                  <Button onClick={() => setAdding(true)}>
-                    <PlusIcon />
-                    New application
-                  </Button>
-                </div>
-              </div>
-              {apps.length === 0 ? (
-                <div className="mt-4 flex flex-col items-center rounded-2xl border border-dashed px-6 py-14 text-center">
-                  <div className="flex size-11 items-center justify-center rounded-lg border bg-muted">
-                    <BoxIcon className="size-5" />
-                  </div>
-                  <h3 className="mt-4 text-sm font-semibold">No applications yet</h3>
-                  <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-                    Add an app from a Git repository with a Dockerfile, or from a Docker image. It
-                    gets its own domain, HTTPS and environment variables.
-                  </p>
-                  <Button className="mt-5" variant="outline" onClick={() => setAdding(true)}>
-                    <PlusIcon />
-                    Add the first app
-                  </Button>
-                </div>
-              ) : (
-                <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {apps.map((app) => (
-                    <li key={app.id}>
-                      <Link
-                        to="/apps/$appId"
-                        params={{ appId: app.id }}
-                        className="flex h-full flex-col rounded-2xl border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-md"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex min-w-0 items-center gap-3">
-                            <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border bg-muted">
-                              {app.source === "image" ? (
-                                <ImageIcon className="size-4" />
-                              ) : (
-                                <GitBranchIcon className="size-4" />
-                              )}
-                            </span>
-                            <span className="min-w-0">
-                              <span className="block truncate font-medium">{app.name}</span>
-                              <span className="block truncate text-xs text-muted-foreground">
-                                {app.source === "git"
-                                  ? `${app.repoUrl?.replace(/^https:\/\/(www\.)?/, "").replace(/\.git$/, "")} · ${app.branch}`
-                                  : app.image}
-                              </span>
-                            </span>
-                          </div>
-                          <StatusDot status={app.status} className="mt-1.5" />
-                        </div>
-                        <div className="mt-4 flex items-center gap-1.5 truncate text-xs text-muted-foreground">
-                          <GlobeIcon className="size-3.5 shrink-0" />
-                          {app.domains[0] ?? "No domain yet"}
-                          {app.domains.length > 1 ? ` +${app.domains.length - 1}` : ""}
-                        </div>
-                        <div className="mt-auto flex items-center justify-between gap-2 border-t pt-3 text-xs text-muted-foreground">
-                          <StatusBadge status={app.status} />
-                          <span>
-                            {app.lastDeployment
-                              ? `Deployed ${timeAgo(app.lastDeployment.createdAt)}`
-                              : "Never deployed"}
-                          </span>
-                        </div>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
+            <Services
+              projectId={project.id}
+              apps={apps}
+              onAddApp={() => setAdding(true)}
+              onAddDatabase={() => setAddingDb(true)}
+            />
           </>
         )}
       </main>
@@ -210,6 +149,23 @@ export function ProjectPage() {
             <ApplicationForm projectId={project.id} onCancel={() => setAdding(false)} />
           </Dialog>
 
+          <Dialog
+            open={addingDb}
+            onClose={() => setAddingDb(false)}
+            title="New database"
+            description={`Add a database to ${project.name}, then link it to an app.`}
+            size="lg"
+          >
+            <DatabaseForm
+              projectId={project.id}
+              onCancel={() => setAddingDb(false)}
+              onDone={(db) => {
+                setAddingDb(false);
+                void navigate({ to: "/databases/$databaseId", params: { databaseId: db.id } });
+              }}
+            />
+          </Dialog>
+
           <Dialog open={editing} onClose={() => setEditing(false)} title="Edit project">
             <ProjectForm
               project={project}
@@ -222,7 +178,7 @@ export function ProjectPage() {
             open={deleting}
             onClose={() => setDeleting(false)}
             title="Delete this project?"
-            description="This deletes the project and every application in it. It cannot be undone."
+            description="This deletes the project with every app and database in it, including their data. It cannot be undone."
           >
             <form className="flex flex-col gap-5" onSubmit={submitDelete}>
               {remove.error ? <Alert>{remove.error.message}</Alert> : null}
@@ -250,5 +206,191 @@ export function ProjectPage() {
         </>
       ) : null}
     </>
+  );
+}
+
+// ---------------------------------------------------------------- services
+
+const cardClass =
+  "flex h-full flex-col rounded-2xl border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-md";
+
+function Usage({ usage }: { usage: ContainerUsage | undefined }) {
+  if (!usage) return null;
+  return (
+    <span className="inline-flex items-center gap-3 tabular-nums">
+      <span className="inline-flex items-center gap-1" title="CPU, percent of one core">
+        <CpuIcon className="size-3.5" />
+        {usage.cpu < 10 ? usage.cpu.toFixed(1) : Math.round(usage.cpu)}%
+      </span>
+      <span className="inline-flex items-center gap-1" title="Memory">
+        <MemoryIcon className="size-3.5" />
+        {formatBytes(usage.memory)}
+      </span>
+    </span>
+  );
+}
+
+/**
+ * Everything that runs in the project in one place: apps and databases, their status, live
+ * CPU and memory, and which app uses which database.
+ */
+function Services({
+  projectId,
+  apps,
+  onAddApp,
+  onAddDatabase,
+}: {
+  projectId: string;
+  apps: Application[];
+  onAddApp: () => void;
+  onAddDatabase: () => void;
+}) {
+  const { data: databases = [] } = useQuery(projectDatabasesQuery(projectId));
+  const hasServices = apps.length + databases.length > 0;
+  const { data: usage } = useQuery({ ...projectUsageQuery(projectId), enabled: hasServices });
+  const usageOf = (id: string) => (usage?.available ? usage.usage[id] : undefined);
+  const usedBy = (appId: string) =>
+    databases.filter((db) => db.links.some((link) => link.applicationId === appId));
+
+  return (
+    <section className="mt-8">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-base font-semibold">Services</h2>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            to="/deployments"
+            search={{ project: projectId }}
+            className="inline-flex h-9 items-center gap-2 rounded-lg border bg-background px-3 text-sm font-medium shadow-xs hover:bg-accent"
+          >
+            Deployments
+          </Link>
+          <Button variant="outline" onClick={onAddDatabase}>
+            <DatabaseIcon />
+            New database
+          </Button>
+          <Button onClick={onAddApp}>
+            <PlusIcon />
+            New application
+          </Button>
+        </div>
+      </div>
+
+      {!hasServices ? (
+        <div className="mt-4 flex flex-col items-center rounded-2xl border border-dashed px-6 py-14 text-center">
+          <div className="flex size-11 items-center justify-center rounded-lg border bg-muted">
+            <BoxIcon className="size-5" />
+          </div>
+          <h3 className="mt-4 text-sm font-semibold">Nothing running yet</h3>
+          <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
+            Add a frontend, an API or a worker from Git or a Docker image, and a database for them.
+            They show up here together.
+          </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-2">
+            <Button variant="outline" onClick={onAddApp}>
+              <PlusIcon />
+              Add an app
+            </Button>
+            <Button variant="outline" onClick={onAddDatabase}>
+              <DatabaseIcon />
+              Add a database
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {apps.map((app) => (
+            <li key={app.id}>
+              <Link to="/apps/$appId" params={{ appId: app.id }} className={cardClass}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border bg-muted">
+                      {app.source === "image" ? (
+                        <ImageIcon className="size-4" />
+                      ) : (
+                        <GitBranchIcon className="size-4" />
+                      )}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate font-medium">{app.name}</span>
+                      <span className="block truncate text-xs text-muted-foreground">
+                        {app.source === "git"
+                          ? `${app.repoUrl?.replace(/^https:\/\/(www\.)?/, "").replace(/\.git$/, "")} · ${app.branch}`
+                          : app.image}
+                      </span>
+                    </span>
+                  </div>
+                  <StatusDot status={app.status} className="mt-1.5" />
+                </div>
+                <div className="mt-4 flex items-center gap-1.5 truncate text-xs text-muted-foreground">
+                  <GlobeIcon className="size-3.5 shrink-0" />
+                  {app.domains[0] ?? "No domain, internal only"}
+                  {app.domains.length > 1 ? ` +${app.domains.length - 1}` : ""}
+                </div>
+                {usedBy(app.id).length > 0 ? (
+                  <div className="mt-1.5 flex items-center gap-1.5 truncate text-xs text-muted-foreground">
+                    <DatabaseIcon className="size-3.5 shrink-0" />
+                    Uses{" "}
+                    {usedBy(app.id)
+                      .map((db) => db.name)
+                      .join(", ")}
+                  </div>
+                ) : null}
+                <div className="mt-auto pt-4">
+                  <div className="flex items-center justify-between gap-2 border-t pt-3 text-xs text-muted-foreground">
+                    <StatusBadge status={app.status} />
+                    {app.status === "running" && usageOf(app.id) ? (
+                      <Usage usage={usageOf(app.id)} />
+                    ) : (
+                      <span>
+                        {app.lastDeployment
+                          ? `Deployed ${timeAgo(app.lastDeployment.createdAt)}`
+                          : "Never deployed"}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            </li>
+          ))}
+          {databases.map((db) => (
+            <li key={db.id}>
+              <Link
+                to="/databases/$databaseId"
+                params={{ databaseId: db.id }}
+                className={cardClass}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <EngineMark engine={db.engine} />
+                    <span className="min-w-0">
+                      <span className="block truncate font-medium">{db.name}</span>
+                      <span className="block truncate text-xs text-muted-foreground">
+                        {engineLabel(db.engine)} {versionLabel(db.version)}
+                      </span>
+                    </span>
+                  </div>
+                  <StatusDot status={db.status} className="mt-1.5" />
+                </div>
+                <div className="mt-4 flex items-center gap-1.5 truncate font-mono text-xs text-muted-foreground">
+                  {db.host}:{db.port}
+                </div>
+                <div className="mt-1.5 flex items-center gap-1.5 truncate text-xs text-muted-foreground">
+                  <BoxIcon className="size-3.5 shrink-0" />
+                  {db.links.length === 0
+                    ? "Not linked to an app"
+                    : `Used by ${[...new Set(db.links.map((l) => l.applicationName))].join(", ")}`}
+                </div>
+                <div className="mt-auto pt-4">
+                  <div className="flex items-center justify-between gap-2 border-t pt-3 text-xs text-muted-foreground">
+                    <StatusBadge status={db.status} />
+                    {db.status === "running" ? <Usage usage={usageOf(db.id)} /> : null}
+                  </div>
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }

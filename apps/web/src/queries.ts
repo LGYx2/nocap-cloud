@@ -1,9 +1,13 @@
 import { QueryClient, queryOptions } from "@tanstack/react-query";
 import type {
   Application,
+  ContainerUsage,
+  DatabaseConnection,
   Deployment,
   Domain,
   EnvVar,
+  LinkedVariable,
+  ManagedDatabase,
   GitProvider,
   GitRepo,
   HealthResponse,
@@ -114,7 +118,7 @@ export const domainsQuery = (id: string) =>
 export const envQuery = (id: string) =>
   queryOptions({
     queryKey: ["application", id, "env"],
-    queryFn: async () => (await api<{ vars: EnvVar[] }>(`/api/applications/${id}/env`)).vars,
+    queryFn: () => api<{ vars: EnvVar[]; linked: LinkedVariable[] }>(`/api/applications/${id}/env`),
   });
 
 export const appLogsQuery = (id: string, follow: boolean) =>
@@ -132,6 +136,68 @@ export async function refreshApps(appId?: string): Promise<void> {
     queryClient.invalidateQueries({ queryKey: ["deployments"] }),
     queryClient.invalidateQueries({ queryKey: ["overview"] }),
     appId ? queryClient.invalidateQueries({ queryKey: ["application", appId] }) : undefined,
+  ]);
+}
+
+// ---------------------------------------------------------------- databases
+
+const starting = (list: ManagedDatabase[] | undefined) =>
+  list?.some((db) => db.status === "starting") ? 2000 : false;
+
+export const databasesQuery = queryOptions({
+  queryKey: ["databases"],
+  queryFn: async () => (await api<{ databases: ManagedDatabase[] }>("/api/databases")).databases,
+  refetchInterval: (query) => starting(query.state.data),
+});
+
+export const projectDatabasesQuery = (projectId: string) =>
+  queryOptions({
+    queryKey: ["databases", "project", projectId],
+    queryFn: async () =>
+      (await api<{ databases: ManagedDatabase[] }>(`/api/projects/${projectId}/databases`))
+        .databases,
+    refetchInterval: (query) => starting(query.state.data),
+  });
+
+export const databaseQuery = (id: string) =>
+  queryOptions({
+    queryKey: ["databases", "one", id],
+    queryFn: async () =>
+      (await api<{ database: ManagedDatabase }>(`/api/databases/${id}`)).database,
+    refetchInterval: (query) => (query.state.data?.status === "starting" ? 1500 : false),
+  });
+
+/** The password and URL. Only fetched when someone asks to see them. */
+export const databaseConnectionQuery = (id: string) =>
+  queryOptions({
+    queryKey: ["databases", "one", id, "connection"],
+    queryFn: () => api<DatabaseConnection>(`/api/databases/${id}/connection`),
+    staleTime: Infinity,
+  });
+
+export const databaseLogsQuery = (id: string, follow: boolean) =>
+  queryOptions({
+    queryKey: ["databases", "one", id, "logs"],
+    queryFn: () => api<{ logs: string; running: boolean }>(`/api/databases/${id}/logs?tail=200`),
+    refetchInterval: follow ? 5000 : false,
+  });
+
+/** CPU and memory per service. The server reads Docker at most every 10 seconds. */
+export const projectUsageQuery = (projectId: string) =>
+  queryOptions({
+    queryKey: ["projects", projectId, "usage"],
+    queryFn: () =>
+      api<{ available: boolean; usage: Record<string, ContainerUsage> }>(
+        `/api/projects/${projectId}/usage`,
+      ),
+    refetchInterval: 15_000,
+  });
+
+export async function refreshDatabases(): Promise<void> {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: ["databases"] }),
+    queryClient.invalidateQueries({ queryKey: ["projects"] }),
+    queryClient.invalidateQueries({ queryKey: ["application"] }),
   ]);
 }
 

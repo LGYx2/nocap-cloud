@@ -20,6 +20,8 @@ const page = {
   project: lazyRouteComponent(() => import("./pages/ProjectPage"), "ProjectPage"),
   application: lazyRouteComponent(() => import("./pages/ApplicationPage"), "ApplicationPage"),
   deployments: lazyRouteComponent(() => import("./pages/DeploymentsPage"), "DeploymentsPage"),
+  databases: lazyRouteComponent(() => import("./pages/DatabasesPage"), "DatabasesPage"),
+  database: lazyRouteComponent(() => import("./pages/DatabasePage"), "DatabasePage"),
   git: lazyRouteComponent(() => import("./pages/GitPage"), "GitPage"),
   settings: lazyRouteComponent(() => import("./pages/SettingsPage"), "SettingsPage"),
   setup: lazyRouteComponent(() => import("./pages/SetupPage"), "SetupPage"),
@@ -109,6 +111,18 @@ const deploymentsRoute = createRoute({
   component: page.deployments,
 });
 
+const databasesRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: "/databases",
+  component: page.databases,
+});
+
+const databaseRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: "/databases/$databaseId",
+  component: page.database,
+});
+
 const gitRoute = createRoute({
   getParentRoute: () => appRoute,
   path: "/git",
@@ -147,6 +161,8 @@ export const router = createRouter({
       projectRoute,
       applicationRoute,
       deploymentsRoute,
+      databasesRoute,
+      databaseRoute,
       gitRoute,
       settingsRoute,
     ]),

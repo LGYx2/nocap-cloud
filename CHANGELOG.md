@@ -31,3 +31,12 @@ All notable changes to this project are documented here. The format follows
 - Git providers: a private GitHub App per install (manifest flow), GitLab tokens, private
   repositories, deploy on push with signed webhooks, and a deploy hook URL per app.
 - Settings page with the panel's public address.
+- One-click databases: PostgreSQL, MySQL, MariaDB, MongoDB and Redis, each with its own volume,
+  a generated encrypted password, logs, start, stop and restart, and no public port.
+- Link a database to an app: the app gets the connection URL (`DATABASE_URL` and others) on
+  every deploy, without copying secrets around.
+- Release command per app for migrations, with presets for Prisma, Drizzle, Django, Alembic,
+  Laravel, Rails, Spring Boot and more. It runs before the switch; if it fails, the old version
+  keeps serving.
+- Project page as a services view: apps and databases together, with live CPU and memory.
+- Deleting a project now also removes its containers and database volumes.
