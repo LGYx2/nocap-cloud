@@ -239,7 +239,7 @@ export function ApplicationPage() {
                   icon: GlobeIcon,
                 },
               ].map((item) => (
-                <div key={item.label} className="rounded-xl border bg-card p-4 shadow-xs">
+                <div key={item.label} className="rounded-2xl border bg-card p-4 shadow-xs">
                   <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                     <item.icon className="size-3.5" />
                     {item.label}
@@ -340,7 +340,7 @@ function DeploymentsTab({
 
   if (deployments.length === 0) {
     return (
-      <div className="flex flex-col items-center rounded-xl border border-dashed px-6 py-14 text-center">
+      <div className="flex flex-col items-center rounded-2xl border border-dashed px-6 py-14 text-center">
         <span className="flex size-11 items-center justify-center rounded-lg border bg-muted">
           <RocketIcon className="size-5" />
         </span>
@@ -375,7 +375,7 @@ function DeploymentsTab({
         </section>
       ) : null}
 
-      <section className="overflow-hidden rounded-xl border bg-card shadow-xs">
+      <section className="overflow-hidden rounded-2xl border bg-card shadow-xs">
         <table className="w-full text-sm">
           <thead className="border-b bg-muted/40 text-left text-xs text-muted-foreground">
             <tr>

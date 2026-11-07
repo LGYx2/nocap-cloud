@@ -591,6 +591,18 @@ function overview(state: DemoState, now: number): Overview {
       failed: state.apps.filter((a) => a.status === "failed").length,
     },
     deploymentsToday: state.deployments.filter((d) => new Date(d.createdAt) >= today).length,
+    activity: Array.from({ length: 14 }, (_, i) => {
+      const date = new Date(now - (13 - i) * 86_400_000).toISOString().slice(0, 10);
+      const real = state.deployments.filter((d) => d.createdAt.startsWith(date));
+      // A believable history: a few deploys most days, quieter at weekends.
+      const weekday = new Date(date).getUTCDay();
+      const sample = weekday === 0 || weekday === 6 ? i % 2 : 2 + ((i * 7) % 5);
+      return {
+        date,
+        total: sample + real.length,
+        failed: (i % 5 === 2 ? 1 : 0) + real.filter((d) => d.status === "failed").length,
+      };
+    }),
     recentDeployments: newest(state.deployments)
       .slice(0, 8)
       .map((d) => toDeployment(state, d)),

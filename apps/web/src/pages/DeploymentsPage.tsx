@@ -88,7 +88,7 @@ export function DeploymentsPage() {
           </div>
         ) : null}
 
-        <section className="mt-6 overflow-hidden rounded-xl border bg-card shadow-xs">
+        <section className="mt-6 overflow-hidden rounded-2xl border bg-card shadow-xs">
           {isPending ? (
             <div className="h-40 animate-pulse bg-muted/50" />
           ) : visible.length === 0 ? (

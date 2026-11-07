@@ -68,7 +68,7 @@ export function SettingsPage() {
 
         <form
           onSubmit={submit}
-          className="mt-6 overflow-hidden rounded-xl border bg-card shadow-xs"
+          className="mt-6 overflow-hidden rounded-2xl border bg-card shadow-xs"
         >
           <div className="p-5">
             <h2 className="text-sm font-semibold">Panel address</h2>
@@ -107,7 +107,7 @@ export function SettingsPage() {
           </div>
         </form>
 
-        <section className="mt-6 rounded-xl border bg-card p-5 shadow-xs">
+        <section className="mt-6 rounded-2xl border bg-card p-5 shadow-xs">
           <h2 className="text-sm font-semibold">This install</h2>
           <dl className="mt-2 divide-y">
             <Row label="Version" value={settings?.version ?? "…"} />

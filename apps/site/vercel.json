@@ -1,14 +1,20 @@
 {
   "cleanUrls": true,
-  "redirects": [
+  "rewrites": [
     {
       "source": "/",
       "has": [{ "type": "host", "value": "get.nocapcloud.click" }],
-      "destination": "https://github.com/LGYx2/nocap-cloud/releases/latest/download/install.sh",
-      "permanent": false
+      "destination": "/install-soon.sh"
     }
   ],
   "headers": [
+    {
+      "source": "/install-soon.sh",
+      "headers": [
+        { "key": "content-type", "value": "text/x-shellscript; charset=utf-8" },
+        { "key": "cache-control", "value": "no-store" }
+      ]
+    },
     {
       "source": "/assets/(.*)",
       "headers": [{ "key": "cache-control", "value": "public, max-age=31536000, immutable" }]

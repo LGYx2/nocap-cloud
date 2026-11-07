@@ -253,7 +253,7 @@ export function GitPage() {
                 key={option.type}
                 type="button"
                 onClick={() => setConnecting(option.type)}
-                className="flex flex-col items-start gap-3 rounded-xl border bg-card p-6 text-left shadow-xs transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-md"
+                className="flex flex-col items-start gap-3 rounded-2xl border bg-card p-6 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-md"
               >
                 <span className="flex size-10 items-center justify-center rounded-lg border bg-muted">
                   <GitBranchIcon className="size-5" />
@@ -264,7 +264,7 @@ export function GitPage() {
             ))}
           </div>
         ) : (
-          <ul className="mt-6 divide-y overflow-hidden rounded-xl border bg-card shadow-xs">
+          <ul className="mt-6 divide-y overflow-hidden rounded-2xl border bg-card shadow-xs">
             {providers.map((provider) => (
               <li key={provider.id} className="flex flex-wrap items-center gap-4 px-5 py-4">
                 <span className="flex size-10 items-center justify-center rounded-lg border bg-muted">

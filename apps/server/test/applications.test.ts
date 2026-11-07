@@ -223,6 +223,8 @@ describe("deployments", () => {
     const overview = (await call("GET", "/api/overview")).json();
     expect(overview.counts).toEqual({ projects: 1, applications: 1, running: 1, failed: 0 });
     expect(overview.deploymentsToday).toBe(1);
+    expect(overview.activity).toHaveLength(14);
+    expect(overview.activity.at(-1)).toMatchObject({ total: 1, failed: 0 });
     expect(overview.docker.available).toBe(true);
     expect(overview.server.memory.total).toBeGreaterThan(0);
   });

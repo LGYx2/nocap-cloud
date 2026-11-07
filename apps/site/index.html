@@ -71,23 +71,29 @@
           </div>
 
           <div class="animate-in mx-auto mt-10 max-w-xl text-left" style="--i: 4">
-            <div class="flex items-center gap-2 rounded-lg border bg-card p-1.5 pl-4 shadow-xs">
+            <div
+              class="flex items-center gap-2 rounded-lg border border-dashed bg-card/60 p-1.5 pl-4"
+              aria-disabled="true"
+            >
               <span class="font-mono text-sm text-muted-foreground select-none" aria-hidden="true"
                 >$</span
               >
-              <code class="no-scrollbar min-w-0 flex-1 overflow-x-auto py-1.5 font-mono text-sm"
+              <code
+                class="no-scrollbar min-w-0 flex-1 overflow-x-auto py-1.5 font-mono text-sm text-muted-foreground line-through decoration-muted-foreground/40"
                 >curl -fsSL https://get.nocapcloud.click | sudo sh</code
               >
-              <button
-                type="button"
-                data-copy="curl -fsSL https://get.nocapcloud.click | sudo sh"
-                class="inline-flex h-8 shrink-0 items-center rounded-md border bg-background px-3 text-xs font-medium transition-colors hover:bg-accent"
+              <span
+                class="inline-flex h-8 shrink-0 items-center rounded-md border border-dashed px-3 text-xs font-medium text-muted-foreground"
               >
-                <span data-copy-label aria-live="polite">Copy</span>
-              </button>
+                Releasing soon
+              </span>
             </div>
             <p class="mt-2 text-center text-xs text-muted-foreground">
-              Works from the first release, v0.1. Ubuntu 22.04 or 24.04, amd64 or arm64.
+              The installer opens with the first release, v0.1. Until then, try the
+              <a href="https://demo.nocapcloud.click" class="font-medium text-foreground underline"
+                >live demo</a
+              >
+              or star the repository to hear when it ships.
             </p>
           </div>
         </div>

@@ -107,7 +107,7 @@ export function ProjectPage() {
                 { label: "Created", value: formatDate(project.createdAt) },
                 { label: "Last change", value: timeAgo(project.updatedAt) },
               ].map((item) => (
-                <div key={item.label} className="rounded-xl border bg-card p-4 shadow-xs">
+                <div key={item.label} className="rounded-2xl border bg-card p-4 shadow-xs">
                   <dt className="text-xs font-medium text-muted-foreground">{item.label}</dt>
                   <dd className="mt-1 text-xl font-semibold tracking-tight">{item.value}</dd>
                 </div>
@@ -132,7 +132,7 @@ export function ProjectPage() {
                 </div>
               </div>
               {apps.length === 0 ? (
-                <div className="mt-4 flex flex-col items-center rounded-xl border border-dashed px-6 py-14 text-center">
+                <div className="mt-4 flex flex-col items-center rounded-2xl border border-dashed px-6 py-14 text-center">
                   <div className="flex size-11 items-center justify-center rounded-lg border bg-muted">
                     <BoxIcon className="size-5" />
                   </div>
@@ -153,7 +153,7 @@ export function ProjectPage() {
                       <Link
                         to="/apps/$appId"
                         params={{ appId: app.id }}
-                        className="flex h-full flex-col rounded-xl border bg-card p-5 shadow-xs transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-md"
+                        className="flex h-full flex-col rounded-2xl border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-md"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex min-w-0 items-center gap-3">

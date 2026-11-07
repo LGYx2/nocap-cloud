@@ -55,7 +55,7 @@ export function ProjectsPage() {
             ))}
           </div>
         ) : projects && projects.length === 0 ? (
-          <section className="flex flex-col items-center rounded-xl border border-dashed px-6 py-16 text-center">
+          <section className="flex flex-col items-center rounded-2xl border border-dashed px-6 py-16 text-center">
             <div className="flex size-11 items-center justify-center rounded-lg border bg-muted">
               <FolderIcon className="size-5" />
             </div>
@@ -91,7 +91,7 @@ export function ProjectsPage() {
                     <Link
                       to="/projects/$projectId"
                       params={{ projectId: project.id }}
-                      className="group flex h-full flex-col rounded-xl border bg-card p-5 shadow-xs transition-colors hover:border-foreground/20 hover:bg-accent/40"
+                      className="group flex h-full flex-col rounded-2xl border bg-card p-5 shadow-xs transition-colors hover:border-foreground/20 hover:bg-accent/40"
                     >
                       <div className="flex items-center gap-3">
                         <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border bg-muted font-semibold uppercase">

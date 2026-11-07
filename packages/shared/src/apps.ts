@@ -203,6 +203,8 @@ export interface DockerInfo {
 export interface Overview {
   counts: { projects: number; applications: number; running: number; failed: number };
   deploymentsToday: number;
+  /** Deployments per day for the last 14 days, oldest first (UTC dates). */
+  activity: Array<{ date: string; total: number; failed: number }>;
   recentDeployments: Deployment[];
   server: ServerStats;
   docker: DockerInfo;

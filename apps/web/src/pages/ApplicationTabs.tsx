@@ -38,7 +38,7 @@ function Panel({
   return (
     <section
       className={cn(
-        "overflow-hidden rounded-xl border bg-card shadow-xs",
+        "overflow-hidden rounded-2xl border bg-card shadow-xs",
         danger && "border-destructive/40",
       )}
     >
@@ -122,7 +122,7 @@ export function DomainsTab({ app }: { app: Application }) {
           ) : null}
         </Panel>
 
-        <section className="overflow-hidden rounded-xl border bg-card shadow-xs">
+        <section className="overflow-hidden rounded-2xl border bg-card shadow-xs">
           {isPending ? (
             <div className="h-20 animate-pulse bg-muted/50" />
           ) : domains.length === 0 ? (

@@ -17,7 +17,7 @@ export function AuthLayout({
         <div className="mb-6 flex justify-center">
           <Logo />
         </div>
-        <div className="rounded-xl border bg-card p-6 shadow-sm">
+        <div className="rounded-2xl border bg-card p-6 shadow-sm">
           <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
           <p className="mt-1.5 text-sm text-muted-foreground">{subtitle}</p>
           <div className="mt-6">{children}</div>
