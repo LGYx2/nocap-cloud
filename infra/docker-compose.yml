@@ -11,6 +11,12 @@ services:
     environment:
       DATABASE_URL: postgres://nocap:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/nocap
       NOCAP_SECRET: ${NOCAP_SECRET:?set NOCAP_SECRET in .env}
+    # Deploying apps means talking to Docker: the socket, plus the group that owns it.
+    group_add:
+      - "${DOCKER_GID:-0}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - nocap-data:/app/data
     ports:
       # Direct access before a panel domain is set. Close it in the firewall once you use a domain.
       - "3000:3000"
@@ -67,3 +73,4 @@ networks:
 volumes:
   postgres-data:
   traefik-certs:
+  nocap-data:

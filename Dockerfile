@@ -28,7 +28,11 @@ ARG NOCAP_VERSION=dev
 ENV NODE_ENV=production \
     PORT=3000 \
     PUBLIC_DIR=/app/public \
+    DATA_DIR=/app/data \
     NOCAP_VERSION=${NOCAP_VERSION}
+# git clones apps; the Docker CLI (with BuildKit) builds and runs them through the mounted socket.
+RUN apk add --no-cache git docker-cli docker-cli-buildx \
+ && mkdir -p /app/data && chown 1000:1000 /app/data
 WORKDIR /app
 COPY --from=build /out/package.json ./package.json
 COPY --from=build /out/node_modules ./node_modules
@@ -36,7 +40,7 @@ COPY --from=build /repo/apps/server/dist ./dist
 COPY --from=build /repo/packages/db/drizzle ./drizzle
 COPY --from=build /repo/apps/web/dist ./public
 
-# Phase 0 runs as the unprivileged node user (uid 1000). Phase 1 adds access to the Docker socket.
+# Runs as the unprivileged node user (uid 1000). Compose adds the Docker socket's group.
 USER 1000:1000
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \

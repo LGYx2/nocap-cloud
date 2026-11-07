@@ -79,7 +79,8 @@ export const projects = pgTable("projects", {
   updatedAt: updatedAt(),
 });
 
-export const buildTypeEnum = pgEnum("build_type", ["dockerfile", "compose"]);
+/** "dockerfile" builds a Git repository; "image" runs a ready-made image from a registry. */
+export const buildTypeEnum = pgEnum("build_type", ["dockerfile", "compose", "image"]);
 export const appStatusEnum = pgEnum("app_status", [
   "idle",
   "building",
@@ -100,6 +101,7 @@ export const applications = pgTable(
     branch: text("branch").notNull().default("main"),
     buildType: buildTypeEnum("build_type").notNull().default("dockerfile"),
     dockerfilePath: text("dockerfile_path").notNull().default("Dockerfile"),
+    image: text("image"),
     port: integer("port"),
     status: appStatusEnum("status").notNull().default("idle"),
     createdAt: createdAt(),
@@ -128,6 +130,10 @@ export const deployments = pgTable(
     commitMessage: text("commit_message"),
     imageTag: text("image_tag"),
     status: deploymentStatusEnum("status").notNull().default("queued"),
+    /** What started it: "manual", "redeploy" or, later, "push". */
+    trigger: text("trigger").notNull().default("manual"),
+    /** Short reason shown in the panel when the deployment failed. */
+    error: text("error"),
     logPath: text("log_path"),
     startedAt: timestamp("started_at", { withTimezone: true }),
     finishedAt: timestamp("finished_at", { withTimezone: true }),

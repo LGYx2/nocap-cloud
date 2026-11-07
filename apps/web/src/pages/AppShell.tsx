@@ -4,11 +4,15 @@ import type { ComponentType, ReactNode, SVGProps } from "react";
 import { api } from "../api";
 import {
   ChevronRightIcon,
+  DashboardIcon,
+  DatabaseIcon,
   FolderIcon,
   GitBranchIcon,
+  LockIcon,
   LogOutIcon,
   MonitorIcon,
   MoonIcon,
+  RocketIcon,
   ServerIcon,
   SettingsIcon,
   SunIcon,
@@ -20,9 +24,17 @@ import { type Theme, useTheme } from "../theme";
 
 type IconType = ComponentType<SVGProps<SVGSVGElement>>;
 
+const main = [
+  { to: "/", label: "Dashboard", icon: DashboardIcon, exact: true },
+  { to: "/projects", label: "Projects", icon: FolderIcon, exact: false },
+  { to: "/deployments", label: "Deployments", icon: RocketIcon, exact: false },
+] as const;
+
 const soon: Array<{ label: string; icon: IconType }> = [
-  { label: "Servers", icon: ServerIcon },
   { label: "Git providers", icon: GitBranchIcon },
+  { label: "Databases", icon: DatabaseIcon },
+  { label: "Servers", icon: ServerIcon },
+  { label: "Remote access", icon: LockIcon },
   { label: "Settings", icon: SettingsIcon },
 ];
 
@@ -99,15 +111,21 @@ export function AppShell() {
           aria-label="Main"
           className="flex gap-1 overflow-x-auto px-3 pb-3 md:flex-col md:overflow-visible md:pb-0"
         >
-          <Link
-            to="/"
-            activeOptions={{ exact: false }}
-            className="flex h-8 shrink-0 items-center gap-2 rounded-md px-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            activeProps={{ className: "bg-accent font-medium !text-foreground" }}
-          >
-            <FolderIcon />
-            Projects
-          </Link>
+          {main.map(({ to, label, icon: Icon, exact }) => (
+            <Link
+              key={to}
+              to={to}
+              activeOptions={{ exact }}
+              className="flex h-8 shrink-0 items-center gap-2 rounded-md px-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              activeProps={{ className: "bg-accent font-medium !text-foreground" }}
+            >
+              <Icon />
+              {label}
+            </Link>
+          ))}
+          <span className="mt-3 mb-1 hidden px-2 text-[11px] font-medium tracking-wide text-muted-foreground/70 uppercase md:block">
+            Coming next
+          </span>
           {soon.map(({ label, icon: Icon }) => (
             <span
               key={label}

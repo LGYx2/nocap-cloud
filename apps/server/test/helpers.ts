@@ -1,3 +1,6 @@
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
@@ -5,10 +8,14 @@ import type { FastifyInstance } from "fastify";
 import { migrationsFolder, schema, type Database } from "@nocap/db";
 import { buildApp } from "../src/app";
 import { loadConfig } from "../src/config";
+import { Deployer } from "../src/deployer";
+import { FakeRuntime } from "./fake-runtime";
 
 export interface TestContext {
   app: FastifyInstance;
   db: Database;
+  runtime: FakeRuntime;
+  deployer: Deployer;
   close: () => Promise<void>;
 }
 
@@ -19,21 +26,31 @@ export async function createTestApp(env: Record<string, string> = {}): Promise<T
   await migrate(pglite, { migrationsFolder });
   const db = pglite as unknown as Database;
 
+  const dataDir = await mkdtemp(join(tmpdir(), "nocap-test-"));
   const config = loadConfig({
     NODE_ENV: "test",
     DATABASE_URL: "pglite://memory",
     NOCAP_VERSION: "test",
+    NOCAP_SECRET: "test-secret-that-is-at-least-32-characters",
+    DATA_DIR: dataDir,
     ...env,
   });
-  const app = await buildApp({ db, config });
+  const runtime = new FakeRuntime();
+  const quiet = { info: () => {}, error: () => {} };
+  const deployer = new Deployer({ db, config, runtime, log: quiet, settleMs: 0 });
+  const app = await buildApp({ db, config, runtime, deployer });
   await app.ready();
 
   return {
     app,
     db,
+    runtime,
+    deployer,
     close: async () => {
+      await deployer.idle();
       await app.close();
       await client.close();
+      await rm(dataDir, { recursive: true, force: true });
     },
   };
 }

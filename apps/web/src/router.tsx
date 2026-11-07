@@ -8,7 +8,10 @@ import {
 } from "@tanstack/react-router";
 import { DEMO } from "./api";
 import { DemoBanner } from "./components/demo-banner";
+import { APP_TABS, ApplicationPage, type AppTab } from "./pages/ApplicationPage";
 import { AppShell } from "./pages/AppShell";
+import { DashboardPage } from "./pages/DashboardPage";
+import { DeploymentsPage } from "./pages/DeploymentsPage";
 import { LoginPage } from "./pages/LoginPage";
 import { ProjectPage } from "./pages/ProjectPage";
 import { ProjectsPage } from "./pages/ProjectsPage";
@@ -46,9 +49,15 @@ const appRoute = createRoute({
   component: AppShell,
 });
 
-const projectsRoute = createRoute({
+const dashboardRoute = createRoute({
   getParentRoute: () => appRoute,
   path: "/",
+  component: DashboardPage,
+});
+
+const projectsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: "/projects",
   component: ProjectsPage,
 });
 
@@ -56,6 +65,27 @@ const projectRoute = createRoute({
   getParentRoute: () => appRoute,
   path: "/projects/$projectId",
   component: ProjectPage,
+});
+
+interface AppSearch {
+  tab?: AppTab;
+  deployment?: string;
+}
+
+const applicationRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: "/apps/$appId",
+  validateSearch: (search: Record<string, unknown>): AppSearch => ({
+    tab: APP_TABS.includes(search.tab as AppTab) ? (search.tab as AppTab) : undefined,
+    deployment: typeof search.deployment === "string" ? search.deployment : undefined,
+  }),
+  component: ApplicationPage,
+});
+
+const deploymentsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: "/deployments",
+  component: DeploymentsPage,
 });
 
 const setupRoute = createRoute({
@@ -74,7 +104,13 @@ const loginRoute = createRoute({
 
 export const router = createRouter({
   routeTree: rootRoute.addChildren([
-    appRoute.addChildren([projectsRoute, projectRoute]),
+    appRoute.addChildren([
+      dashboardRoute,
+      projectsRoute,
+      projectRoute,
+      applicationRoute,
+      deploymentsRoute,
+    ]),
     setupRoute,
     loginRoute,
   ]),

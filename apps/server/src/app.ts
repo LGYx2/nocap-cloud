@@ -9,18 +9,35 @@ import type { Database } from "@nocap/db";
 import type { ApiError, HealthResponse, PublicUser } from "@nocap/shared";
 import { findSessionUser, SESSION_COOKIE } from "./auth/sessions";
 import type { Config } from "./config";
+import { Deployer } from "./deployer";
+import { applicationRoutes } from "./routes/applications";
 import { authRoutes } from "./routes/auth";
+import { overviewRoutes } from "./routes/overview";
 import { projectRoutes } from "./routes/projects";
+import { DockerCliRuntime, type Runtime } from "./runtime";
 
 declare module "fastify" {
   interface FastifyRequest {
     user: PublicUser | null;
+  }
+  interface FastifyInstance {
+    deployer: Deployer;
   }
 }
 
 export interface AppContext {
   db: Database;
   config: Config;
+  runtime: Runtime;
+  deployer: Deployer;
+}
+
+/** What buildApp needs; the runtime and deployer are created when not given (tests pass fakes). */
+export interface AppOptions {
+  db: Database;
+  config: Config;
+  runtime?: Runtime;
+  deployer?: Deployer;
 }
 
 const SECURITY_HEADERS: Record<string, string> = {
@@ -33,16 +50,21 @@ const SECURITY_HEADERS: Record<string, string> = {
 };
 
 export async function buildApp(
-  ctx: AppContext,
+  options: AppOptions,
   logger: FastifyServerOptions["logger"] = false,
 ): Promise<FastifyInstance> {
-  const { db, config } = ctx;
+  const { db, config } = options;
 
   const app = Fastify({
     logger,
     trustProxy: config.TRUST_PROXY,
     bodyLimit: 1024 * 1024,
   });
+
+  const runtime = options.runtime ?? new DockerCliRuntime();
+  const deployer = options.deployer ?? new Deployer({ db, config, runtime, log: app.log });
+  const ctx: AppContext = { db, config, runtime, deployer };
+  app.decorate("deployer", deployer);
 
   app.decorateRequest("user", null);
 
@@ -88,6 +110,8 @@ export async function buildApp(
 
   await authRoutes(app, ctx);
   await projectRoutes(app, ctx);
+  await applicationRoutes(app, ctx);
+  await overviewRoutes(app, ctx);
 
   const publicDir = config.PUBLIC_DIR;
   const servePanel = publicDir !== undefined && existsSync(join(publicDir, "index.html"));

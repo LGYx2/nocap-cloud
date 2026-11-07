@@ -2,6 +2,7 @@ import { z } from "zod";
 import { PASSWORD_MIN_LENGTH, PROJECT_DESCRIPTION_MAX, PROJECT_NAME_MAX } from "./constants";
 
 export * from "./constants";
+export * from "./apps";
 
 const email = z
   .string()

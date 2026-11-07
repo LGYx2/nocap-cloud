@@ -178,6 +178,14 @@ else
   # Keep the existing secrets; only update the version.
   sed -i "s/^NOCAP_VERSION=.*/NOCAP_VERSION=$VERSION/" "$INSTALL_DIR/.env"
 fi
+
+# The panel runs as an unprivileged user; this group lets it use the Docker socket to deploy apps.
+DOCKER_GID=$(stat -c %g /var/run/docker.sock 2>/dev/null || echo 0)
+if grep -q '^DOCKER_GID=' "$INSTALL_DIR/.env"; then
+  sed -i "s/^DOCKER_GID=.*/DOCKER_GID=$DOCKER_GID/" "$INSTALL_DIR/.env"
+else
+  echo "DOCKER_GID=$DOCKER_GID" >> "$INSTALL_DIR/.env"
+fi
 chmod 600 "$INSTALL_DIR/.env"
 
 # ---------------------------------------------------------------- start
