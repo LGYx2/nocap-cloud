@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const SITE_URL = "https://lgyx2.github.io/nocap-cloud/";
+const SITE_URL = "https://nocapcloud.click";
 
 /** Floating note shown only in the demo build: what the demo is, a reset, and where to get the real thing. */
 export function DemoBanner() {
