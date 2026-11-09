@@ -49,7 +49,10 @@ self.addEventListener("fetch", (event) => {
         (hit) =>
           hit ??
           fetch(request).then((response) => {
-            if (response.ok) {
+            // Only keep real files. A host that answers a missing file with the panel page
+            // must not get that page cached under a script's name.
+            const type = response.headers.get("content-type") ?? "";
+            if (response.ok && !type.includes("text/html")) {
               const copy = response.clone();
               void caches.open(CACHE).then((cache) => cache.put(request, copy));
             }

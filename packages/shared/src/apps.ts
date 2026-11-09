@@ -150,7 +150,8 @@ export const domainInputSchema = z.object({
     .trim()
     .toLowerCase()
     .max(253)
-    .regex(/^(?=.{1,253}$)(?!-)([a-z0-9-]{1,63}(?<!-)\.)+[a-z]{2,63}$/, {
+    // Labels of letters, digits and inner hyphens. No lookbehind, so older iPhones can parse it.
+    .regex(/^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/, {
       error: "Enter a domain, like app.example.com",
     }),
 });

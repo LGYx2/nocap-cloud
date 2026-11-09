@@ -16,7 +16,9 @@ function vercelConfig(): Plugin {
         fileName: "vercel.json",
         source: JSON.stringify(
           {
-            rewrites: [{ source: "/(.*)", destination: "/index.html" }],
+            // Every page path serves the panel, but a missing file under /assets is a 404:
+            // answering it with the page would make browsers run HTML as a script.
+            rewrites: [{ source: "/((?!assets/).*)", destination: "/index.html" }],
             headers: [
               {
                 source: "/assets/(.*)",

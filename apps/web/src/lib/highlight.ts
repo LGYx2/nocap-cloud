@@ -23,13 +23,14 @@ export interface Line {
   tokens: Token[];
 }
 
-const PATTERNS: Array<[TokenKind | "status", string]> = [
+// No lookbehind here: Safari before 16.4 cannot parse it, and then the whole page fails to load.
+const PATTERNS: Array<[TokenKind | "status" | "sha", string]> = [
   ["dim", String.raw`\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:[.,]\d+)?(?:Z|[+-]\d{2}:?\d{2})?`],
   ["dim", String.raw`\b\d{2}:\d{2}:\d{2}(?:\.\d+)?\b`],
   // A URL never ends with the punctuation of the sentence around it.
   ["link", String.raw`https?:\/\/[^\s"'<>)\]]*[^\s"'<>)\].,;:!?]`],
   ["dim", String.raw`sha256:[0-9a-f]{8,}|\[internal\]`],
-  ["accent", String.raw`(?<=Commit )[0-9a-f]{7,40}\b`],
+  ["sha", String.raw`\b[0-9a-f]{7,40}\b`],
   ["accent", String.raw`^#\d+|\[\d+\/\d+\]|\bStep \d+\/\d+\b|^\$(?= )|^==>`],
   ["error", String.raw`\b(?:ERROR|ERR!|FATAL|PANIC|CRITICAL|Error|error|failed|Failed)\b:?`],
   ["warn", String.raw`\b(?:WARN|WARNING|Warning|warn|DEPRECATED|deprecated)\b:?`],
@@ -40,7 +41,7 @@ const PATTERNS: Array<[TokenKind | "status", string]> = [
     String.raw`\b(?:ready|Ready|Done|done|Listening|listening|Pull complete|passed|Successfully|successfully|finished|applied)\b`,
   ],
   ["accent", String.raw`\b(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\b`],
-  ["status", String.raw`(?<=\s)[1-5]\d\d(?=\s|$)`],
+  ["status", String.raw`\b[1-5]\d\d(?=\s|$)`],
   ["dim", String.raw`\b\d+(?:\.\d+)?(?:ms|s)\b`],
   ["string", String.raw`"[^"\n]{0,200}"|'[^'\n]{0,200}'`],
 ];
@@ -66,9 +67,15 @@ function tokenize(line: string): Token[] {
     let kind = PATTERNS[group - 1]?.[0];
     if (kind === "accent" && /^[A-Z]+$/.test(match[0])) http = true;
     if (kind === "status") {
-      // A three digit number is a status code only on a line with an HTTP method.
-      kind = http ? (STATUS[match[0][0] ?? ""] ?? undefined) : undefined;
+      // A three digit number is a status code only on a line with an HTTP method, after a space.
+      const spaced = line[match.index - 1] === " ";
+      kind = http && spaced ? (STATUS[match[0][0] ?? ""] ?? undefined) : undefined;
       if (!kind) continue;
+    }
+    if (kind === "sha") {
+      // A commit hash, only right after "Commit ".
+      if (line.slice(Math.max(0, match.index - 7), match.index) !== "Commit ") continue;
+      kind = "accent";
     }
     if (match.index > last) tokens.push({ text: line.slice(last, match.index) });
     tokens.push({ text: match[0], kind });

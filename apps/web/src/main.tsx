@@ -9,7 +9,13 @@ import "./styles.css";
 import { RouterProvider } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { reloadForNewBuild } from "./lib/stale-build";
 import { router } from "./router";
+
+// A page file of an older version could not be loaded: load the new version instead of failing.
+window.addEventListener("vite:preloadError", (event) => {
+  if (reloadForNewBuild()) event.preventDefault();
+});
 
 const root = document.getElementById("root");
 if (!root) throw new Error("Missing #root element");

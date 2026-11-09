@@ -7,7 +7,8 @@ import {
   Outlet,
   redirect,
 } from "@tanstack/react-router";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { isStaleBuildError, reloadForNewBuild } from "./lib/stale-build";
 import { APP_TABS, type AppTab } from "./pages/app-tabs";
 import { AppShell } from "./pages/AppShell";
 import { meQuery, queryClient, setupStatusQuery } from "./queries";
@@ -46,6 +47,47 @@ const rootRoute = createRootRoute({
     </QueryClientProvider>
   ),
 });
+
+/**
+ * Shown when a page fails to load. A tab left open across an update reloads into the new
+ * version on its own; anything else gets a plain message and a way to try again.
+ */
+function RouteError({ error }: { error: unknown }) {
+  const stale = isStaleBuildError(error);
+  const [reloading, setReloading] = useState(stale);
+  useEffect(() => {
+    if (stale) setReloading(reloadForNewBuild());
+  }, [stale]);
+  return (
+    <main className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center px-6 text-center">
+      <h1 className="text-lg font-semibold">
+        {reloading
+          ? "Loading the new version…"
+          : stale
+            ? "Nocap Cloud was updated"
+            : "This page could not load"}
+      </h1>
+      {reloading ? null : (
+        <>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {stale
+              ? "Reload to get the new version."
+              : error instanceof Error
+                ? error.message
+                : "Something went wrong."}
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-5 inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground"
+          >
+            Reload
+          </button>
+        </>
+      )}
+    </main>
+  );
+}
 
 /** Sends people to setup on a fresh install, and to login when they are signed out. */
 async function guard(target: "setup" | "login" | "app") {
@@ -169,6 +211,7 @@ export const router = createRouter({
     setupRoute,
     loginRoute,
   ]),
+  defaultErrorComponent: RouteError,
   // Fetch a page's code when the pointer rests on its link, so opening it feels instant.
   defaultPreload: "intent",
   defaultPreloadStaleTime: 0,
