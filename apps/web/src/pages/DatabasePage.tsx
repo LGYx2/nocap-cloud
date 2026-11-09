@@ -4,6 +4,7 @@ import type { DatabaseAction, ManagedDatabase } from "@nocap/shared";
 import { DATABASE_ENGINES } from "@nocap/shared/catalog";
 import { type FormEvent, useState } from "react";
 import { api, ApiRequestError } from "../api";
+import { CodeValue } from "../components/code";
 import { EngineMark, engineLabel, versionLabel } from "../components/database";
 import { Dialog } from "../components/dialog";
 import {
@@ -18,7 +19,7 @@ import {
 import { CopyButton, Panel } from "../components/panel";
 import { StatusBadge } from "../components/status";
 import { Terminal } from "../components/terminal";
-import { Alert, Button, Field } from "../components/ui";
+import { Alert, Button, cn, Field } from "../components/ui";
 import { timeAgo } from "../lib/format";
 import {
   databaseConnectionQuery,
@@ -196,13 +197,15 @@ function ConnectionPanel({ db }: { db: ManagedDatabase }) {
         {rows.map(([label, value]) => (
           <div key={label} className="flex items-center justify-between gap-4 px-3 py-2.5 text-sm">
             <dt className="text-muted-foreground">{label}</dt>
-            <dd className="truncate font-mono text-xs">{value}</dd>
+            <dd className={cn("truncate font-mono text-xs", label === "Host" && "text-code-info")}>
+              {value}
+            </dd>
           </div>
         ))}
         <div className="flex items-center justify-between gap-4 px-3 py-2 text-sm">
           <dt className="text-muted-foreground">Password</dt>
           <dd className="flex min-w-0 items-center gap-2">
-            <span className="truncate font-mono text-xs">
+            <span className={cn("truncate font-mono text-xs", secret && "text-code-warn")}>
               {secret ? secret.password : "••••••••••••••••"}
             </span>
             <Button
@@ -220,11 +223,13 @@ function ConnectionPanel({ db }: { db: ManagedDatabase }) {
       <div className="mt-4">
         <span className="text-sm leading-none font-medium">Connection URL</span>
         <div className="mt-2 flex gap-2">
-          <code className="min-w-0 flex-1 truncate rounded-lg border bg-muted/50 px-3 py-2 font-mono text-xs">
-            {secret
-              ? secret.url
-              : `${DATABASE_ENGINES[db.engine].variable}=… (show the password to see it)`}
-          </code>
+          {secret ? (
+            <CodeValue value={secret.url} />
+          ) : (
+            <code className="block min-w-0 flex-1 truncate rounded-lg border bg-muted/50 px-3 py-2 font-mono text-xs text-muted-foreground">
+              {DATABASE_ENGINES[db.engine].variable}=… (show the password to see it)
+            </code>
+          )}
           {secret ? <CopyButton value={secret.url} /> : null}
         </div>
         {connection.error ? (
@@ -378,6 +383,8 @@ function LogsPanel({ db }: { db: ManagedDatabase }) {
       </label>
       <Terminal
         text={data?.logs ?? ""}
+        title={db.host}
+        live={follow && Boolean(data?.running)}
         empty={isPending ? "Loading…" : "No output yet."}
         className="max-h-80"
       />

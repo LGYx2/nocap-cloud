@@ -116,37 +116,40 @@
         </div>
         <div class="self-center" data-reveal style="--i: 1">
           <div
-            class="overflow-hidden rounded-xl border border-white/10 bg-terminal font-mono text-[13px] leading-relaxed text-neutral-300 shadow-xl"
+            class="overflow-hidden rounded-xl border border-white/10 bg-terminal font-mono text-[13px] leading-relaxed text-term-fg shadow-xl"
             data-terminal
           >
             <div class="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
-              <span class="text-xs text-neutral-400">meridian-api · build #42</span>
-              <span class="flex items-center gap-1.5 text-xs text-white"
-                ><span class="pulse-dot size-1.5 rounded-full bg-white"></span>Building</span
+              <span class="text-xs text-term-dim">meridian-api · build #42</span>
+              <span class="flex items-center gap-1.5 text-xs text-term-accent"
+                ><span class="pulse-dot size-1.5 rounded-full bg-term-accent"></span>Building</span
               >
             </div>
             <div class="no-scrollbar overflow-x-auto p-4 whitespace-nowrap">
               <p class="term-line" data-delay="0">
-                <span class="text-neutral-500">12:04:01</span> Cloning main at 3f9c2a1
+                <span class="text-term-dim">12:04:01</span> Cloning main at 3f9c2a1
               </p>
               <p class="term-line" data-delay="400">
-                <span class="text-neutral-500">12:04:03</span> Step 1/6 FROM node:22-alpine
+                <span class="text-term-dim">12:04:03</span>
+                <span class="text-term-accent">Step 1/6</span> FROM node:22-alpine
               </p>
               <p class="term-line" data-delay="800">
-                <span class="text-neutral-500">12:04:09</span> Step 4/6 RUN pnpm install --frozen
+                <span class="text-term-dim">12:04:09</span>
+                <span class="text-term-accent">Step 4/6</span> RUN pnpm install --frozen
               </p>
               <p class="term-line" data-delay="1200">
-                <span class="text-neutral-500">12:04:31</span> Step 6/6 CMD ["node",
-                "dist/index.js"]
+                <span class="text-term-dim">12:04:31</span>
+                <span class="text-term-accent">Step 6/6</span> CMD ["node", "dist/index.js"]
               </p>
               <p class="term-line" data-delay="1600">
-                <span class="text-neutral-500">12:04:33</span> Image meridian-api:3f9c2a1 built
+                <span class="text-term-dim">12:04:33</span> Image meridian-api:3f9c2a1 built
               </p>
               <p class="term-line" data-delay="2000">
-                <span class="text-neutral-500">12:04:35</span> Health check passed
+                <span class="text-term-dim">12:04:35</span> Health check
+                <span class="text-term-info">passed</span>
               </p>
-              <p class="term-line text-white" data-delay="2400">
-                <span class="text-neutral-500">12:04:35</span> Live at https://api.meridian.example
+              <p class="term-line text-term-info" data-delay="2400">
+                <span class="text-term-dim">12:04:35</span> Live at https://api.meridian.example
               </p>
             </div>
           </div>

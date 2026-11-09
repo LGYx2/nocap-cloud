@@ -848,50 +848,53 @@
 
           <div class="min-w-0 self-center" data-reveal style="--i: 1">
             <div
-              class="overflow-hidden rounded-xl border border-white/10 bg-terminal font-mono text-[13px] leading-relaxed text-neutral-200 shadow-2xl shadow-black/20"
+              class="overflow-hidden rounded-xl border border-white/10 bg-terminal font-mono text-[13px] leading-relaxed text-term-fg shadow-2xl shadow-black/20"
               data-terminal
             >
               <div class="flex items-center gap-2 border-b border-white/10 px-4 py-2.5">
                 <span class="size-2.5 rounded-full bg-white/20"></span>
                 <span class="size-2.5 rounded-full bg-white/20"></span>
                 <span class="size-2.5 rounded-full bg-white/20"></span>
-                <span class="ml-2 text-xs text-neutral-400">root@server: ~</span>
+                <span class="ml-2 text-xs text-term-dim">root@server: ~</span>
               </div>
               <div class="no-scrollbar overflow-x-auto p-4 whitespace-nowrap">
                 <p class="term-line" data-delay="0">
-                  <span class="text-neutral-500">$</span> curl -fsSL https://get.nocapcloud.click |
+                  <span class="text-term-accent">$</span> curl -fsSL https://get.nocapcloud.click |
                   sudo sh
                 </p>
                 <p class="term-line" data-delay="700">
-                  <span class="text-neutral-400">==></span> Checking the server
+                  <span class="text-term-accent">==></span> Checking the server
                 </p>
                 <p class="term-line" data-delay="1100">
-                  <span class="text-neutral-400">==></span> Installing Docker
+                  <span class="text-term-accent">==></span> Installing Docker
                 </p>
                 <p class="term-line" data-delay="1800">
-                  <span class="text-neutral-400">==></span> Installing Nocap Cloud v0.1.0
+                  <span class="text-term-accent">==></span> Installing Nocap Cloud v0.1.0
                 </p>
                 <p class="term-line" data-delay="2200">
-                  <span class="text-neutral-400">==></span> Generating secrets
+                  <span class="text-term-accent">==></span> Generating secrets
                 </p>
                 <p class="term-line" data-delay="2600">
-                  <span class="text-neutral-400">==></span> Downloading images
+                  <span class="text-term-accent">==></span> Downloading images
                 </p>
                 <p class="term-line" data-delay="3300">
-                  <span class="text-neutral-400">==></span> Starting Nocap Cloud
+                  <span class="text-term-accent">==></span> Starting Nocap Cloud
                 </p>
                 <p class="term-line" data-delay="3800">
-                  <span class="text-neutral-400">==></span> Waiting for the panel to start
+                  <span class="text-term-accent">==></span> Waiting for the panel to start
                 </p>
-                <p class="term-line mt-3 font-semibold text-white" data-delay="4600">
+                <p class="term-line mt-3 font-semibold text-term-info" data-delay="4600">
                   Nocap Cloud v0.1.0 is running.
                 </p>
                 <p class="term-line" data-delay="4800">
-                  Open <span class="text-white underline">http://203.0.113.10:3000</span> to create
-                  your admin account.
+                  Open
+                  <span class="text-term-info underline decoration-term-info/40 underline-offset-2"
+                    >http://203.0.113.10:3000</span
+                  >
+                  to create your admin account.
                 </p>
                 <p class="term-line mt-2" data-delay="5100">
-                  <span class="text-neutral-500">$</span> <span class="cursor"></span>
+                  <span class="text-term-accent">$</span> <span class="cursor"></span>
                 </p>
               </div>
             </div>

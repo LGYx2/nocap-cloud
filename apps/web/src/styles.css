@@ -94,7 +94,89 @@
   /* Status colors: the only color in the panel, so a glance shows what needs attention. */
   --color-live: oklch(0.62 0.17 250);
   --color-busy: oklch(0.6 0.2 295);
-  --color-terminal: oklch(0.17 0 0);
+  /*
+   * Terminal: dark in both themes, like a real one. A slight blue in the grays, and five accent
+   * colors that each mean one thing. All pass 4.5:1 on the terminal background.
+   */
+  --color-terminal: oklch(0.165 0.006 265);
+  --color-terminal-bar: oklch(0.2 0.007 265);
+  --color-term-fg: oklch(0.88 0.008 260);
+  --color-term-dim: oklch(0.64 0.012 260);
+  --color-term-bright: oklch(0.97 0.004 260);
+  --color-term-accent: oklch(0.76 0.13 295);
+  --color-term-info: oklch(0.76 0.12 245);
+  --color-term-warn: oklch(0.83 0.13 75);
+  --color-term-error: oklch(0.73 0.16 22);
+  --color-term-string: oklch(0.84 0.06 280);
+
+  /* Code values in the page (URLs, commands): follow the light and dark theme. */
+  --color-code-accent: var(--code-accent);
+  --color-code-info: var(--code-info);
+  --color-code-warn: var(--code-warn);
+}
+
+:root {
+  --code-accent: oklch(0.5 0.2 295);
+  --code-info: oklch(0.5 0.16 250);
+  --code-warn: oklch(0.52 0.13 60);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --code-accent: oklch(0.76 0.13 295);
+    --code-info: oklch(0.76 0.12 245);
+    --code-warn: oklch(0.83 0.13 75);
+  }
+}
+
+:root[data-theme="dark"] {
+  --code-accent: oklch(0.76 0.13 295);
+  --code-info: oklch(0.76 0.12 245);
+  --code-warn: oklch(0.83 0.13 75);
+}
+
+/* Line numbers in the terminal, drawn by CSS so copying the log never includes them. */
+.term-lines {
+  counter-reset: line;
+}
+
+.term-line::before {
+  counter-increment: line;
+  content: counter(line);
+  width: 3rem;
+  flex-shrink: 0;
+  padding-right: 1rem;
+  text-align: right;
+  color: oklch(0.45 0.01 260);
+  user-select: none;
+}
+
+.term-line[data-kind="error"] {
+  background: oklch(0.73 0.16 22 / 10%);
+  box-shadow: inset 2px 0 0 var(--color-term-error);
+}
+
+.term-line[data-kind="warn"] {
+  background: oklch(0.83 0.13 75 / 7%);
+  box-shadow: inset 2px 0 0 var(--color-term-warn);
+}
+
+.term-line[data-kind="error"]::before {
+  color: var(--color-term-error);
+}
+
+.term-line[data-kind="warn"]::before {
+  color: var(--color-term-warn);
+}
+
+@keyframes nocap-caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+.term-caret {
+  animation: nocap-caret 1s steps(1) infinite;
 }
 
 @keyframes nocap-pulse {
@@ -126,6 +208,7 @@
 @media (prefers-reduced-motion: reduce) {
   .status-pulse,
   .meter-bar,
+  .term-caret,
   dialog[open] {
     animation: none;
   }

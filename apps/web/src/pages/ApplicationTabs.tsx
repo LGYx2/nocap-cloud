@@ -17,6 +17,7 @@ import {
   PlusIcon,
   TrashIcon,
 } from "../components/icons";
+import { CodeValue } from "../components/code";
 import { CopyButton, Panel } from "../components/panel";
 import { Alert, Button, Field } from "../components/ui";
 import { timeAgo } from "../lib/format";
@@ -712,9 +713,7 @@ function CopyField({ label, value }: { label: string; value: string }) {
     <div className="flex flex-col gap-2">
       <span className="text-sm leading-none font-medium">{label}</span>
       <div className="flex gap-2">
-        <code className="min-w-0 flex-1 truncate rounded-lg border bg-muted/50 px-3 py-2 font-mono text-xs">
-          {value}
-        </code>
+        <CodeValue value={value} />
         <CopyButton value={value} />
       </div>
     </div>

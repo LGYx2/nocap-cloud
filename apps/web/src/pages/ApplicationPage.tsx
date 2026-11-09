@@ -410,6 +410,8 @@ function LogsTab({ app }: { app: Application }) {
       </div>
       <Terminal
         text={data?.logs ?? ""}
+        title={app.name}
+        live={follow && Boolean(data?.running)}
         empty={
           app.lastDeployment
             ? "The app has not printed anything yet."

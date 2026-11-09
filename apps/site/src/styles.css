@@ -13,7 +13,7 @@
   --border: oklch(0.922 0 0);
   --grid: oklch(0.145 0 0 / 6%);
   --glow: oklch(0.145 0 0 / 5%);
-  --terminal: oklch(0.18 0 0);
+  --terminal: oklch(0.18 0.006 265);
   color-scheme: light;
 }
 
@@ -30,7 +30,7 @@
     --border: oklch(1 0 0 / 10%);
     --grid: oklch(1 0 0 / 6%);
     --glow: oklch(1 0 0 / 6%);
-    --terminal: oklch(0.12 0 0);
+    --terminal: oklch(0.13 0.006 265);
     color-scheme: dark;
   }
 }
@@ -49,6 +49,11 @@
   --color-accent: var(--accent);
   --color-border: var(--border);
   --color-terminal: var(--terminal);
+  /* Terminal colors, the same as the panel's log view. */
+  --color-term-fg: oklch(0.88 0.008 260);
+  --color-term-dim: oklch(0.64 0.012 260);
+  --color-term-accent: oklch(0.76 0.13 295);
+  --color-term-info: oklch(0.76 0.12 245);
 }
 
 html {
