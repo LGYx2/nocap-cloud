@@ -75,6 +75,8 @@
 @theme inline {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-brand: "Fredoka", ui-sans-serif, system-ui, sans-serif;
+  --font-mono:
+    ui-monospace, "SF Mono", Menlo, Consolas, "Cascadia Mono", "DejaVu Sans Mono", monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -135,38 +137,66 @@
   --code-warn: oklch(0.83 0.13 75);
 }
 
-/* Line numbers in the terminal, drawn by CSS so copying the log never includes them. */
-.term-lines {
-  counter-reset: line;
+/* Log viewer. Line numbers come from data-n, so copying the log never includes them. */
+.term-row {
+  display: flex;
 }
 
-.term-line::before {
-  counter-increment: line;
-  content: counter(line);
+.term-row:hover {
+  background: oklch(1 0 0 / 3.5%);
+}
+
+.term-n {
   width: 3rem;
   flex-shrink: 0;
   padding-right: 1rem;
   text-align: right;
-  color: oklch(0.45 0.01 260);
+  color: oklch(0.47 0.012 260);
   user-select: none;
 }
 
-.term-line[data-kind="error"] {
-  background: oklch(0.73 0.16 22 / 10%);
+.term-n::before {
+  content: attr(data-n);
+}
+
+.term-row[data-kind="error"] {
+  background: oklch(0.73 0.16 22 / 11%);
   box-shadow: inset 2px 0 0 var(--color-term-error);
 }
 
-.term-line[data-kind="warn"] {
+.term-row[data-kind="warn"] {
   background: oklch(0.83 0.13 75 / 7%);
   box-shadow: inset 2px 0 0 var(--color-term-warn);
 }
 
-.term-line[data-kind="error"]::before {
+.term-row[data-kind="error"] .term-n {
   color: var(--color-term-error);
 }
 
-.term-line[data-kind="warn"]::before {
+.term-row[data-kind="warn"] .term-n {
   color: var(--color-term-warn);
+}
+
+/* A thin dark scrollbar instead of the system's light one with arrows. */
+.term-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(1 0 0 / 18%) transparent;
+}
+
+.term-scroll::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.term-scroll::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: oklch(1 0 0 / 18%) padding-box;
+}
+
+.term-scroll::-webkit-scrollbar-track,
+.term-scroll::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 @keyframes nocap-caret {

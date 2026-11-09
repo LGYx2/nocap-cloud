@@ -292,3 +292,9 @@ export const ArrowLeftIcon = (p: IconProps) => (
     <path d="m12 19-7-7 7-7M19 12H5" />
   </Icon>
 );
+
+export const DownloadIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 15V3M7 10l5 5 5-5M5 21h14" />
+  </Icon>
+);

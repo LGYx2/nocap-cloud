@@ -28,7 +28,8 @@ const PATTERNS: Array<[TokenKind | "status", string]> = [
   ["dim", String.raw`\b\d{2}:\d{2}:\d{2}(?:\.\d+)?\b`],
   // A URL never ends with the punctuation of the sentence around it.
   ["link", String.raw`https?:\/\/[^\s"'<>)\]]*[^\s"'<>)\].,;:!?]`],
-  ["dim", String.raw`sha256:[0-9a-f]{8,}`],
+  ["dim", String.raw`sha256:[0-9a-f]{8,}|\[internal\]`],
+  ["accent", String.raw`(?<=Commit )[0-9a-f]{7,40}\b`],
   ["accent", String.raw`^#\d+|\[\d+\/\d+\]|\bStep \d+\/\d+\b|^\$(?= )|^==>`],
   ["error", String.raw`\b(?:ERROR|ERR!|FATAL|PANIC|CRITICAL|Error|error|failed|Failed)\b:?`],
   ["warn", String.raw`\b(?:WARN|WARNING|Warning|warn|DEPRECATED|deprecated)\b:?`],
