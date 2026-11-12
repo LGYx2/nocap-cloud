@@ -4,29 +4,12 @@ import { DATABASE_ENGINE_IDS, DATABASE_ENGINES } from "@nocap/shared/catalog";
 import { type FormEvent, useState } from "react";
 import { api, ApiRequestError } from "../api";
 import { projectsQuery, refreshDatabases } from "../queries";
+import { ServiceIcon } from "./brand";
 import { Alert, Button, cn, Field } from "./ui";
 
-const MARKS: Record<DatabaseEngine, string> = {
-  postgres: "PG",
-  mysql: "MY",
-  mariadb: "MA",
-  mongodb: "MO",
-  redis: "RD",
-};
-
-/** A small monogram tile per engine. Text only, so no logos to download. */
+/** The engine's own mark on a small tile. */
 export function EngineMark({ engine, className }: { engine: DatabaseEngine; className?: string }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={cn(
-        "flex size-9 shrink-0 items-center justify-center rounded-lg border bg-muted font-mono text-[11px] font-semibold tracking-tight",
-        className,
-      )}
-    >
-      {MARKS[engine]}
-    </span>
-  );
+  return <ServiceIcon engine={engine} className={className} />;
 }
 
 export const engineLabel = (engine: DatabaseEngine) => DATABASE_ENGINES[engine].label;

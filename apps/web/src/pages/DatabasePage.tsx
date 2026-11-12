@@ -16,6 +16,7 @@ import {
   StopIcon,
   TrashIcon,
 } from "../components/icons";
+import { MetricsPanel } from "../components/metrics";
 import { CopyButton, Panel } from "../components/panel";
 import { StatusBadge } from "../components/status";
 import { Terminal } from "../components/terminal";
@@ -148,6 +149,9 @@ export function DatabasePage() {
               <div className="min-w-0 space-y-6 lg:col-span-2">
                 <ConnectionPanel db={db} />
                 <LinksPanel db={db} />
+                <Panel title="Metrics">
+                  <MetricsPanel targetId={db.id} uptime={false} />
+                </Panel>
                 <LogsPanel db={db} />
               </div>
               <div className="min-w-0 space-y-6">

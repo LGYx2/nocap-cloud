@@ -23,16 +23,20 @@ import {
   type EnvVar,
   type GitProvider,
   type GitRepo,
+  type Incident,
   type LinkedVariable,
   type ManagedDatabase,
+  type MetricPoint,
+  type MonitoredService,
+  type MonitorRange,
   type Overview,
   type Project,
   type PublicUser,
 } from "@nocap/shared";
-import { DATABASE_ENGINES } from "@nocap/shared/catalog";
+import { DATABASE_ENGINES, stackFromImage, type StackId } from "@nocap/shared/catalog";
 import { PROJECT_DESCRIPTION_MAX, PROJECT_NAME_MAX } from "@nocap/shared/constants";
 
-const STORAGE_KEY = "nocap-demo-v4";
+const STORAGE_KEY = "nocap-demo-v5";
 
 const DEMO_GITHUB: GitProvider = {
   id: "9a000000-0000-4000-8000-000000000001",
@@ -94,6 +98,9 @@ export interface DemoState {
   deployments: DemoDeployment[];
   databases: DemoDatabase[];
   links: DemoLink[];
+  incidents: Incident[];
+  /** Host of the alert webhook, when one is set. */
+  alertHost: string | null;
   domains: Domain[];
   env: Record<string, EnvVar[]>;
   providers: GitProvider[];
@@ -163,6 +170,7 @@ export function seedState(now = Date.now()): DemoState {
     image: source === "image" ? where : null,
     port,
     releaseCommand: null,
+    stack: source === "image" ? stackFromImage(where) : null,
     status,
     // Meridian's repositories come through the sample GitHub account and deploy on push.
     gitProvider: where.includes("meridian-labs")
@@ -299,6 +307,36 @@ export function seedState(now = Date.now()): DemoState {
   past(api, 0.6, "running", 58);
   past(admin, 0.4, "failed", 39, "build failed (exit code 1). See the log for details.");
 
+  // What each sample repository is written in.
+  const stacks: Record<string, StackId> = {
+    [api]: "nestjs",
+    [worker]: "go",
+    [admin]: "react",
+    [ingest]: "python",
+  };
+  for (const item of apps) item.stack = stacks[item.id] ?? item.stack;
+
+  const incidents: Incident[] = [
+    {
+      id: "1c000000-0000-4000-8000-000000000002",
+      kind: "deploy_failed",
+      targetId: admin,
+      title: "Deployment of Admin console failed",
+      detail: "build failed (exit code 1). See the log for details.",
+      startedAt: hoursAgo(0.4, now),
+      resolvedAt: hoursAgo(0.4, now),
+    },
+    {
+      id: "1c000000-0000-4000-8000-000000000001",
+      kind: "app_down",
+      targetId: ingest,
+      title: "Ingest is not answering",
+      detail: "No answer on port 4000.",
+      startedAt: hoursAgo(5.1, now),
+      resolvedAt: hoursAgo(5.03, now),
+    },
+  ];
+
   // The API runs its Prisma migrations before each release.
   const apiApp = apps.find((a) => a.id === api);
   if (apiApp) apiApp.releaseCommand = "npx prisma migrate deploy";
@@ -386,6 +424,8 @@ export function seedState(now = Date.now()): DemoState {
     deployments,
     databases,
     links,
+    incidents,
+    alertHost: null,
     domains,
     providers: [DEMO_GITHUB],
     panelUrl: "https://panel.meridian.dev",
@@ -742,9 +782,11 @@ function linkedVariables(state: DemoState, appId: string): LinkedVariable[] {
 }
 
 /** Believable, slowly moving CPU and memory for a service. */
-function demoUsage(id: string, kind: "app" | "db", now: number) {
+function demoUsage(id: string, kind: "app" | "db", now: number, step = 60_000) {
   const seed = [...id].reduce((sum, c) => sum + c.charCodeAt(0), 0);
-  const wave = (Math.sin(now / 7000 + seed) + 1) / 2;
+  // A slow swing with a smaller, faster one on top, sized to the chart's time step.
+  const wave =
+    (Math.sin(now / (step * 9) + seed) * 0.75 + Math.sin(now / (step * 2.2) + seed) * 0.25 + 1) / 2;
   const base = kind === "db" ? 60 + (seed % 90) : 70 + (seed % 140);
   return {
     cpu: Math.round((0.3 + wave * (kind === "db" ? 2.5 : 6) + (seed % 3)) * 10) / 10,
@@ -796,6 +838,8 @@ function overview(state: DemoState, now: number): Overview {
       applications: state.apps.length,
       running,
       failed: state.apps.filter((a) => a.status === "failed").length,
+      databases: state.databases.length,
+      incidents: state.incidents.filter((i) => !i.resolvedAt).length,
     },
     deploymentsToday: state.deployments.filter((d) => new Date(d.createdAt) >= today).length,
     activity: Array.from({ length: 14 }, (_, i) => {
@@ -846,6 +890,81 @@ function containerLogs(app: DemoApp, now: number): string {
     lines.push(`${new Date(at).toISOString()} GET ${path} ${i % 17 === 0 ? 404 : 200} ${ms}ms`);
   }
   return lines.join("\n");
+}
+
+// ---------------------------------------------------------------- monitoring
+
+const RANGES: Record<MonitorRange, { slots: number; ms: number }> = {
+  "1h": { slots: 60, ms: 60_000 },
+  "24h": { slots: 96, ms: 900_000 },
+  "7d": { slots: 84, ms: 7_200_000 },
+};
+const readRange = (value: string | null): MonitorRange =>
+  value === "24h" || value === "7d" ? value : "1h";
+
+function slots(range: MonitorRange, now: number): number[] {
+  const { slots: count, ms } = RANGES[range];
+  const end = Math.floor(now / ms) * ms;
+  return Array.from({ length: count }, (_, i) => end - (count - 1 - i) * ms);
+}
+
+function serverPoint(t: number, step: number): MetricPoint {
+  const wave = (Math.sin(t / (step * 11)) + Math.sin(t / (step * 2.6)) * 0.4 + 1.4) / 2.8;
+  return {
+    t,
+    cpu: Math.round((14 + wave * 22) * 10) / 10,
+    memory: Math.round((3.0 + wave * 0.5) * 1024 ** 3),
+  };
+}
+
+function servicePoints(id: string, kind: "app" | "db", range: MonitorRange, now: number) {
+  return slots(range, now).map((t) => ({ t, ...demoUsage(id, kind, t, RANGES[range].ms) }));
+}
+
+/** The sample incident: Ingest missed a few checks about five hours ago. */
+const INGEST = "e1000000-0000-4000-8000-000000000004";
+
+function monitoredServices(state: DemoState, range: MonitorRange, now: number): MonitoredService[] {
+  const project = (id: string) => state.projects.find((p) => p.id === id)?.name ?? "";
+  return [
+    ...newest(state.apps).map((a): MonitoredService => {
+      const live = a.status === "running";
+      const points = live ? servicePoints(a.id, "app", range, now) : [];
+      return {
+        id: a.id,
+        kind: "app",
+        name: a.name,
+        projectId: a.projectId,
+        projectName: project(a.projectId),
+        status: a.status,
+        stack: a.stack,
+        engine: null,
+        cpu: points.at(-1)?.cpu ?? null,
+        memory: points.at(-1)?.memory ?? null,
+        spark: points.map((p) => p.cpu),
+        uptime: live ? (a.id === INGEST && range !== "1h" ? 99.72 : 100) : null,
+        responseMs: live ? 6 + ([...a.id].reduce((n, c) => n + c.charCodeAt(0), 0) % 40) : null,
+      };
+    }),
+    ...newest(state.databases).map((d): MonitoredService => {
+      const points = d.status === "running" ? servicePoints(d.id, "db", range, now) : [];
+      return {
+        id: d.id,
+        kind: "database",
+        name: d.name,
+        projectId: d.projectId,
+        projectName: project(d.projectId),
+        status: d.status,
+        stack: null,
+        engine: d.engine,
+        cpu: points.at(-1)?.cpu ?? null,
+        memory: points.at(-1)?.memory ?? null,
+        spark: points.map((p) => p.cpu),
+        uptime: null,
+        responseMs: null,
+      };
+    }),
+  ];
 }
 
 // ---------------------------------------------------------------- router
@@ -979,6 +1098,65 @@ export function handle(
     };
     state.projects.push(project);
     return ok({ project: toProject(state, project) }, 201);
+  }
+
+  // ---- monitoring
+  if (route === "GET /api/monitoring") {
+    const range = readRange(query.get("range"));
+    return ok({
+      range,
+      server: {
+        cpus: 4,
+        memoryTotal: 8 * 1024 ** 3,
+        points: slots(range, now).map((t) => serverPoint(t, RANGES[range].ms)),
+      },
+      services: monitoredServices(state, range, now),
+      incidents: [...state.incidents].sort((a, b) => b.startedAt.localeCompare(a.startedAt)),
+    });
+  }
+  const ms = /^\/api\/monitoring\/services\/([^/]+)$/.exec(path);
+  if (ms && method === "GET") {
+    const range = readRange(query.get("range"));
+    const service = monitoredServices(state, range, now).find((x) => x.id === ms[1]);
+    if (!service) return fail(404, "Service not found");
+    const live = service.status === "running";
+    const points = live
+      ? servicePoints(service.id, service.kind === "app" ? "app" : "db", range, now)
+      : [];
+    const outage = now - 5.1 * 3600_000;
+    return ok({
+      range,
+      points,
+      checks:
+        service.kind === "app" && live
+          ? slots(range, now).map((t) => {
+              const hit = service.id === INGEST && outage >= t && outage < t + RANGES[range].ms;
+              return {
+                t,
+                up: hit ? (range === "24h" ? 0.73 : 0.97) : 1,
+                ms: (service.responseMs ?? 10) + Math.round(Math.abs(Math.sin(t / 700_000)) * 9),
+              };
+            })
+          : [],
+      uptime: service.uptime,
+      responseMs: service.responseMs,
+    });
+  }
+  if (route === "GET /api/monitoring/alerts")
+    return ok({ alerts: { webhookHost: state.alertHost } });
+  if (route === "PUT /api/monitoring/alerts") {
+    const value = String(body?.webhookUrl ?? "").trim();
+    if (value && !/^https:\/\/[a-z0-9.-]+(:\d+)?\/\S*$/i.test(value)) {
+      return fail(400, "Check the highlighted fields", {
+        webhookUrl: "Use an https:// webhook address",
+      });
+    }
+    state.alertHost = value ? new URL(value).host : null;
+    return ok({ alerts: { webhookHost: state.alertHost } });
+  }
+  if (route === "POST /api/monitoring/alerts/test") {
+    // The demo never calls out: it only pretends the message went through.
+    return state.alertHost ? ok({ sent: true }) : fail(409, "Save a webhook address first.");
   }
 
   // ---- databases
@@ -1134,6 +1312,7 @@ export function handle(
           image: input.source === "image" ? input.image : null,
           port: input.port,
           releaseCommand: null,
+          stack: input.source === "image" ? stackFromImage(input.image) : null,
           status: "idle",
           createdAt: stamp,
           updatedAt: stamp,

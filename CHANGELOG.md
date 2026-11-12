@@ -40,3 +40,11 @@ All notable changes to this project are documented here. The format follows
   keeps serving.
 - Project page as a services view: apps and databases together, with live CPU and memory.
 - Deleting a project now also removes its containers and database volumes.
+- Monitoring: CPU and memory history for the server and every app and database, uptime checks
+  for apps, incidents, and alerts to a Slack, Discord or any other webhook. Stored in Postgres
+  for 7 days, with no extra containers.
+- Apps show the icon of their language or framework, found in the repository on deploy;
+  databases and Git providers show their own marks.
+- Dashboard reorganised: one summary strip, services grouped by project with live usage, the
+  server next to them, then recent deployments.
+- Log viewer with colors, steps you can fold, search, jump to the first error and download.

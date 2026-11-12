@@ -5,7 +5,7 @@ import { useState } from "react";
 import { api, DEMO } from "../api";
 import { Dialog } from "../components/dialog";
 import {
-  BoxIcon,
+  ActivityIcon,
   ClockIcon,
   CommitIcon,
   ExternalLinkIcon,
@@ -21,6 +21,8 @@ import {
   StopIcon,
   TerminalIcon,
 } from "../components/icons";
+import { ServiceIcon } from "../components/brand";
+import { MetricsPanel } from "../components/metrics";
 import { StatusBadge } from "../components/status";
 import { DeploymentLogView, Terminal } from "../components/terminal";
 import { Alert, Button, cn } from "../components/ui";
@@ -40,6 +42,7 @@ import { APP_TABS, type AppTab } from "./app-tabs";
 const TAB_META: Record<AppTab, { label: string; icon: typeof RocketIcon }> = {
   deployments: { label: "Deployments", icon: RocketIcon },
   logs: { label: "Logs", icon: TerminalIcon },
+  metrics: { label: "Metrics", icon: ActivityIcon },
   domains: { label: "Domains", icon: GlobeIcon },
   environment: { label: "Environment", icon: KeyIcon },
   settings: { label: "Settings", icon: SettingsIcon },
@@ -169,13 +172,11 @@ export function ApplicationPage() {
             ) : null}
 
             <div className="flex flex-wrap items-start gap-4">
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-xl border bg-muted">
-                {app.source === "image" ? (
-                  <ImageIcon className="size-5" />
-                ) : (
-                  <BoxIcon className="size-5" />
-                )}
-              </span>
+              <ServiceIcon
+                stack={app.stack}
+                className="size-12 rounded-xl"
+                iconClassName="size-6"
+              />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-3">
                   <h1 className="truncate text-2xl font-semibold tracking-tight">{app.name}</h1>
@@ -290,6 +291,8 @@ export function ApplicationPage() {
                 <DeploymentsTab app={app} onDeploy={() => deploy.mutate()} />
               ) : tab === "logs" ? (
                 <LogsTab app={app} />
+              ) : tab === "metrics" ? (
+                <MetricsPanel targetId={app.id} uptime />
               ) : tab === "domains" ? (
                 <DomainsTab app={app} />
               ) : tab === "environment" ? (

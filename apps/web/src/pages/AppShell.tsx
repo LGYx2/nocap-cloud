@@ -28,7 +28,7 @@ type IconType = ComponentType<SVGProps<SVGSVGElement>>;
 
 /**
  * Main pages. `short` is the label in the phone's bottom tab bar, which has room for five;
- * on phones, databases are reached from their project.
+ * on phones, databases are reached from their project and Git providers from Settings.
  */
 const main = [
   { to: "/", label: "Dashboard", short: "Home", icon: DashboardIcon, exact: true, tab: true },
@@ -57,12 +57,20 @@ const main = [
     tab: false,
   },
   {
+    to: "/monitoring",
+    label: "Monitoring",
+    short: "Monitor",
+    icon: ActivityIcon,
+    exact: false,
+    tab: true,
+  },
+  {
     to: "/git",
     label: "Git providers",
     short: "Git",
     icon: GitBranchIcon,
     exact: false,
-    tab: true,
+    tab: false,
   },
   {
     to: "/settings",
@@ -75,7 +83,6 @@ const main = [
 ] as const;
 
 const soon: Array<{ label: string; icon: IconType }> = [
-  { label: "Monitoring", icon: ActivityIcon },
   { label: "Servers", icon: ServerIcon },
   { label: "Remote access", icon: LockIcon },
 ];

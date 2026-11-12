@@ -8,7 +8,7 @@ import {
   projects,
   type Database,
 } from "@nocap/db";
-import type { Application, Deployment } from "@nocap/shared";
+import { isStackId, stackFromImage, type Application, type Deployment } from "@nocap/shared";
 import { HttpError } from "./http";
 
 export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -115,6 +115,12 @@ export async function loadApplications(
       image: row.image,
       port: row.port ?? 3000,
       releaseCommand: row.releaseCommand,
+      stack:
+        row.stack && isStackId(row.stack)
+          ? row.stack
+          : row.buildType === "image" && row.image
+            ? stackFromImage(row.image)
+            : null,
       status: row.status,
       domains: hostRows.filter((h) => h.applicationId === row.id).map((h) => h.hostname),
       lastDeployment: last ? toDeployment(last) : null,

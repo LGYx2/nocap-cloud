@@ -1,11 +1,13 @@
 import { sql } from "drizzle-orm";
 import {
+  bigint,
   boolean,
   index,
   integer,
   jsonb,
   pgEnum,
   pgTable,
+  real,
   text,
   timestamp,
   uniqueIndex,
@@ -131,6 +133,8 @@ export const applications = pgTable(
     port: integer("port"),
     /** Runs in the new image before traffic moves to it, for database migrations. */
     releaseCommand: text("release_command"),
+    /** Language or framework found in the repository on the last deploy, like "nextjs". */
+    stack: text("stack"),
     status: appStatusEnum("status").notNull().default("idle"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -261,4 +265,55 @@ export const databaseLinks = pgTable(
     uniqueIndex("database_links_app_variable_unique").on(t.applicationId, t.variable),
     index("database_links_database_id_idx").on(t.databaseId),
   ],
+);
+
+/**
+ * CPU and memory, one row per service per minute, kept for 7 days. `target` is an application
+ * or database id, or "server" for the machine itself.
+ */
+export const metrics = pgTable(
+  "metrics",
+  {
+    at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+    target: text("target").notNull(),
+    /** Services: percent of one core. Server: load as a percent of all cores. */
+    cpu: real("cpu").notNull(),
+    /** Bytes in use. */
+    memory: bigint("memory", { mode: "number" }).notNull(),
+  },
+  (t) => [index("metrics_target_at_idx").on(t.target, t.at)],
+);
+
+/** One row per app per minute: did the app answer on its port, and how fast. */
+export const uptimeChecks = pgTable(
+  "uptime_checks",
+  {
+    at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+    applicationId: uuid("application_id")
+      .notNull()
+      .references(() => applications.id, { onDelete: "cascade" }),
+    ok: boolean("ok").notNull(),
+    /** HTTP status, or null when nothing answered. */
+    status: integer("status"),
+    ms: integer("ms"),
+  },
+  (t) => [index("uptime_checks_app_at_idx").on(t.applicationId, t.at)],
+);
+
+/** Things that went wrong: an app stopped answering, a deploy failed, the server is full. */
+export const incidents = pgTable(
+  "incidents",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** "app_down", "deploy_failed", "server_memory" or "server_disk". */
+    kind: text("kind").notNull(),
+    /** Application id, or null for the server. */
+    targetId: text("target_id"),
+    title: text("title").notNull(),
+    detail: text("detail"),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+    /** Null while it is still going on. */
+    resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+  },
+  (t) => [index("incidents_started_at_idx").on(t.startedAt)],
 );

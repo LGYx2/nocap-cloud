@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { StackId } from "./catalog";
 import { APP_NAME_MAX, ENV_KEY_MAX, ENV_VALUE_MAX, ENV_VARS_MAX } from "./constants";
 
 // ---------------------------------------------------------------- applications
@@ -110,6 +111,8 @@ export interface Application {
   port: number;
   /** Runs in the new version before traffic moves to it, for migrations. */
   releaseCommand: string | null;
+  /** Language or framework, found in the repository or read from the image name. */
+  stack: StackId | null;
   status: AppStatus;
   domains: string[];
   lastDeployment: Deployment | null;
@@ -221,7 +224,15 @@ export interface DockerInfo {
 }
 
 export interface Overview {
-  counts: { projects: number; applications: number; running: number; failed: number };
+  counts: {
+    projects: number;
+    applications: number;
+    running: number;
+    failed: number;
+    databases: number;
+    /** Incidents that are still going on. */
+    incidents: number;
+  };
   deploymentsToday: number;
   /** Deployments per day for the last 14 days, oldest first (UTC dates). */
   activity: Array<{ date: string; total: number; failed: number }>;

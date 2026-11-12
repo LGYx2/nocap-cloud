@@ -12,6 +12,7 @@ import { applications, deployments, domains, envVars, type Database } from "@noc
 import type { Config } from "./config";
 import { SecretBox } from "./crypto";
 import type { DatabaseService } from "./databases";
+import { detectStack } from "./detect";
 import type { GitService } from "./git";
 import { CommandError, short, type Runtime } from "./runtime";
 
@@ -177,6 +178,11 @@ export class Deployer {
           .update(deployments)
           .set({ commitSha: commit.sha, commitMessage: commit.message.slice(0, 300) })
           .where(eq(deployments.id, deploymentId));
+
+        const stack = await detectStack(workdir, app.dockerfilePath).catch(() => null);
+        if (stack && stack !== app.stack) {
+          await db.update(applications).set({ stack }).where(eq(applications.id, app.id));
+        }
 
         image = `nocap/${short(app.id)}:${short(deploymentId)}`;
         step(`Building ${app.dockerfilePath}`);

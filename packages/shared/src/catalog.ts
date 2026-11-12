@@ -87,3 +87,73 @@ export const RELEASE_PRESETS: ReleasePreset[] = [
     command: 'migrate -path ./migrations -database "$DATABASE_URL" up',
   },
 ];
+
+// ---------------------------------------------------------------- stacks
+
+/** Languages, frameworks and well-known images an app can be recognised as. */
+export const STACKS = {
+  node: "Node.js",
+  bun: "Bun",
+  deno: "Deno",
+  nextjs: "Next.js",
+  nuxt: "Nuxt",
+  react: "React",
+  vue: "Vue",
+  svelte: "Svelte",
+  angular: "Angular",
+  astro: "Astro",
+  nestjs: "NestJS",
+  python: "Python",
+  django: "Django",
+  fastapi: "FastAPI",
+  flask: "Flask",
+  php: "PHP",
+  laravel: "Laravel",
+  ruby: "Ruby",
+  rails: "Rails",
+  go: "Go",
+  rust: "Rust",
+  java: "Java",
+  spring: "Spring Boot",
+  dotnet: ".NET",
+  elixir: "Elixir",
+  nginx: "Nginx",
+  grafana: "Grafana",
+  wordpress: "WordPress",
+  ghost: "Ghost",
+  n8n: "n8n",
+  docker: "Docker image",
+} as const;
+
+export type StackId = keyof typeof STACKS;
+
+export const isStackId = (value: string): value is StackId => value in STACKS;
+
+/** Image name without registry, organization or tag: "ghcr.io/acme/api:1.2" gives "api". */
+const imageName = (image: string) =>
+  (image.split("@")[0] ?? "").split(":")[0]?.split("/").at(-1)?.toLowerCase() ?? "";
+
+const IMAGE_STACKS: Array<[RegExp, StackId]> = [
+  [/^(nginx|caddy|httpd)/, "nginx"],
+  [/^grafana/, "grafana"],
+  [/^wordpress/, "wordpress"],
+  [/^ghost/, "ghost"],
+  [/^n8n/, "n8n"],
+  [/^node/, "node"],
+  [/^bun/, "bun"],
+  [/^deno/, "deno"],
+  [/^python/, "python"],
+  [/^php/, "php"],
+  [/^ruby/, "ruby"],
+  [/^golang/, "go"],
+  [/^rust/, "rust"],
+  [/^(openjdk|eclipse-temurin|amazoncorretto|maven|gradle)/, "java"],
+  [/^(dotnet|aspnet)/, "dotnet"],
+  [/^elixir/, "elixir"],
+];
+
+/** What a ready-made image runs, from its name. Unknown images are just "docker". */
+export function stackFromImage(image: string): StackId {
+  const name = imageName(image);
+  return IMAGE_STACKS.find(([pattern]) => pattern.test(name))?.[1] ?? "docker";
+}

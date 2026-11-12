@@ -8,6 +8,10 @@ import type {
   EnvVar,
   LinkedVariable,
   ManagedDatabase,
+  AlertSettings,
+  MonitoringOverview,
+  MonitorRange,
+  ServiceSeries,
   GitProvider,
   GitRepo,
   HealthResponse,
@@ -200,6 +204,30 @@ export async function refreshDatabases(): Promise<void> {
     queryClient.invalidateQueries({ queryKey: ["application"] }),
   ]);
 }
+
+// ---------------------------------------------------------------- monitoring
+
+/** Readings are taken once a minute on the server, so asking more often shows nothing new. */
+export const monitoringQuery = (range: MonitorRange) =>
+  queryOptions({
+    queryKey: ["monitoring", range],
+    queryFn: () => api<MonitoringOverview>(`/api/monitoring?range=${range}`),
+    refetchInterval: 60_000,
+    placeholderData: (previous: MonitoringOverview | undefined) => previous,
+  });
+
+export const serviceSeriesQuery = (id: string, range: MonitorRange) =>
+  queryOptions({
+    queryKey: ["monitoring", "service", id, range],
+    queryFn: () => api<ServiceSeries>(`/api/monitoring/services/${id}?range=${range}`),
+    refetchInterval: 60_000,
+    placeholderData: (previous: ServiceSeries | undefined) => previous,
+  });
+
+export const alertSettingsQuery = queryOptions({
+  queryKey: ["monitoring", "alerts"],
+  queryFn: async () => (await api<{ alerts: AlertSettings }>("/api/monitoring/alerts")).alerts,
+});
 
 // ---------------------------------------------------------------- git and settings
 

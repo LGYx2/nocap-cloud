@@ -52,7 +52,7 @@ ports 80, 443 and 3000 free.
 | 2. Git: GitHub App, GitLab token, deploy on push, deploy hooks              | Done        |
 | 3. Reliability: encrypted variables, health checks, zero downtime, rollback | In progress |
 | 4. Databases, release commands (migrations) and backups                     | In progress |
-| 5. Monitoring: per-app CPU and memory history, alerts, uptime checks        | Planned     |
+| 5. Monitoring: per-app CPU and memory history, alerts, uptime checks        | In progress |
 | 6. Release v0.1: images on GHCR, in-panel updates, docs                     | Planned     |
 
 ## Deploying from Git
@@ -108,6 +108,19 @@ moves to it. If it fails, the deployment stops and the current version keeps run
 Knex, Sequelize, TypeORM, EF Core bundles and golang-migrate are in the list too. The command runs
 with `sh -c`, so the image needs a shell.
 
+## Monitoring
+
+Once a minute Nocap reads CPU and memory of the server and of every app and database, and asks
+each running app for an answer on its port. The readings go to the Postgres that is already
+there and are kept for 7 days, so monitoring adds no containers.
+
+- **Monitoring** shows the server, every service with its uptime and answer time, and the
+  incidents of the last 30 days. Each app has a **Metrics** tab with its own charts.
+- **Incidents** open when an app misses two checks in a row, a deployment fails, or memory or
+  disk is almost full. They close on their own when things are back to normal.
+- **Alerts:** paste a Slack or Discord webhook (or any https address) under **Monitoring →
+  Alerts** to get a message when an incident opens or closes.
+
 ## Develop
 
 You need Node.js 22, pnpm 10 and a PostgreSQL 16 database.
@@ -139,6 +152,11 @@ infra             docker-compose.yml and install.sh
 
 Nocap Cloud was founded by **Ismael Valgy** ([@LGYx2](https://github.com/LGYx2)), who leads the
 roadmap and reviews every change.
+
+## Credits
+
+Brand marks for databases, languages and Git hosts come from
+[Simple Icons](https://simpleicons.org) (CC0). The names and logos belong to their owners.
 
 ## Contributing
 

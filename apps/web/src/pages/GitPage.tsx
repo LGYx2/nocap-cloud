@@ -4,14 +4,8 @@ import type { GitProvider } from "@nocap/shared";
 import { type FormEvent, useState } from "react";
 import { api, ApiRequestError, DEMO } from "../api";
 import { Dialog } from "../components/dialog";
-import {
-  CheckIcon,
-  ExternalLinkIcon,
-  GitBranchIcon,
-  PlusIcon,
-  RocketIcon,
-  TrashIcon,
-} from "../components/icons";
+import { CheckIcon, ExternalLinkIcon, PlusIcon, RocketIcon, TrashIcon } from "../components/icons";
+import { BrandIcon } from "../components/brand";
 import { Alert, Button, Field } from "../components/ui";
 import { timeAgo } from "../lib/format";
 import { gitProvidersQuery, queryClient, settingsQuery } from "../queries";
@@ -256,7 +250,7 @@ export function GitPage() {
                 className="flex flex-col items-start gap-3 rounded-2xl border bg-card p-6 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-md"
               >
                 <span className="flex size-10 items-center justify-center rounded-lg border bg-muted">
-                  <GitBranchIcon className="size-5" />
+                  <BrandIcon name={option.type} className="size-5" />
                 </span>
                 <span className="text-base font-semibold">Connect {option.title}</span>
                 <span className="text-sm text-muted-foreground">{option.text}</span>
@@ -271,7 +265,7 @@ export function GitPage() {
                 className="flex flex-wrap items-center gap-4 rounded-2xl border bg-card px-5 py-4 shadow-xs"
               >
                 <span className="flex size-10 items-center justify-center rounded-lg border bg-muted">
-                  <GitBranchIcon className="size-5" />
+                  <BrandIcon name={provider.type} className="size-5" />
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="font-medium">{provider.name}</p>

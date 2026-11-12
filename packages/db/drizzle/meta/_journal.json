@@ -29,6 +29,13 @@
       "when": 1794062199001,
       "tag": "0003_databases",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794480268440,
+      "tag": "0004_monitoring",
+      "breakpoints": true
     }
   ]
 }

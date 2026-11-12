@@ -21,6 +21,9 @@ await migrate(db, { migrationsFolder });
 const app = await buildApp({ db, config }, logger);
 await app.deployer.recover();
 await app.databases.recover();
+// One reading a minute; the first one right away so the charts are not empty.
+app.monitor.start();
+void app.monitor.tick();
 
 const cleanup = setInterval(
   () => {

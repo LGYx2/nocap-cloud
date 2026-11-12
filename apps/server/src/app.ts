@@ -12,10 +12,12 @@ import type { Config } from "./config";
 import { DatabaseService } from "./databases";
 import { Deployer } from "./deployer";
 import { GitService } from "./git";
+import { Monitor } from "./monitor";
 import { applicationRoutes } from "./routes/applications";
 import { authRoutes } from "./routes/auth";
 import { databaseRoutes } from "./routes/databases";
 import { gitRoutes } from "./routes/git";
+import { monitoringRoutes } from "./routes/monitoring";
 import { overviewRoutes } from "./routes/overview";
 import { projectRoutes } from "./routes/projects";
 import { DockerCliRuntime, type Runtime } from "./runtime";
@@ -27,6 +29,7 @@ declare module "fastify" {
   interface FastifyInstance {
     deployer: Deployer;
     databases: DatabaseService;
+    monitor: Monitor;
   }
 }
 
@@ -37,6 +40,7 @@ export interface AppContext {
   deployer: Deployer;
   git: GitService;
   databases: DatabaseService;
+  monitor: Monitor;
 }
 
 /** What buildApp needs; the runtime and deployer are created when not given (tests pass fakes). */
@@ -47,6 +51,7 @@ export interface AppOptions {
   deployer?: Deployer;
   git?: GitService;
   databases?: DatabaseService;
+  monitor?: Monitor;
 }
 
 const SECURITY_HEADERS: Record<string, string> = {
@@ -77,9 +82,13 @@ export async function buildApp(
   const databases = options.databases ?? new DatabaseService({ db, config, runtime, log: app.log });
   const deployer =
     options.deployer ?? new Deployer({ db, config, runtime, git, databases, log: app.log });
-  const ctx: AppContext = { db, config, runtime, deployer, git, databases };
+  // Created here, started in index.ts: tests run its rounds by hand.
+  const monitor = options.monitor ?? new Monitor({ db, config, runtime, log: app.log });
+  const ctx: AppContext = { db, config, runtime, deployer, git, databases, monitor };
   app.decorate("deployer", deployer);
   app.decorate("databases", databases);
+  app.decorate("monitor", monitor);
+  app.addHook("onClose", async () => monitor.stop());
 
   app.decorateRequest("user", null);
 
@@ -129,6 +138,7 @@ export async function buildApp(
   await overviewRoutes(app, ctx);
   await gitRoutes(app, ctx);
   await databaseRoutes(app, ctx);
+  await monitoringRoutes(app, ctx);
 
   const publicDir = config.PUBLIC_DIR;
   const servePanel = publicDir !== undefined && existsSync(join(publicDir, "index.html"));

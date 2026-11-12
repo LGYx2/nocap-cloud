@@ -1,8 +1,9 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import type { PanelSettings } from "@nocap/shared";
 import { type FormEvent, useEffect, useState } from "react";
 import { api, ApiRequestError } from "../api";
-import { AlertIcon, CheckIcon } from "../components/icons";
+import { AlertIcon, CheckIcon, DatabaseIcon, GitBranchIcon } from "../components/icons";
 import { Alert, Button, cn, Field } from "../components/ui";
 import { meQuery, queryClient, settingsQuery } from "../queries";
 import { PageHeader, ThemeSwitch } from "./AppShell";
@@ -57,6 +58,22 @@ export function SettingsPage() {
       <PageHeader crumbs={[{ label: "Settings" }]} />
       <main className="mx-auto max-w-3xl px-4 py-6 md:px-8 md:py-8">
         <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+        <nav aria-label="More pages" className="mt-4 grid grid-cols-2 gap-2 md:hidden">
+          <Link
+            to="/databases"
+            className="flex items-center gap-2 rounded-xl border bg-card px-3 py-2.5 text-sm font-medium shadow-xs"
+          >
+            <DatabaseIcon />
+            Databases
+          </Link>
+          <Link
+            to="/git"
+            className="flex items-center gap-2 rounded-xl border bg-card px-3 py-2.5 text-sm font-medium shadow-xs"
+          >
+            <GitBranchIcon />
+            Git providers
+          </Link>
+        </nav>
         <p className="mt-1 text-sm text-muted-foreground">
           How this Nocap Cloud install is set up.
         </p>

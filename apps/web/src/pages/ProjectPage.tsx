@@ -3,15 +3,14 @@ import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import type { Application, ContainerUsage } from "@nocap/shared";
 import { type FormEvent, useState } from "react";
 import { api } from "../api";
+import { ServiceIcon } from "../components/brand";
 import { DatabaseForm, EngineMark, engineLabel, versionLabel } from "../components/database";
 import { Dialog } from "../components/dialog";
 import {
   BoxIcon,
   CpuIcon,
   DatabaseIcon,
-  GitBranchIcon,
   GlobeIcon,
-  ImageIcon,
   MemoryIcon,
   PencilIcon,
   PlusIcon,
@@ -303,13 +302,7 @@ function Services({
               <Link to="/apps/$appId" params={{ appId: app.id }} className={cardClass}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-3">
-                    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border bg-muted">
-                      {app.source === "image" ? (
-                        <ImageIcon className="size-4" />
-                      ) : (
-                        <GitBranchIcon className="size-4" />
-                      )}
-                    </span>
+                    <ServiceIcon stack={app.stack} />
                     <span className="min-w-0">
                       <span className="block truncate font-medium">{app.name}</span>
                       <span className="block truncate text-xs text-muted-foreground">

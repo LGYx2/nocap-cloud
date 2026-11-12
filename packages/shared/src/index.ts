@@ -6,6 +6,7 @@ export * from "./apps";
 export * from "./git";
 export * from "./catalog";
 export * from "./databases";
+export * from "./monitoring";
 
 const email = z
   .string()

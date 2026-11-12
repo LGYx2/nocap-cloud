@@ -1,30 +1,30 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import type { Overview } from "@nocap/shared";
+import type { MonitoredService, Overview } from "@nocap/shared";
+import { DATABASE_ENGINES, STACKS } from "@nocap/shared/catalog";
 import type { ComponentType, ReactNode, SVGProps } from "react";
+import { ServiceIcon } from "../components/brand";
+import { LineChart, Sparkline } from "../components/chart";
 import { DeploymentRow } from "../components/deployment-row";
 import {
   ActivityIcon,
   AlertIcon,
   ArrowRightIcon,
   BoxIcon,
-  CheckIcon,
-  ClockIcon,
+  DatabaseIcon,
   FolderIcon,
-  GitBranchIcon,
-  GlobeIcon,
-  ImageIcon,
   PlusIcon,
   RocketIcon,
-  ServerIcon,
 } from "../components/icons";
-import { StatusDot } from "../components/status";
+import { percent } from "../components/metrics";
+import { Meter, StatusDot } from "../components/status";
 import { Alert, cn } from "../components/ui";
 import { formatBytes, formatUptime, greeting, timeAgo } from "../lib/format";
-import { allApplicationsQuery, meQuery, overviewQuery } from "../queries";
+import { meQuery, monitoringQuery, overviewQuery } from "../queries";
 import { PageHeader } from "./AppShell";
 
 type IconType = ComponentType<SVGProps<SVGSVGElement>>;
+type DotStatus = Parameters<typeof StatusDot>[0]["status"];
 
 function Card({
   title,
@@ -52,95 +52,6 @@ function Card({
       ) : null}
       {children}
     </section>
-  );
-}
-
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  detail,
-  tone,
-  to,
-}: {
-  icon: IconType;
-  label: string;
-  value: ReactNode;
-  detail: ReactNode;
-  tone?: "bad" | "live";
-  to?: string;
-}) {
-  const body = (
-    <>
-      <span
-        className={cn(
-          "flex size-10 items-center justify-center rounded-xl bg-muted",
-          tone === "bad" && "bg-destructive/10 text-destructive",
-          tone === "live" && "bg-live/10 text-live",
-        )}
-      >
-        <Icon className="size-[18px]" />
-      </span>
-      <div className="mt-4 text-3xl font-semibold tracking-tight tabular-nums">{value}</div>
-      <div className="mt-0.5 text-sm font-medium">{label}</div>
-      <div className="mt-1 text-xs text-muted-foreground">{detail}</div>
-    </>
-  );
-  const className =
-    "group relative block overflow-hidden rounded-2xl border bg-card p-5 shadow-sm transition-all";
-  return to ? (
-    <Link to={to} className={cn(className, "hover:-translate-y-0.5 hover:shadow-md")}>
-      {body}
-      <ArrowRightIcon className="absolute top-5 right-5 size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-    </Link>
-  ) : (
-    <div className={className}>{body}</div>
-  );
-}
-
-/** A ring that fills with the share used, for CPU, memory and disk. */
-function Ring({ value, label, detail }: { value: number; label: string; detail: string }) {
-  const percent = Math.min(100, Math.max(0, Math.round(value * 100)));
-  const r = 34;
-  const length = 2 * Math.PI * r;
-  const color =
-    percent >= 90
-      ? "var(--destructive)"
-      : percent >= 75
-        ? "oklch(0.6 0.2 295)"
-        : "var(--foreground)";
-  return (
-    <div className="flex flex-col items-center text-center">
-      <div className="relative size-24">
-        <svg
-          viewBox="0 0 80 80"
-          className="size-24 -rotate-90"
-          role="meter"
-          aria-label={label}
-          aria-valuenow={percent}
-          aria-valuemin={0}
-          aria-valuemax={100}
-        >
-          <circle cx="40" cy="40" r={r} fill="none" stroke="var(--muted)" strokeWidth="7" />
-          <circle
-            cx="40"
-            cy="40"
-            r={r}
-            fill="none"
-            stroke={color}
-            strokeWidth="7"
-            strokeLinecap="round"
-            strokeDasharray={`${(percent / 100) * length} ${length}`}
-            className="transition-[stroke-dasharray] duration-700"
-          />
-        </svg>
-        <span className="absolute inset-0 flex items-center justify-center text-lg font-semibold tabular-nums">
-          {percent}%
-        </span>
-      </div>
-      <span className="mt-2 text-sm font-medium">{label}</span>
-      <span className="text-xs text-muted-foreground tabular-nums">{detail}</span>
-    </div>
   );
 }
 
@@ -202,11 +113,139 @@ function ActivityChart({ activity }: { activity: Overview["activity"] }) {
   );
 }
 
+/** One number in the summary strip. */
+function Stat({
+  icon: Icon,
+  label,
+  value,
+  detail,
+  to,
+  bad,
+  className,
+}: {
+  icon: IconType;
+  label: string;
+  value: ReactNode;
+  detail: string;
+  to: string;
+  bad?: boolean;
+  className?: string;
+}) {
+  return (
+    <Link
+      to={to}
+      className={cn(
+        "flex min-w-0 flex-col gap-1 bg-card px-5 py-4 transition-colors hover:bg-accent",
+        className,
+      )}
+    >
+      <span className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+        <Icon className={cn("size-3.5", bad && "text-destructive")} />
+        {label}
+      </span>
+      <span
+        className={cn(
+          "text-2xl font-semibold tracking-tight tabular-nums",
+          bad && "text-destructive",
+        )}
+      >
+        {value}
+      </span>
+      <span className="truncate text-xs text-muted-foreground">{detail}</span>
+    </Link>
+  );
+}
+
+/** Apps and databases grouped by project, each with its real icon and live usage. */
+function Services({ services }: { services: MonitoredService[] }) {
+  const projects = new Map<string, { name: string; items: MonitoredService[] }>();
+  for (const service of services) {
+    const group = projects.get(service.projectId) ?? { name: service.projectName, items: [] };
+    group.items.push(service);
+    projects.set(service.projectId, group);
+  }
+  if (services.length === 0) {
+    return (
+      <div className="flex flex-col items-center px-6 pt-2 pb-10 text-center">
+        <span className="flex size-12 items-center justify-center rounded-2xl bg-muted">
+          <BoxIcon className="size-5" />
+        </span>
+        <p className="mt-3 text-sm font-medium">Nothing running yet</p>
+        <p className="mt-1 max-w-xs text-sm text-muted-foreground">
+          Create a project, then add an app from Git or a Docker image and a database for it.
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div className="pb-2">
+      {[...projects.entries()].map(([projectId, group]) => (
+        <div key={projectId} className="border-t first:border-t-0">
+          <Link
+            to="/projects/$projectId"
+            params={{ projectId }}
+            className="flex items-center gap-2 px-5 pt-3 pb-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+          >
+            <FolderIcon className="size-3.5" />
+            {group.name}
+            <span className="tabular-nums">· {group.items.length}</span>
+          </Link>
+          <ul className="px-2 pb-2">
+            {group.items.map((service) => (
+              <li key={service.id}>
+                <Link
+                  {...(service.kind === "app"
+                    ? { to: "/apps/$appId", params: { appId: service.id } }
+                    : { to: "/databases/$databaseId", params: { databaseId: service.id } })}
+                  className="flex items-center gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-accent/70"
+                >
+                  <ServiceIcon stack={service.stack} engine={service.engine} />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium">{service.name}</span>
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {service.engine
+                        ? DATABASE_ENGINES[service.engine].label
+                        : service.stack
+                          ? STACKS[service.stack]
+                          : "App"}
+                    </span>
+                  </span>
+                  <Sparkline
+                    values={service.spark}
+                    className="hidden text-muted-foreground/70 sm:block"
+                  />
+                  <span className="w-20 text-right text-xs tabular-nums">
+                    {service.cpu != null && service.memory != null ? (
+                      <>
+                        <span className="font-medium">{percent(service.cpu)}</span>
+                        <span className="block text-muted-foreground">
+                          {formatBytes(service.memory)}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground capitalize">
+                        {service.status === "idle" ? "Not deployed" : service.status}
+                      </span>
+                    )}
+                  </span>
+                  <StatusDot status={service.status as DotStatus} />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function DashboardPage() {
   const { data: user } = useQuery(meQuery);
   const { data, error, isPending } = useQuery(overviewQuery);
-  const { data: apps = [] } = useQuery(allApplicationsQuery);
+  const { data: monitoring } = useQuery(monitoringQuery("1h"));
   const firstName = user?.name.split(" ")[0] ?? "";
+  const viewAll =
+    "inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground";
 
   return (
     <>
@@ -220,187 +259,201 @@ export function DashboardPage() {
 
         {isPending || !data ? (
           <div className="grid gap-4" aria-busy="true">
-            <div className="h-40 animate-pulse rounded-2xl border bg-muted/50" />
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="h-36 animate-pulse rounded-2xl border bg-muted/50" />
-              ))}
-            </div>
+            <div className="h-24 animate-pulse rounded-2xl border bg-muted/50" />
+            <div className="h-80 animate-pulse rounded-2xl border bg-muted/50" />
           </div>
         ) : (
-          <div className="space-y-6">
-            {/* Welcome and health */}
-            <section className="relative overflow-hidden rounded-3xl border bg-card p-6 shadow-sm sm:p-8">
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-foreground/[0.04] blur-2xl"
-              />
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,var(--border)_1px,transparent_0)] [background-size:18px_18px] [mask-image:linear-gradient(to_left,black,transparent_60%)]"
-              />
-              <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">{greeting()}</p>
-                  <h1 className="mt-1 text-3xl font-semibold tracking-tight">
-                    {firstName ? `Welcome back, ${firstName}` : "Welcome back"}
-                  </h1>
-                  <div className="mt-4 flex flex-wrap gap-2 text-xs">
-                    <span className="inline-flex h-7 items-center gap-1.5 rounded-full border bg-background px-3">
-                      <ServerIcon className="size-3.5 text-muted-foreground" />
-                      {data.server.hostname}
-                    </span>
-                    <span
-                      className={cn(
-                        "inline-flex h-7 items-center gap-2 rounded-full border bg-background px-3",
-                        !data.docker.available && "border-destructive/30 text-destructive",
-                      )}
-                    >
-                      <StatusDot status={data.docker.available ? "running" : "failed"} />
-                      {data.docker.available
-                        ? `Docker ${data.docker.version ?? ""}`
-                        : "Docker not reachable"}
-                    </span>
-                    <span className="inline-flex h-7 items-center gap-1.5 rounded-full border bg-background px-3">
-                      <ClockIcon className="size-3.5 text-muted-foreground" />
-                      Up {formatUptime(data.server.uptime)}
-                    </span>
-                    <span className="inline-flex h-7 items-center gap-1.5 rounded-full border bg-background px-3">
-                      <ActivityIcon className="size-3.5 text-muted-foreground" />
-                      {data.docker.containersRunning} containers
-                    </span>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Link
-                    to="/projects"
-                    className="inline-flex h-10 items-center gap-2 rounded-xl border bg-background px-4 text-sm font-medium shadow-xs hover:bg-accent"
+          <div className="space-y-5">
+            {/* Title, server facts and the two things people do most */}
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-sm text-muted-foreground">
+                  {greeting()}
+                  {firstName ? `, ${firstName}` : ""}
+                </p>
+                <h1 className="mt-0.5 text-2xl font-semibold tracking-tight">Overview</h1>
+                <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                  <span className="font-medium text-foreground">{data.server.hostname}</span>
+                  <span aria-hidden="true">·</span>
+                  <span
+                    className={cn(
+                      "inline-flex items-center gap-1.5",
+                      !data.docker.available && "text-destructive",
+                    )}
                   >
-                    <PlusIcon />
-                    New app
-                  </Link>
-                  <Link
-                    to="/deployments"
-                    className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground shadow-xs hover:bg-primary/90"
-                  >
-                    <RocketIcon />
-                    Deployments
-                  </Link>
-                </div>
+                    <StatusDot status={data.docker.available ? "running" : "failed"} />
+                    {data.docker.available
+                      ? `Docker ${data.docker.version ?? ""}`
+                      : "Docker not reachable"}
+                  </span>
+                  <span aria-hidden="true">·</span>
+                  <span>{data.docker.containersRunning} containers</span>
+                  <span aria-hidden="true">·</span>
+                  <span>up {formatUptime(data.server.uptime)}</span>
+                </p>
               </div>
-              <div
-                className={cn(
-                  "relative mt-6 flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm",
-                  data.counts.failed ? "border-destructive/30 bg-destructive/5" : "bg-muted/40",
-                )}
-              >
-                {data.counts.failed ? (
-                  <AlertIcon className="size-4 shrink-0 text-destructive" />
-                ) : (
-                  <CheckIcon className="size-4 shrink-0 text-live" />
-                )}
-                <span className="flex-1">
-                  {data.counts.failed
-                    ? `${data.counts.failed} ${data.counts.failed === 1 ? "app needs" : "apps need"} attention: the last deployment failed.`
-                    : data.counts.applications
-                      ? "All apps are healthy."
-                      : "No apps yet. Create a project and add your first app."}
-                </span>
-                {data.counts.failed ? (
-                  <Link
-                    to="/deployments"
-                    className="text-xs font-medium whitespace-nowrap underline"
-                  >
-                    See failures
-                  </Link>
-                ) : null}
+              <div className="flex gap-2">
+                <Link
+                  to="/projects"
+                  className="inline-flex h-9 items-center gap-2 rounded-lg border bg-background px-3.5 text-sm font-medium shadow-xs hover:bg-accent"
+                >
+                  <PlusIcon />
+                  New app
+                </Link>
+                <Link
+                  to="/deployments"
+                  className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3.5 text-sm font-medium text-primary-foreground shadow-xs hover:bg-primary/90"
+                >
+                  <RocketIcon />
+                  Deployments
+                </Link>
               </div>
-            </section>
+            </div>
 
-            {/* Numbers */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-              <StatCard
-                icon={FolderIcon}
-                label="Projects"
-                value={data.counts.projects}
-                detail="Groups of apps"
-                to="/projects"
-              />
-              <StatCard
+            {/* Shown only when something needs a look */}
+            {data.counts.incidents || data.counts.failed ? (
+              <Link
+                to={data.counts.incidents ? "/monitoring" : "/deployments"}
+                className="flex items-center gap-3 rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm transition-colors hover:bg-destructive/10"
+              >
+                <AlertIcon className="size-4 shrink-0 text-destructive" />
+                <span className="flex-1">
+                  {[
+                    data.counts.incidents
+                      ? `${data.counts.incidents} open ${data.counts.incidents === 1 ? "incident" : "incidents"}`
+                      : null,
+                    data.counts.failed
+                      ? `${data.counts.failed} ${data.counts.failed === 1 ? "app" : "apps"} with a failed deployment`
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" and ")}
+                  .
+                </span>
+                <ArrowRightIcon className="size-4 shrink-0 text-destructive" />
+              </Link>
+            ) : null}
+
+            {/* Numbers, in one strip */}
+            <section className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border bg-border shadow-sm sm:grid-cols-5">
+              <Stat
                 icon={BoxIcon}
                 label="Applications"
-                value={data.counts.applications}
-                detail={`${data.counts.running} running`}
-                tone={data.counts.running ? "live" : undefined}
+                value={
+                  <>
+                    {data.counts.running}
+                    <span className="text-base font-normal text-muted-foreground">
+                      {" "}
+                      / {data.counts.applications}
+                    </span>
+                  </>
+                }
+                detail="running"
+                to="/projects"
               />
-              <StatCard
+              <Stat
+                icon={DatabaseIcon}
+                label="Databases"
+                value={data.counts.databases}
+                detail={
+                  data.counts.databases === 1 ? "one click, linked to apps" : "linked to apps"
+                }
+                to="/databases"
+              />
+              <Stat
                 icon={RocketIcon}
-                label="Deployments today"
+                label="Deploys today"
                 value={data.deploymentsToday}
                 detail={
                   data.recentDeployments[0]
-                    ? `Last ${timeAgo(data.recentDeployments[0].createdAt)}`
-                    : "None yet"
+                    ? `last ${timeAgo(data.recentDeployments[0].createdAt)}`
+                    : "none yet"
                 }
                 to="/deployments"
               />
-              <StatCard
-                icon={AlertIcon}
-                label="Need attention"
-                value={data.counts.failed}
-                detail={data.counts.failed ? "Last deploy failed" : "Everything is fine"}
-                tone={data.counts.failed ? "bad" : undefined}
+              <Stat
+                icon={ActivityIcon}
+                label="Open incidents"
+                value={data.counts.incidents}
+                detail={data.counts.incidents ? "needs a look" : "all answering"}
+                to="/monitoring"
+                bad={data.counts.incidents > 0}
               />
-            </div>
+              <Stat
+                icon={FolderIcon}
+                label="Projects"
+                value={data.counts.projects}
+                detail="groups of services"
+                to="/projects"
+                className="col-span-2 sm:col-span-1"
+              />
+            </section>
 
-            {/* Activity and server */}
-            <div className="grid gap-6 lg:grid-cols-3">
-              <Card title="Deployments" subtitle="Last 14 days" className="lg:col-span-2">
-                <ActivityChart activity={data.activity} />
+            {/* What runs here, and how the server is doing */}
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+              <Card
+                title="Services"
+                subtitle="Apps and databases, with CPU and memory now"
+                className="min-w-0 lg:col-span-2"
+                action={
+                  <Link to="/projects" className={viewAll}>
+                    Projects <ArrowRightIcon className="size-3" />
+                  </Link>
+                }
+              >
+                <Services services={monitoring?.services ?? []} />
               </Card>
-              <Card title="Server" subtitle={`${data.server.platform} · ${data.server.cpus} cores`}>
-                <div className="grid grid-cols-3 gap-2 px-4 pt-2 pb-6">
-                  <Ring label="CPU" value={data.server.load} detail={`${data.server.cpus} cores`} />
-                  <Ring
+
+              <Card
+                title="Server"
+                subtitle={`${data.server.platform} · ${data.server.cpus} cores`}
+                className="min-w-0"
+                action={
+                  <Link to="/monitoring" className={viewAll}>
+                    Monitoring <ArrowRightIcon className="size-3" />
+                  </Link>
+                }
+              >
+                <div className="space-y-5 px-5 pt-1 pb-5">
+                  <Meter
+                    label="CPU"
+                    value={data.server.load}
+                    detail={`load on ${data.server.cpus} cores`}
+                  />
+                  <Meter
                     label="Memory"
                     value={data.server.memory.used / data.server.memory.total}
-                    detail={formatBytes(data.server.memory.total)}
+                    detail={`${formatBytes(data.server.memory.used)} of ${formatBytes(data.server.memory.total)}`}
                   />
                   {data.server.disk ? (
-                    <Ring
+                    <Meter
                       label="Disk"
                       value={data.server.disk.used / data.server.disk.total}
-                      detail={formatBytes(data.server.disk.total)}
+                      detail={`${formatBytes(data.server.disk.used)} of ${formatBytes(data.server.disk.total)}`}
                     />
                   ) : null}
-                </div>
-                <div className="mx-5 mb-5 grid grid-cols-2 gap-2 text-xs">
-                  <div className="rounded-xl bg-muted/50 px-3 py-2">
-                    <div className="text-muted-foreground">Memory used</div>
-                    <div className="mt-0.5 font-medium tabular-nums">
-                      {formatBytes(data.server.memory.used)}
-                    </div>
-                  </div>
-                  <div className="rounded-xl bg-muted/50 px-3 py-2">
-                    <div className="text-muted-foreground">Disk used</div>
-                    <div className="mt-0.5 font-medium tabular-nums">
-                      {data.server.disk ? formatBytes(data.server.disk.used) : "n/a"}
-                    </div>
+                  <div className="border-t pt-4">
+                    <p className="mb-2 text-xs font-medium text-muted-foreground">CPU, last hour</p>
+                    <LineChart
+                      label="Server CPU load, last hour"
+                      range="1h"
+                      max={100}
+                      height={72}
+                      points={(monitoring?.server.points ?? []).map((p) => ({ t: p.t, v: p.cpu }))}
+                      format={percent}
+                    />
                   </div>
                 </div>
               </Card>
             </div>
 
-            {/* Recent work and apps */}
-            <div className="grid gap-6 lg:grid-cols-3">
+            {/* Recent work */}
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
               <Card
                 title="Recent deployments"
-                className="lg:col-span-2"
+                className="min-w-0 lg:col-span-2"
                 action={
-                  <Link
-                    to="/deployments"
-                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
-                  >
+                  <Link to="/deployments" className={viewAll}>
                     View all <ArrowRightIcon className="size-3" />
                   </Link>
                 }
@@ -417,54 +470,14 @@ export function DashboardPage() {
                   </div>
                 ) : (
                   <div className="space-y-0.5 px-2 pb-3">
-                    {data.recentDeployments.map((deployment) => (
+                    {data.recentDeployments.slice(0, 6).map((deployment) => (
                       <DeploymentRow key={deployment.id} deployment={deployment} />
                     ))}
                   </div>
                 )}
               </Card>
-
-              <Card
-                title="Applications"
-                action={
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                    {apps.length}
-                  </span>
-                }
-              >
-                {apps.length === 0 ? (
-                  <p className="px-5 pb-8 text-center text-sm text-muted-foreground">
-                    Apps you add to your projects show up here.
-                  </p>
-                ) : (
-                  <ul className="space-y-0.5 px-2 pb-3">
-                    {apps.slice(0, 7).map((app) => (
-                      <li key={app.id}>
-                        <Link
-                          to="/apps/$appId"
-                          params={{ appId: app.id }}
-                          className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-accent/70"
-                        >
-                          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-muted">
-                            {app.source === "image" ? (
-                              <ImageIcon className="size-4" />
-                            ) : (
-                              <GitBranchIcon className="size-4" />
-                            )}
-                          </span>
-                          <span className="min-w-0 flex-1">
-                            <span className="block truncate text-sm font-medium">{app.name}</span>
-                            <span className="flex items-center gap-1 truncate text-xs text-muted-foreground">
-                              <GlobeIcon className="size-3 shrink-0" />
-                              {app.domains[0] ?? app.projectName}
-                            </span>
-                          </span>
-                          <StatusDot status={app.status} />
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+              <Card title="Deployments" subtitle="Last 14 days" className="min-w-0">
+                <ActivityChart activity={data.activity} />
               </Card>
             </div>
           </div>

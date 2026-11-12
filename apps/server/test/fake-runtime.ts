@@ -1,6 +1,7 @@
 import type { AppAction, DockerInfo } from "@nocap/shared";
 import {
   CommandError,
+  short,
   type AppContainer,
   type ContainerStats,
   type DatabaseRunOptions,
@@ -144,6 +145,13 @@ export class FakeRuntime implements Runtime {
 
   async stats(): Promise<ContainerStats[]> {
     return [
+      ...this.containerList
+        .filter((c) => c.running)
+        .map((c) => ({
+          name: `nocap-${short(c.appId)}-${short(c.deploymentId)}`,
+          cpu: 2.5,
+          memory: 128 * 1024 * 1024,
+        })),
       ...this.databaseList.map((c) => ({
         name: c.options.name,
         cpu: 1.5,
