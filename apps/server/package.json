@@ -15,7 +15,7 @@
   "dependencies": {
     "@fastify/cookie": "^11.0.0",
     "@fastify/rate-limit": "^10.3.0",
-    "@fastify/static": "^8.2.0",
+    "@fastify/static": "^10.1.10",
     "@node-rs/argon2": "^2.0.2",
     "@nocap/db": "workspace:*",
     "@nocap/shared": "workspace:*",
