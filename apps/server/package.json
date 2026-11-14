@@ -21,7 +21,7 @@
     "@nocap/shared": "workspace:*",
     "drizzle-orm": "^0.45.4",
     "fastify": "^5.6.0",
-    "postgres": "^3.4.7",
+    "postgres": "^4.1.0",
     "zod": "^4.6.0"
   },
   "devDependencies": {
